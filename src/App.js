@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react';
-import { getWineDataFromText } from './openaiService.mjs'; // Import the function
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 
 const App = () => {
@@ -17,96 +16,69 @@ const App = () => {
     palate: 'unknown',
     pairing: 'unknown',
   });
-  
-  const [isScanning, setIsScanning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [photoURL, setPhotoURL] = useState(''); // State to hold photo URL
+  const [isMobile, setIsMobile] = useState(false);
+  const [logMessages, setLogMessages] = useState([]); // State to hold log messages
 
-  const startScanning = () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      if (isScanning) {
-        stopScanning();
-      }
+  // Detect if the user is on a mobile device
+  useEffect(() => {
+    setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
+  }, []);
 
-      navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    videoRef.current.srcObject = stream;
-    videoRef.current.play();
-    setIsScanning(true);
-    setPhotoURL(''); // Clear the photo URL
-  })
-  .catch(error => {
-    console.error('Error accessing webcam:', error);
+  // Helper function to add log messages to the UI
+  const addLogMessage = (message) => {
+    setLogMessages((prevMessages) => [...prevMessages, message]);
+  };
 
-    // Display error message for users
-    if (error.name === 'NotAllowedError') {
-      alert('Camera access was denied. Please enable it in your browser settings.');
-    } else if (error.name === 'NotFoundError') {
-      alert('No camera device found.');
-    } else {
-      alert('An error occurred while trying to access the camera.');
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    
+    if (!file) {
+      addLogMessage('No file selected');
+      alert('No file selected.');
+      return;
     }
+
+    addLogMessage(`File selected: ${file.name}`);
+    
+    const reader = new FileReader();
+    
+    reader.onloadend = async () => {
+      const dataUrl = reader.result;
+      setPhotoURL(dataUrl);
+
+      addLogMessage('Image loaded, making API call to process image');
+
+      try {
+        const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/process-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrl: dataUrl }),
         });
-    } else {
-      console.error('getUserMedia not supported on this browser.');
-    }
-  };
 
-  const stopScanning = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
-      const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsScanning(false);
-  };
+        if (response.ok) {
+          const result = await response.json();
+          addLogMessage('OCR Result: ' + result.text);
 
-  const processImage = async () => {
-    if (!videoRef.current) {
-      console.error('Video element not found');
-      return;
-    }
-  
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-  
-    if (!context) {
-      console.error('Failed to get canvas context');
-      return;
-    }
-  
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-  
-    const dataUrl = canvas.toDataURL('image/png');
-    setPhotoURL(dataUrl); // Display the captured photo
-    stopScanning(); // Stop the video stream after capturing
-  
-    try {
-      const response = await fetch('http://localhost:3001/process-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ imageUrl: dataUrl }),
-      });
-  
-      if (response.ok) {
-        const result = await response.json();
-        console.log('OCR Result:', result.text);
-        const cleanedText = cleanText(result.text);
-        setOcrResult(cleanedText);
-  
-        // Extract wine data and update state
-        await extractWineData(cleanedText);
-      } else {
-        console.error('Error processing image.');
+          const cleanedText = cleanText(result.text);
+          setOcrResult(cleanedText);
+
+          // Extract wine data and update state
+          await extractWineData(cleanedText);
+        } else {
+          addLogMessage('Error processing image response');
+          alert('Error processing image.');
+        }
+      } catch (error) {
+        addLogMessage('Error processing image: ' + error.message);
+        alert('An error occurred while processing the image.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const cleanText = (text) => {
@@ -116,27 +88,70 @@ const App = () => {
       .trim(); // Remove leading and trailing whitespace
   };
 
+  const appendWineDataToSheet = async (wineData) => {
+    setOcrResult(`Sending data to Google Sheets: ${JSON.stringify(wineData)}`);
+  
+    if (!wineData.name || wineData.name.trim() === 'unknown') {
+      setOcrResult('No name provided. Skipping Google Sheets update.');
+      return;
+    }
+  
+    try {
+      const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/append-wine-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ wineData }),
+      });
+  
+      const result = await response.json();
+      
+      if (response.ok) {
+        setOcrResult(`Wine data appended to Google Sheets successfully. Response: ${JSON.stringify(result.response)}`);
+      } else {
+        setOcrResult(`Error appending wine data. Status: ${response.status}. Message: ${result.message}`);
+      }
+    } catch (error) {
+      setOcrResult(`Error: ${error.message}`);
+    }
+  };
+  
+  
+
   const extractWineData = async (text) => {
     setLoading(true);
   
     try {
       console.log('Extracting data from text:', text);
-      const result = await getWineDataFromText(text);
-      console.log('Extracted Wine Data:', result);
+      const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/extract-wine-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
   
-      const parsedData = parseWineData(result);
-      console.log('Parsed Wine Data:', parsedData);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Extracted Wine Data:', result.data);
   
-      // Update state with parsed data
-      setWineData(parsedData);
+        const parsedData = parseWineData(result.data);
+        console.log('Parsed Wine Data:', parsedData);
   
-      // Send data to Google Sheets
-      await appendWineDataToSheet(parsedData);
+        // Update state with parsed data
+        setWineData(parsedData);
+  
+        // Call the function to send data to Google Sheets
+        await appendWineDataToSheet(parsedData);
+      } else {
+        setOcrResult(`Error extracting wine data. Status: ${response.status}`);
+      }
     } catch (error) {
-      console.error('Failed to extract wine data:', error);
+      setOcrResult(`Error: ${error.message}`);
     }
     setLoading(false);
-  };
+  };  
 
   const parseWineData = (data) => {
     const result = {
@@ -191,36 +206,11 @@ const App = () => {
           result.pairing = value;
           break;
         default:
-          console.warn(`Unrecognized field: ${field}`);
+          addLogMessage(`Unrecognized field: ${field}`);
       }
     }
 
     return result;
-  };
-
-  const appendWineDataToSheet = async (wineData) => {
-    if (!wineData.name || wineData.name.trim() === 'unknown') {
-      console.log('No name provided. Skipping Google Sheets update.');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:3001/append-wine-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ wineData }),
-      });
-
-      if (response.ok) {
-        console.log('Wine data appended to Google Sheets successfully.');
-      } else {
-        console.error('Error appending wine data.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
   };
 
   return (
@@ -229,19 +219,34 @@ const App = () => {
         <h1>Wine Scanner</h1>
       </header>
       <div className="container">
-        <button onClick={startScanning} disabled={isScanning}>Open scanner</button>
-        <button onClick={stopScanning} disabled={!isScanning}>Stop scanning</button>
-        <button onClick={processImage} disabled={!isScanning}>Capture wine details</button>
-        <div className="camera-field-container">
-          <div className="video-container">
-            <video ref={videoRef} style={{ display: photoURL ? 'none' : 'block' }}></video>
-          </div>
-          <div className="img-container">
-            {photoURL && <img src={photoURL} alt="Captured" />}
-          </div>
-        </div>
+        {isMobile ? (
+          <>
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              onChange={handleFileChange} 
+              style={{ display: 'none' }} 
+              id="takePhotoInput"
+            />
+            <label htmlFor="takePhotoInput" className="custom-button">Take a photo</label>
+            {/* <input
+              type="file"
+              accept="image/*"
+              capture="camera"
+              onChange={handleFileChange}
+            /> */}
+            <div className="img-container">
+              {photoURL && <img src={photoURL} alt="Captured" />}
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Camera scanning not available on desktop.</p>
+          </>
+        )}
         <div className="data-container">
-          <p>{ocrResult}</p>
+          {/* <p>{ocrResult}</p> */}
           <h3>About this bottle:</h3>
           {loading ? <p>Loading...</p> : (
             <ul>
@@ -258,9 +263,21 @@ const App = () => {
             </ul>
           )}
         </div>
+
+        { 
+        // //Display log messages on the page
+        // <div className="log-container">
+        //   <h4>Logs</h4>
+        //   <ul>
+        //     {logMessages.map((msg, index) => (
+        //       <li key={index}>{msg}</li>
+        //     ))}
+        //   </ul>
+        // </div>
+        }
       </div>
     </div>
-  );  
+  );
 };
 
 export default App;

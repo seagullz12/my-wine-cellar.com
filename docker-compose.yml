@@ -1,0 +1,11 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: "/usr/src/app/credentials.json"
+    volumes:
+      - ./credentials.json:/usr/src/app/credentials.json:ro
+    env_file:
+      - .env

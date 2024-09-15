@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "googleapis": "^144.0.0",
     "openai": "^4.61.0",
@@ -26,7 +27,6 @@
     "deploy": "gh-pages -d build"
   },
   "homepage": "https://seagullz12.github.io/wine-scanner",
-
   "eslintConfig": {
     "extends": [
       "react-app",

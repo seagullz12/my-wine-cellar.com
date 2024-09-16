@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="refresh" content="0; URL=/" />
+    <meta charset="UTF-8">
     <script type="text/javascript">
-      // Get the current path of the page
+      // Get the path of the current page
       var target = window.location.pathname;
 
-      // Only redirect if we're not already on the correct path
+      // Ensure that the path always includes /wine-scanner/
       if (!target.startsWith("/wine-scanner")) {
         window.location.replace("/wine-scanner" + target);
       }

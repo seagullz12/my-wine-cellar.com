@@ -6,6 +6,34 @@ const cors = require('cors');
 require('dotenv').config();
 const app = express();
 const port = 8080;
+const { Storage } = require('@google-cloud/storage');
+const path = require('path');
+
+// Initialize Google Cloud Storage
+const storage = new Storage({
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS
+});
+
+const bucketName = 'wine-label-images'; // Replace with your bucket name
+const bucket = storage.bucket(bucketName);
+
+const uploadImageToGCS = async (imageData, fileName) => {
+  const buffer = Buffer.from(imageData, 'base64');
+
+  const file = bucket.file(fileName);
+  const stream = file.createWriteStream({
+    resumable: false,
+    contentType: 'image/png' // Adjust based on your image type
+  });
+
+  return new Promise((resolve, reject) => {
+    stream.on('error', reject);
+    stream.on('finish', () => {
+      resolve(`https://storage.googleapis.com/${bucketName}/${fileName}`);
+    });
+    stream.end(buffer);
+  });
+};
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -91,20 +119,26 @@ app.post('/extract-wine-data', async (req, res) => {
   }
 });
 
-// Route to append wine data and image URL to Google Sheets
 app.post('/append-wine-data', async (req, res) => {
   try {
     const { wineData, imageUrl } = req.body;
 
-    const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc'; // Replace with your Google Sheets ID
-    const range = 'Inventory!A2:Z'; // Define the range where you want to append the data
+    // Upload image to GCS
+    const imageUrlBase64 = imageUrl.split(',')[1]; // Extract base64 part
+    wineName = wineData.name.replace(/\s+/g, '_')
+    const fileName = `wine-labels/${wineName}.png`; // Generate a unique file name
+    const uploadedImageUrl = await uploadImageToGCS(imageUrlBase64, fileName);
 
     // Add the image URL to the wineData object
-    wineData['Image URL'] = imageUrl;
+    wineData['Image URL'] = uploadedImageUrl;
+
+    // Append data to Google Sheets
+    const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc'; // Replace with your Google Sheets ID
+    const range = 'Inventory!A2:Z';
 
     const values = [Object.values(wineData)];
 
-    const response = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
       range,
       valueInputOption: 'RAW',
@@ -113,11 +147,9 @@ app.post('/append-wine-data', async (req, res) => {
       },
     });
 
-    console.log('Google Sheets API response:', response.data);
-
     res.status(200).json({
       message: 'Wine data appended to Google Sheets',
-      response: response.data,
+      response: uploadedImageUrl,
     });
   } catch (error) {
     console.error('Error appending wine data:', error);
@@ -127,6 +159,40 @@ app.post('/append-wine-data', async (req, res) => {
     });
   }
 });
+
+
+app.get('/get-wine-data', async (req, res) => {
+  try {
+    const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc';
+    const range = 'Inventory!A2:Z'; // Adjust range as needed
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+    });
+
+    const rows = response.data.values;
+    const wines = rows.map(row => ({
+      name: row[0],
+      grape: row[1],
+      vintage: row[2],
+      region: row[3],
+      producer: row[4],
+      alcoholContent: row[5],
+      colour: row[6],
+      nose: row[7],
+      palate: row[8],
+      pairing: row[9],
+      imageUrl: row[10], // Assuming this is where the image URL is stored
+    }));
+
+    res.json({ wines });
+  } catch (error) {
+    console.error('Error fetching wine data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

@@ -1,0 +1,83 @@
+/* WineList.css */
+.wine-list-container {
+  background-color: #f5f0f0; /* Background color matching the home page */
+  color: #3d0a02; /* Text color matching the home page */
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.wine-header {
+  background-color: #8b3a3a; /* Rich burgundy background */
+  color: white; /* White text */
+  padding: 20px 0;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  text-align: center;
+  font-size: 2.5em; /* Adjust font size */
+  font-family: 'Georgia', serif;
+  position: relative; /* Ensure correct positioning */
+  z-index: 10; /* Ensure the header is above other elements */
+}
+
+.wine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.wine-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  text-align: center;
+}
+
+.wine-image {
+  width: 100%;
+  height: auto;
+  border: 4px solid #8b3a3a; /* Border color matching the header */
+  border-radius: 12px;
+}
+
+.wine-info {
+  padding: 10px;
+}
+
+.wine-name {
+  font-size: 1.2em;
+  margin: 0;
+  color: #3d0a02; /* Text color matching the home page */
+}
+
+/* Mobile Styles */
+@media (max-width: 600px) {
+  .wine-header {
+    font-size: 1.5em; /* Smaller font size for header on mobile */
+    padding: 15px 0; /* Reduced padding */
+  }
+
+  .wine-header h1 {
+    font-size: 1.5em; /* Adjust font size for header text */
+    margin: 0; /* Remove margin */
+  }
+
+  .wine-grid {
+    grid-template-columns: 1fr; /* Single column layout for mobile */
+    gap: 10px; /* Reduced gap */
+  }
+
+  .wine-card {
+    font-size: 0.9em; /* Smaller font size for wine card on mobile */
+  }
+
+  .wine-name {
+    font-size: 1em; /* Adjust font size for wine name on mobile */
+  }
+
+  .wine-info p {
+    font-size: 0.9em; /* Smaller font size for wine details on mobile */
+  }
+}

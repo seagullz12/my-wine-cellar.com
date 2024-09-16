@@ -19,10 +19,10 @@ const NavBar = () => {
         </div>
         <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
           <li>
-            <Link to="/" className="navbar-item" onClick={() => setMenuOpen(false)}>Home</Link>
+            <Link to="/wine-scanner" className="navbar-item" onClick={() => setMenuOpen(false)}>Home</Link>
           </li>
           <li>
-            <Link to="/cellar" className="navbar-item" onClick={() => setMenuOpen(false)}>My Wine Cellar</Link>
+            <Link to="/wine-scanner/cellar" className="navbar-item" onClick={() => setMenuOpen(false)}>My Wine Cellar</Link>
           </li>
           {/* Add more links as needed */}
         </ul>

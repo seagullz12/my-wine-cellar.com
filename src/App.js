@@ -11,8 +11,8 @@ const App = () => {
       <div className="App">
         <NavBar /> {/* Include the NavBar */}
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cellar" element={<WineList />} />
+          <Route path="/wine-scanner" element={<Home />} />
+          <Route path="/wine-scanner/cellar" element={<WineList />} />
           {/* Add more routes as needed */}
         </Routes>
       </div>

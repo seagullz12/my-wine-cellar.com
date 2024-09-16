@@ -15,6 +15,8 @@ const App = () => {
           <Route path="/wine-scanner" element={<Home />} />
           <Route path="/wine-scanner/cellar" element={<WineList />} />
           <Route path="/wine-scanner/personal-sommelier" element={<WineRecommendations />} />
+          {/* <Route path="*" element={<NotFound />} />  */}
+          {/* Catch-all route */}
         </Routes>
       </div>
     </Router>

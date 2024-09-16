@@ -20,6 +20,11 @@ const App = () => {
   const [photoURL, setPhotoURL] = useState(''); // State to hold photo URL
   const [isMobile, setIsMobile] = useState(false);
   const [logMessages, setLogMessages] = useState([]); // State to hold log messages
+  const [notification, setNotification] = useState(''); // State for notification
+  const [showNotification, setShowNotification] = useState(false); // State for controlling visibility of notification
+
+  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
+  //const backendURL = 'http://192.168.2.9:8080';
 
   // Detect if the user is on a mobile device
   useEffect(() => {
@@ -31,6 +36,7 @@ const App = () => {
     setLogMessages((prevMessages) => [...prevMessages, message]);
   };
 
+  // Function to handle taking a photo and processing it
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     
@@ -51,7 +57,7 @@ const App = () => {
       addLogMessage('Image loaded, making API call to process image');
 
       try {
-        const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/process-image', {
+        const response = await fetch(backendURL + '/process-image', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -88,7 +94,8 @@ const App = () => {
       .trim(); // Remove leading and trailing whitespace
   };
 
-  const appendWineDataToSheet = async (wineData) => {
+  // Function to send wine data to Google Sheets
+  const appendWineDataToSheet = async () => {
     setOcrResult(`Sending data to Google Sheets: ${JSON.stringify(wineData)}`);
   
     if (!wineData.name || wineData.name.trim() === 'unknown') {
@@ -97,7 +104,7 @@ const App = () => {
     }
   
     try {
-      const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/append-wine-data', {
+      const response = await fetch(backendURL + '/append-wine-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,6 +116,15 @@ const App = () => {
       
       if (response.ok) {
         setOcrResult(`Wine data appended to Google Sheets successfully. Response: ${JSON.stringify(result.response)}`);
+
+        // Show success notification
+        setNotification(`"${wineData.name}" has been added to your cellar.`);
+        setShowNotification(true);
+
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 3000);
       } else {
         setOcrResult(`Error appending wine data. Status: ${response.status}. Message: ${result.message}`);
       }
@@ -117,14 +133,12 @@ const App = () => {
     }
   };
   
-  
-
   const extractWineData = async (text) => {
     setLoading(true);
   
     try {
       console.log('Extracting data from text:', text);
-      const response = await fetch('https://wine-scanner-backend-44824993784.europe-west1.run.app/extract-wine-data', {
+      const response = await fetch(backendURL + '/extract-wine-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,9 +155,6 @@ const App = () => {
   
         // Update state with parsed data
         setWineData(parsedData);
-  
-        // Call the function to send data to Google Sheets
-        await appendWineDataToSheet(parsedData);
       } else {
         setOcrResult(`Error extracting wine data. Status: ${response.status}`);
       }
@@ -151,7 +162,7 @@ const App = () => {
       setOcrResult(`Error: ${error.message}`);
     }
     setLoading(false);
-  };  
+  };
 
   const parseWineData = (data) => {
     const result = {
@@ -216,7 +227,7 @@ const App = () => {
   return (
     <div className="App">
       <header className="header">
-        <h1>Wine Scanner</h1>
+        <h1>Cellar</h1>
       </header>
       <div className="container">
         {isMobile ? (
@@ -229,13 +240,25 @@ const App = () => {
               style={{ display: 'none' }} 
               id="takePhotoInput"
             />
-            <label htmlFor="takePhotoInput" className="custom-button">Take a photo</label>
-            {/* <input
-              type="file"
-              accept="image/*"
-              capture="camera"
-              onChange={handleFileChange}
-            /> */}
+            <label htmlFor="takePhotoInput" className="custom-button">Scan Wine Label</label>
+            
+            {/* Conditionally render the Add to Cellar button based on wine data */}
+            {wineData.name !== 'unknown' && !loading && (
+              <button 
+                onClick={appendWineDataToSheet} 
+                className="custom-button"
+              >
+                Add to Cellar
+              </button>
+            )}
+  
+            {/* Show the notification */}
+            {showNotification && (
+              <div className="notification">
+                {notification}
+              </div>
+            )}
+  
             <div className="img-container">
               {photoURL && <img src={photoURL} alt="Captured" />}
             </div>
@@ -245,10 +268,13 @@ const App = () => {
             <p>Camera scanning not available on desktop.</p>
           </>
         )}
-        <div className="data-container">
-          {/* <p>{ocrResult}</p> */}
-          <h3>About this bottle:</h3>
-          {loading ? <p>Loading...</p> : (
+  
+  <div className="data-container">
+        <h3>About this bottle:</h3>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          wineData.name !== 'unknown' ? (
             <ul>
               <li><strong>Name:</strong> {wineData.name}</li>
               <li><strong>Grape:</strong> {wineData.grape}</li>
@@ -261,23 +287,23 @@ const App = () => {
               <li><strong>Palate:</strong> {wineData.palate}</li>
               <li><strong>Pairing:</strong> {wineData.pairing}</li>
             </ul>
-          )}
-        </div>
-
-        { 
-        // //Display log messages on the page
-        // <div className="log-container">
-        //   <h4>Logs</h4>
-        //   <ul>
-        //     {logMessages.map((msg, index) => (
-        //       <li key={index}>{msg}</li>
-        //     ))}
-        //   </ul>
-        // </div>
-        }
+          ) : (
+            <p align='center'>Please scan a bottle label first.</p>
+          )
+        )}
+      </div>
+  
+        {/* <div className="log-container">
+          <h3>Log Messages:</h3>
+          <ul>
+            {logMessages.map((msg, index) => (
+              <li key={index}>{msg}</li>
+            ))}
+          </ul>
+        </div> */}
       </div>
     </div>
   );
-};
+  };
 
 export default App;

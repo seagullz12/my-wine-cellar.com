@@ -5,6 +5,7 @@
   color: #3d0a02; /* Deep wine color for text */
   font-family: 'Georgia', serif;
   padding: 20px;
+  min-height: 100vh; 
 }
 
 button {
@@ -161,4 +162,45 @@ input:focus, textarea:focus {
 }
 .custom-button:hover {
   background-color: #3d0a02; /* Darker green on hover */
+}
+
+/* Notification Styles */
+.notification {
+  margin-top: 20px;
+  padding: 10px;
+  margin-bottom: 20px; /* Space below the notification */
+  background-color: #a79a60; /* Red wine color for success */
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  opacity: 1;
+  animation: fade-in 0.5s ease-in-out, fade-out 0.5s ease-in-out 2.5s; /* Fade-in and fade-out effect */
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px); /* Slight slide up effect */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Add more space between notification and wine information */
+.data-container {
+  margin-top: 30px; /* Increased space */
 }

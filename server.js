@@ -3,18 +3,17 @@ const { ImageAnnotatorClient } = require('@google-cloud/vision');
 const { google } = require('googleapis');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('path');
-const OpenAI = require('openai');
 require('dotenv').config();
 const app = express();
 const port = 8080;
 
-// Set up the path to your credentials.json file
-const CREDENTIALS_PATH = path.join(__dirname, 'credentials.json');
+app.use(cors());
+app.use(bodyParser.json({ limit: '10mb' }));
 
 // Create a client for the Google Cloud Vision API
-const visionClient = new ImageAnnotatorClient({ 
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS });
+const visionClient = new ImageAnnotatorClient({
+  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS
+});
 
 // Initialize Google Sheets API client
 const sheets = google.sheets({
@@ -26,6 +25,7 @@ const sheets = google.sheets({
 });
 
 // Initialize OpenAI client
+const OpenAI = require('openai');
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: true
@@ -33,23 +33,31 @@ const openai = new OpenAI({
 
 // Function to get wine data from text using OpenAI
 const getWineDataFromText = async (text) => {
+  const settings = {
+    model: "gpt-4o-mini",
+    temperature: 0.5,
+    max_tokens: 300
+  };
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: settings.model,
       messages: [
         { role: 'system', content: 'You are a helpful assistant with expert knowledge about wines.' },
-        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol Content: [alcohol content]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]. If information is missing then complete it using your knowledge.` }
+        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol Content: [alcohol content]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]. If information is missing then complete it using your knowledge.` }
       ],
+      temperature: settings.temperature,
+      max_tokens: settings.max_tokens
     });
+    // Log the entire response object
+    console.log('OpenAI Settings:', settings);
+    console.log('API Response:', response);
+
     return response.choices[0].message.content;
   } catch (error) {
     console.error('Error fetching wine data:', error);
     throw error;
   }
 };
-
-app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' }));
 
 // Route to process image using Google Cloud Vision API
 app.post('/process-image', async (req, res) => {
@@ -83,13 +91,16 @@ app.post('/extract-wine-data', async (req, res) => {
   }
 });
 
-// Route to append wine data to Google Sheets
+// Route to append wine data and image URL to Google Sheets
 app.post('/append-wine-data', async (req, res) => {
   try {
-    const { wineData } = req.body;
+    const { wineData, imageUrl } = req.body;
 
     const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc'; // Replace with your Google Sheets ID
     const range = 'Inventory!A2:Z'; // Define the range where you want to append the data
+
+    // Add the image URL to the wineData object
+    wineData['Image URL'] = imageUrl;
 
     const values = [Object.values(wineData)];
 
@@ -102,17 +113,14 @@ app.post('/append-wine-data', async (req, res) => {
       },
     });
 
-    // Log the full response for debugging
     console.log('Google Sheets API response:', response.data);
 
-    // Send detailed success message to the client
     res.status(200).json({
       message: 'Wine data appended to Google Sheets',
       response: response.data,
     });
   } catch (error) {
     console.error('Error appending wine data:', error);
-    // Send detailed error message to the client
     res.status(500).json({
       message: 'Error appending wine data',
       error: error.message,

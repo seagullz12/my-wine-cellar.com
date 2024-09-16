@@ -5,7 +5,6 @@ import Home from './components/Home';
 import WineList from './components/WineList';
 import WineRecommendations from './components/WineRecommendations';
 import NavBar from './components/NavBar'; // Import the NavBar component
-import NotFound from './components/NotFound';
 
 const App = () => {
   return (
@@ -16,7 +15,6 @@ const App = () => {
           <Route path="/wine-scanner" element={<Home />} />
           <Route path="/wine-scanner/cellar" element={<WineList />} />
           <Route path="/wine-scanner/personal-sommelier" element={<WineRecommendations />} />
-          <Route path="*" element={<NotFound />} /> 
           {/* Catch-all route */}
         </Routes>
       </div>

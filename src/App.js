@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import WineList from './components/WineList';
+import WineRecommendations from './components/WineRecommendations';
 import NavBar from './components/NavBar'; // Import the NavBar component
 
 const App = () => {
@@ -13,7 +14,7 @@ const App = () => {
         <Routes>
           <Route path="/wine-scanner" element={<Home />} />
           <Route path="/wine-scanner/cellar" element={<WineList />} />
-          {/* Add more routes as needed */}
+          <Route path="/wine-scanner/personal-sommelier" element={<WineRecommendations />} />
         </Routes>
       </div>
     </Router>

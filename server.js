@@ -160,7 +160,6 @@ app.post('/append-wine-data', async (req, res) => {
   }
 });
 
-
 app.get('/get-wine-data', async (req, res) => {
   try {
     const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc';
@@ -193,6 +192,73 @@ app.get('/get-wine-data', async (req, res) => {
   }
 });
 
+// Route to get wine recommendations based on food input
+// Assuming you have other imports and setup above this
+
+app.post('/recommend-wine', async (req, res) => {
+  try {
+    const { food } = req.body;
+
+    // Fetch wines from Google Sheets
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc', // Replace with your Google Sheets ID
+      range: 'Inventory!A2:Z', // Adjust range as needed
+    });
+
+    const rows = response.data.values;
+    const wines = rows.map(row => ({
+      name: row[0],
+      grape: row[1],
+      vintage: row[2],
+      region: row[3],
+      producer: row[4],
+      alcoholContent: row[5],
+      colour: row[6],
+      nose: row[7],
+      palate: row[8],
+      pairing: row[9],
+    }));
+    
+    console.log('Wines in the request', wines)
+    // Prepare wine descriptions for the prompt
+    const wineDescriptions = wines.map(wine => (
+      `${wine.name} (${wine.grape}, ${wine.vintage}) - ${wine.pairing}`
+    )).join('\n');
+
+    // Define OpenAI API request settings
+    const settings = {
+      model: "gpt-4o-mini", // Or another suitable model
+      temperature: 0.7, // Adjust temperature as needed
+      max_tokens: 300 // Adjust token limit as needed
+    };
+
+    // Log the settings used
+    console.log('OpenAI Settings:', settings);
+
+    // Query OpenAI for recommendations based on the food and available wines
+    const recommendationResponse = await openai.chat.completions.create({
+      model: settings.model,
+      messages: [
+        { role: 'system', content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines.' },
+        { role: 'user', content: `Given the following wines: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why: "${food}". Respond in structured format without using newlines: recommendation 1; recommendation 2 and so on.` }
+      ],
+      temperature: settings.temperature,
+      max_tokens: settings.max_tokens
+    });
+    console.log('gpt request: ',recommendationResponse.messages)
+    // Log the tokens used
+    const totalTokens = recommendationResponse.usage.total_tokens;
+    console.log(`Total tokens used: ${totalTokens}`);
+
+    // Extract and send recommendations
+    const recommendations = recommendationResponse.choices[0].message.content;
+    res.json({ recommendations });
+
+  } catch (error) {
+    console.error('Error recommending wine:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

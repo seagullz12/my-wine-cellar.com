@@ -24,6 +24,9 @@ const NavBar = () => {
           <li>
             <Link to="/wine-scanner/cellar" className="navbar-item" onClick={() => setMenuOpen(false)}>My Wine Cellar</Link>
           </li>
+          <li>
+            <Link to="/wine-scanner/personal-sommelier" className="navbar-item" onClick={() => setMenuOpen(false)}>Personal Sommelier</Link>
+          </li>
           {/* Add more links as needed */}
         </ul>
       </div>

@@ -5,8 +5,8 @@ import './WineList.css'; // Ensure CSS file is correctly imported
 const WineList = () => {
   const [wines, setWines] = useState([]);
   const [loading, setLoading] = useState(true);
-  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
-//  const backendURL = 'http://192.168.2.9:8080';
+//  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
+  const backendURL = 'http://192.168.2.9:8080';
 
   useEffect(() => {
     const fetchWines = async () => {

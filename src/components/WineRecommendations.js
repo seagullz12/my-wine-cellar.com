@@ -3,11 +3,11 @@ import './WineRecommendations.css'; // Ensure you have this CSS file in the same
 
 const WineRecommendation = () => {
   const [food, setFood] = useState('');
-  const [recommendations, setRecommendations] = useState('');
+  const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
-  //const backendURL = 'http://192.168.2.9:8080';
+ // const backendURL = 'http://192.168.2.9:8080';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +20,9 @@ const WineRecommendation = () => {
         body: JSON.stringify({ food })
       });
       const data = await response.json();
-      setRecommendations(data.recommendations);
+      // Parse the JSON response
+      const parsedRecommendations = JSON.parse(data.recommendations);
+      setRecommendations(parsedRecommendations);
     } catch (err) {
       setError('Failed to get recommendations');
       console.error('Error:', err);
@@ -29,14 +31,28 @@ const WineRecommendation = () => {
   };
 
   // Function to parse and format recommendations
-  const formatRecommendations = (text) => {
-    // Split recommendations by line breaks and format
-    return text.split(';').map((rec, index) => (
-      <div key={index} className="recommendation-item">
-        <h3>Recommendation {index + 1}</h3>
-        <p>{rec.trim()}</p>
+  const formatRecommendations = (data) => {
+    if (!data) return null;
+
+    return (
+      <div className="recommendations-list">
+        <div className="recommendation-item">
+          <h3>Best Pairing</h3>
+          <p><strong>Name:</strong> {data.best_pairing_name}</p>
+          <p><strong>Explanation:</strong> {data.best_pairing_explanation}</p>
+        </div>
+        <div className="recommendation-item">
+          <h3>Second Best Pairing</h3>
+          <p><strong>Name:</strong> {data.second_best_pairing_name}</p>
+          <p><strong>Explanation:</strong> {data.second_best_pairing_explanation}</p>
+        </div>
+        <div className="recommendation-item">
+          <h3>Third Best Pairing</h3>
+          <p><strong>Name:</strong> {data.third_best_pairing_name}</p>
+          <p><strong>Explanation:</strong> {data.third_best_pairing_explanation}</p>
+        </div>
       </div>
-    ));
+    );
   };
 
   return (
@@ -44,7 +60,7 @@ const WineRecommendation = () => {
       <form onSubmit={handleSubmit} className="recommendation-form">
         <label className="form-label">
           <h3>Hi! I am your personal sommelier.</h3> 
-          <br/>Enter your food and I'll find the best wine pairing from your cellar:
+          <br />Enter your food and I'll find the best wine pairing from your cellar:
           <input
             type="text"
             value={food}
@@ -57,11 +73,7 @@ const WineRecommendation = () => {
           {loading ? 'Loading...' : 'Get Recommendations'}
         </button>
       </form>
-      {recommendations && (
-        <div className="recommendations-list">
-          {formatRecommendations(recommendations)}
-        </div>
-      )}
+      {recommendations && formatRecommendations(recommendations)}
       {error && <p className="error-message">{error}</p>}
     </div>
   );

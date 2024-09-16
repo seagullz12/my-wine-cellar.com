@@ -240,12 +240,15 @@ app.post('/recommend-wine', async (req, res) => {
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines.' },
-        { role: 'user', content: `Given the following wines: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why: "${food}". Respond in structured format without using newlines: recommendation 1; recommendation 2 and so on.` }
+        { role: 'user', content: `Given the following wines: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why: "${food}". Respond in the following format: {"best_pairing_name": "[Wine name]", "best_pairing_explanation": "[Explanation]",  "second_best_pairing_name": "[Wine name]","second_best_pairing_explanation": "[Explanation]","third_best_pairing_name": "[Wine name]","third_best_pairing_explanation": "[Explanation]"` }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
     });
-    console.log('gpt request: ',recommendationResponse.messages)
+    
+        // Log the full OpenAI response
+        console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
+
     // Log the tokens used
     const totalTokens = recommendationResponse.usage.total_tokens;
     console.log(`Total tokens used: ${totalTokens}`);

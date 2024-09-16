@@ -3,9 +3,11 @@
   <head>
     <meta http-equiv="refresh" content="0; URL=/" />
     <script type="text/javascript">
-      // Client-side redirect for GitHub Pages
+      // Get the current path of the page
       var target = window.location.pathname;
-      if (target && target !== "/") {
+
+      // Only redirect if we're not already on the correct path
+      if (!target.startsWith("/wine-scanner")) {
         window.location.replace("/wine-scanner" + target);
       }
     </script>

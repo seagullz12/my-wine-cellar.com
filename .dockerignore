@@ -1,5 +1,6 @@
 .env
 credentials.json
+credentials_firebase.json
 node_modules
 npm-debug.log
 .git

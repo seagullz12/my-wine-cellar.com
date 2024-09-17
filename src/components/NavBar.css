@@ -47,6 +47,19 @@
   text-decoration: underline;
 }
 
+/* Sign-out button styles */
+.navbar-item-signout {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.navbar-item-signout:hover {
+  text-decoration: underline;
+}
+
 /* Mobile styles */
 @media (max-width: 768px) {
   .navbar-menu {

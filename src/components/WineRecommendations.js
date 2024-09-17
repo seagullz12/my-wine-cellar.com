@@ -1,36 +1,64 @@
 import React, { useState } from 'react';
 import './WineRecommendations.css'; // Ensure you have this CSS file in the same folder
+import { getAuth } from 'firebase/auth'; // Firebase authentication
 
 const WineRecommendation = () => {
   const [food, setFood] = useState('');
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
- // const backendURL = 'http://192.168.2.9:8080';
+  //const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
+   const backendURL = 'http://192.168.2.9:8080'; // Local backend URL for testing
+
+  // Function to get the Firebase Auth token
+  const getToken = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      return await user.getIdToken();
+    }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
+      // Get Firebase auth token
+      const token = await getToken();
+      if (!token) {
+        throw new Error('User not authenticated.');
+      }
+
+      // Fetch recommendations from the backend
       const response = await fetch(`${backendURL}/recommend-wine`, { 
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ food })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Pass token in Authorization header
+        },
+        body: JSON.stringify({ food }) // Send the food input as request body
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to get recommendations from server.');
+      }
+
       const data = await response.json();
-      // Parse the JSON response
+      
+      // Parse the JSON response to display recommendations
       const parsedRecommendations = JSON.parse(data.recommendations);
       setRecommendations(parsedRecommendations);
     } catch (err) {
-      setError('Failed to get recommendations');
+      setError(err.message || 'Failed to get recommendations.');
       console.error('Error:', err);
     }
     setLoading(false);
   };
 
-  // Function to parse and format recommendations
+  // Function to format recommendations into JSX
   const formatRecommendations = (data) => {
     if (!data) return null;
 

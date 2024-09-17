@@ -1,20 +1,29 @@
 const express = require('express');
 const { ImageAnnotatorClient } = require('@google-cloud/vision');
-const { google } = require('googleapis');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const admin = require('firebase-admin');
 require('dotenv').config();
+const { Storage } = require('@google-cloud/storage');
+const { getFirestore, collection, doc, getDocs} = require('firebase-admin/firestore');
+const { initializeApp, cert } = require("firebase-admin/app");
+
+
 const app = express();
 const port = 8080;
-const { Storage } = require('@google-cloud/storage');
-const path = require('path');
+
+const serviceAccountFirebase = require(process.env.FIREBASE_APPLICATION_CREDENTIALS);
+
+const config = {
+  credential: admin.credential.cert(serviceAccountFirebase)
+}
+
+const firebaseApp = initializeApp(config);
+const db = getFirestore(firebaseApp, "wine-scanner") 
 
 // Initialize Google Cloud Storage
-const storage = new Storage({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS
-});
-
-const bucketName = 'wine-label-images'; // Replace with your bucket name
+const storage = new Storage(); //
+const bucketName = 'wine-label-images';
 const bucket = storage.bucket(bucketName);
 
 const uploadImageToGCS = async (imageData, fileName) => {
@@ -38,18 +47,26 @@ const uploadImageToGCS = async (imageData, fileName) => {
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
+// Middleware to check Firebase Auth Token
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = decodedToken; // Attach the user object to the request
+    next();
+  } catch (error) {
+    console.error('Error verifying Firebase token:', error);
+    res.sendStatus(403);
+  }
+};
+
 // Create a client for the Google Cloud Vision API
 const visionClient = new ImageAnnotatorClient({
   keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS
-});
-
-// Initialize Google Sheets API client
-const sheets = google.sheets({
-  version: 'v4',
-  auth: new google.auth.GoogleAuth({
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  }),
 });
 
 // Initialize OpenAI client
@@ -88,7 +105,7 @@ const getWineDataFromText = async (text) => {
 };
 
 // Route to process image using Google Cloud Vision API
-app.post('/process-image', async (req, res) => {
+app.post('/process-image', authenticateToken, async (req, res) => {
   try {
     const { imageUrl } = req.body;
     const base64Image = imageUrl.split(',')[1];
@@ -108,7 +125,7 @@ app.post('/process-image', async (req, res) => {
 });
 
 // Route to get wine data from text using OpenAI
-app.post('/extract-wine-data', async (req, res) => {
+app.post('/extract-wine-data', authenticateToken, async (req, res) => {
   try {
     const { text } = req.body;
     const extractedData = await getWineDataFromText(text);
@@ -119,36 +136,42 @@ app.post('/extract-wine-data', async (req, res) => {
   }
 });
 
-app.post('/append-wine-data', async (req, res) => {
+// Route to append wine data to Firestore
+app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
     const { wineData, imageUrl } = req.body;
 
+    if (!wineData || !imageUrl) {
+      return res.status(400).json({ message: 'Missing wineData or imageUrl in request body' });
+    }
+
     // Upload image to GCS
     const imageUrlBase64 = imageUrl.split(',')[1]; // Extract base64 part
-    wineName = wineData.name.replace(/\s+/g, '_')
+    const wineName = wineData.name.replace(/\s+/g, '_');
     const fileName = `wine-labels/${wineName}.png`; // Generate a unique file name
     const uploadedImageUrl = await uploadImageToGCS(imageUrlBase64, fileName);
 
     // Add the image URL to the wineData object
     wineData['Image URL'] = uploadedImageUrl;
 
-    // Append data to Google Sheets
-    const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc'; // Replace with your Google Sheets ID
-    const range = 'Inventory!A2:Z';
+    // Add wine data to Firestore
+    const userId = req.user.uid;
 
-    const values = [Object.values(wineData)];
+    // Ensure the user document exists before adding wine data to sub-collection
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range,
-      valueInputOption: 'RAW',
-      resource: {
-        values,
-      },
-    });
+    if (!userDoc.exists) {
+      // If the user document doesn't exist, create an empty document for the user
+      await userRef.set({}); // You can also initialize with default values if needed
+    }
+
+    // Proceed with adding wine data to the wines sub-collection
+    const winesCollection = userRef.collection('wines');
+    await winesCollection.add(wineData);
 
     res.status(200).json({
-      message: 'Wine data appended to Google Sheets',
+      message: 'Wine data appended to Firestore',
       response: uploadedImageUrl,
     });
   } catch (error) {
@@ -160,29 +183,16 @@ app.post('/append-wine-data', async (req, res) => {
   }
 });
 
-app.get('/get-wine-data', async (req, res) => {
+// Get all wine data for a user
+app.get('/get-wine-data', authenticateToken, async (req, res) => {
   try {
-    const spreadsheetId = '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc';
-    const range = 'Inventory!A2:Z'; // Adjust range as needed
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
-
-    const rows = response.data.values;
-    const wines = rows.map(row => ({
-      name: row[0],
-      grape: row[1],
-      vintage: row[2],
-      region: row[3],
-      producer: row[4],
-      alcoholContent: row[5],
-      colour: row[6],
-      nose: row[7],
-      palate: row[8],
-      pairing: row[9],
-      imageUrl: row[10], // Assuming this is where the image URL is stored
+    const userId = req.user.uid;  // This is the logged-in user's ID
+    const winesRef = db.collection('users').doc(userId).collection('wines');
+    const querySnapshot = await winesRef.get();
+    
+    const wines = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
     }));
 
     res.json({ wines });
@@ -193,33 +203,29 @@ app.get('/get-wine-data', async (req, res) => {
 });
 
 // Route to get wine recommendations based on food input
-// Assuming you have other imports and setup above this
-
-app.post('/recommend-wine', async (req, res) => {
+app.post('/recommend-wine', authenticateToken, async (req, res) => {
   try {
     const { food } = req.body;
 
-    // Fetch wines from Google Sheets
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: '1CZkEZ7_DLQDWlJZLqNu45V_iyj4ihblGubB88t7coDc', // Replace with your Google Sheets ID
-      range: 'Inventory!A2:Z', // Adjust range as needed
-    });
+    // Fetch wines from Firestore
+    const userId = req.user.uid;
+    const winesRef = db.collection('users').doc(userId).collection('wines');
+    const querySnapshot = await winesRef.get();
 
-    const rows = response.data.values;
-    const wines = rows.map(row => ({
-      name: row[0],
-      grape: row[1],
-      vintage: row[2],
-      region: row[3],
-      producer: row[4],
-      alcoholContent: row[5],
-      colour: row[6],
-      nose: row[7],
-      palate: row[8],
-      pairing: row[9],
+    const wines = querySnapshot.docs.map(doc => ({
+      name: doc.data().name,
+      grape: doc.data().grape,
+      vintage: doc.data().vintage,
+      region: doc.data().region,
+      producer: doc.data().producer,
+      alcoholContent: doc.data().alcoholContent,
+      colour: doc.data().colour,
+      nose: doc.data().nose,
+      palate: doc.data().palate,
+      pairing: doc.data().pairing
     }));
     
-    console.log('Wines in the request', wines)
+    console.log('Wines in the request', wines);
     // Prepare wine descriptions for the prompt
     const wineDescriptions = wines.map(wine => (
       `${wine.name} (${wine.grape}, ${wine.vintage}) - ${wine.pairing}`
@@ -246,8 +252,8 @@ app.post('/recommend-wine', async (req, res) => {
       max_tokens: settings.max_tokens
     });
     
-        // Log the full OpenAI response
-        console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
+    // Log the full OpenAI response
+    console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
 
     // Log the tokens used
     const totalTokens = recommendationResponse.usage.total_tokens;

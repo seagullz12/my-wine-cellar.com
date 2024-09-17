@@ -26,8 +26,8 @@ const Home = () => {
     const [showNotification, setShowNotification] = useState(false); // State for controlling visibility of notification
     const [user, setUser] = useState(null); // State to hold Firebase user
 
-    //const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
-    const backendURL = 'http://192.168.2.9:8080';
+    const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app';
+    //const backendURL = 'http://192.168.2.9:8080';
 
     // Detect if the user is on a mobile device
     useEffect(() => {

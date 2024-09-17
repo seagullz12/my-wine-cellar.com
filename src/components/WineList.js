@@ -6,8 +6,8 @@ const WineList = () => {
   const [wines, setWines] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  // const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app'; // Replace with your production URL
-  const backendURL = 'http://192.168.2.9:8080'; // Replace with your development URL
+  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app'; // Replace with your production URL
+  //const backendURL = 'http://192.168.2.9:8080'; // Replace with your development URL
 
   useEffect(() => {
     // Check for authenticated user

@@ -77,3 +77,14 @@
     font-size: 0.9em;
   }
 }
+
+.more-info-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.more-info-link:hover {
+  text-decoration: underline;
+}

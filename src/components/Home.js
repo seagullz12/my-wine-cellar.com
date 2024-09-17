@@ -18,6 +18,7 @@ const Home = () => {
       palate: 'unknown',
       pairing: 'unknown',
     });
+
     const [loading, setLoading] = useState(false);
     const [photoURL, setPhotoURL] = useState(''); // State to hold photo URL
     const [isMobile, setIsMobile] = useState(false);
@@ -27,8 +28,8 @@ const Home = () => {
     const [user, setUser] = useState(null); // State to hold Firebase user
     const [wineURL, setWineURL] = useState(''); // State to hold the generated wine URL
 
-    //const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-    const backendURL = 'http://192.168.2.9:8080';
+    const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+    //const backendURL = 'http://192.168.2.9:8080';
 
     // Detect if the user is on a mobile device
     useEffect(() => {

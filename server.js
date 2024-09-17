@@ -192,24 +192,42 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
 });
 
 // Get all wine data for a user
-// Route to get wine data by ID
-app.get('/get-wine-data/:id', authenticateToken, async (req, res) => {
+// Route to get wine data with optional ID query parameter
+app.get('/get-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query; // Get ID from query parameters
     const userId = req.user.uid;
-    const wineDoc = await db.collection('users').doc(userId).collection('wines').doc(id).get();
 
-    if (wineDoc.exists) {
-      res.json({ wine: wineDoc.data() });
+    if (id) {
+      // Fetch a specific wine by ID
+      const wineDoc = await db.collection('users').doc(userId).collection('wines').doc(id).get();
+
+      if (wineDoc.exists) {
+        res.json({ wine: wineDoc.data() });
+      } else {
+        res.status(404).json({ error: 'Wine not found' });
+      }
     } else {
-      res.status(404).json({ error: 'Wine not found' });
+      // Fetch all wines
+      const winesRef = db.collection('users').doc(userId).collection('wines');
+      const querySnapshot = await winesRef.get();
+
+      if (querySnapshot.empty) {
+        return res.status(404).json({ message: 'No wines found' });
+      }
+
+      const wines = querySnapshot.docs.map(doc => ({
+        id: doc.id, // Include the document ID for linking
+        ...doc.data()
+      }));
+
+      res.json({ wines });
     }
   } catch (error) {
     console.error('Error fetching wine data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 
 // Route to get wine recommendations based on food input
 app.post('/recommend-wine', authenticateToken, async (req, res) => {

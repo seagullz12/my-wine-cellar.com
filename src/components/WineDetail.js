@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import '../styles/WineDetail.css'; // Import the CSS file
 
 const WineDetail = () => {
@@ -10,8 +10,8 @@ const WineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-//  const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
-  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+  const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
+  // const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
     const auth = getAuth();
@@ -26,7 +26,7 @@ const WineDetail = () => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          const response = await fetch(`${backendURL}/get-wine-data/${id}`, {
+          const response = await fetch(`${backendURL}/get-wine-data?id=${id}`, { // Updated URL with query parameter
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -36,8 +36,15 @@ const WineDetail = () => {
             const result = await response.json();
             console.log('Fetched wine data:', result); // Debugging: log the result
 
-            if (result && result.wine) {
-              setWine(result.wine); // Directly set the wine object
+            if (result && (result.wine || result.wines)) {
+              // Adjust based on response structure
+              const fetchedWine = result.wine || (result.wines && result.wines.find(wine => wine.id === id));
+              if (fetchedWine) {
+                setWine(fetchedWine); // Directly set the wine object
+              } else {
+                console.error('Wine not found in response:', result); // Debugging: log unexpected format
+                setError('Wine not found');
+              }
             } else {
               console.error('Unexpected response format:', result); // Debugging: log unexpected format
               setError('Unexpected response format');
@@ -65,6 +72,7 @@ const WineDetail = () => {
 
   return (
     <div className="wine-detail-container">
+      <Link to="/wine-list" className="back-to-wine-list">Back to Your Cellar</Link>
       {wine ? (
         <div>
           <div className="wine-detail-header">

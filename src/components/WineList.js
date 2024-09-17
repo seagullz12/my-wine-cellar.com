@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-
-// Import your custom CSS
 import '../styles/WineList.css';
 
 const WineList = () => {
@@ -13,6 +11,7 @@ const WineList = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   
+ // const backendURL = 'http://192.168.2.9:8080';
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
@@ -93,7 +92,6 @@ const WineList = () => {
                 <Typography variant="body2" color="textSecondary">
                   <strong>Producer:</strong> {wine.producer}
                 </Typography>
-                {/* Add a "More Information" link */}
                 <Link to={`/cellar/${wine.id}`} className="more-info-link">
                   More Information
                 </Link>

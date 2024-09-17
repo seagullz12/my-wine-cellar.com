@@ -6,9 +6,9 @@ services:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: "/usr/src/app/credentials.json"
       FIREBASE_APPLICATION_CREDENTIALS: "/usr/src/app/credentials_firebase.json"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
     volumes:
       - ./credentials.json:/usr/src/app/credentials.json:ro
       - ./credentials_firebase.json:/usr/src/app/credentials_firebase.json:ro
-
     env_file:
       - .env

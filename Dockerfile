@@ -1,20 +1,20 @@
-# Use official Node.js image
+# Use the official Node.js image as a base
 FROM node:20
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to install dependencies
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install the app dependencies inside the container
+# Install dependencies
 RUN npm install
 
-# Copy the rest of your application code to the container
+# Copy the rest of the application code
 COPY . .
 
-# Expose the port the app will run on (Cloud Run uses port 8080 by default)
+# Expose the port the app runs on
 EXPOSE 8080
 
-# Start the Node.js server using the command
+# Command to run the application
 CMD [ "node", "server.js" ]

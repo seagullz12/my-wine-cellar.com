@@ -35,7 +35,7 @@ const NavBar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <h1 className="navbar-logo">WineScanner</h1>
+        <h1 className="navbar-logo">Wine Scanner</h1>
         <div className="navbar-toggle" onClick={toggleMenu}>
           {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </div>

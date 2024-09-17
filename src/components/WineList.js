@@ -6,8 +6,8 @@ const WineList = () => {
   const [wines, setWines] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const backendURL = 'https://wine-scanner-backend-44824993784.europe-west1.run.app'; // Replace with your production URL
-  //const backendURL = 'http://192.168.2.9:8080'; // Replace with your development URL
+//  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
+   const backendURL = 'http://192.168.2.9:8080'; // dev
 
   useEffect(() => {
     // Check for authenticated user
@@ -40,25 +40,28 @@ const WineList = () => {
         } catch (error) {
           console.error('Error fetching wine data:', error);
         } finally {
-          setLoading(false);
+          setLoading(false); // Stop loading once the data is fetched
         }
       } else {
         console.log('User is not logged in');
-        setLoading(false);
+        setLoading(false); // Stop loading if no user is logged in
       }
     };
 
     fetchWines();
   }, [user]);
 
+  // Show a loading message while fetching data
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>Loading your wine cellar...</p>;
   }
 
+  // Show a message prompting the user to log in if not authenticated
   if (!user) {
     return <p>Please log in to see your wine cellar.</p>;
   }
 
+  // Render the list of wines
   return (
     <div className="wine-list-container">
       <div className="wine-grid">

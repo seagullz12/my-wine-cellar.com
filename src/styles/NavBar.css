@@ -85,7 +85,13 @@
     max-height: 300px; /* Adjust based on content */
   }
 
+  .navbar-title {
+    font-size: medium
+  }
+
   .navbar-toggle {
     display: block;
   }
 }
+
+

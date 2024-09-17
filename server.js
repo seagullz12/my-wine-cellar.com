@@ -146,10 +146,10 @@ app.post('/extract-wine-data', authenticateToken, async (req, res) => {
 // Route to append wine data to Firestore
 app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { wineData, imageUrl } = req.body;
+    const { wineData, imageUrl, id } = req.body; // Expecting id in request body
 
-    if (!wineData || !imageUrl) {
-      return res.status(400).json({ message: 'Missing wineData or imageUrl in request body' });
+    if (!wineData || !imageUrl || !id) {
+      return res.status(400).json({ message: 'Missing wineData, imageUrl, or id in request body' });
     }
 
     // Upload image to GCS
@@ -173,13 +173,14 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
       await userRef.set({}); // You can also initialize with default values if needed
     }
 
-    // Proceed with adding wine data to the wines sub-collection
+    // Proceed with adding wine data to the wines sub-collection with the provided id
     const winesCollection = userRef.collection('wines');
-    await winesCollection.add(wineData);
+    await winesCollection.doc(id).set(wineData); // Use `doc(id)` to set the document with the provided id
 
     res.status(200).json({
       message: 'Wine data appended to Firestore',
       response: uploadedImageUrl,
+      wineUrl: `/cellar/${id}` // Return the URL path
     });
   } catch (error) {
     console.error('Error appending wine data:', error);
@@ -191,23 +192,24 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
 });
 
 // Get all wine data for a user
-app.get('/get-wine-data', authenticateToken, async (req, res) => {
+// Route to get wine data by ID
+app.get('/get-wine-data/:id', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.uid;  // This is the logged-in user's ID
-    const winesRef = db.collection('users').doc(userId).collection('wines');
-    const querySnapshot = await winesRef.get();
-    
-    const wines = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    const { id } = req.params;
+    const userId = req.user.uid;
+    const wineDoc = await db.collection('users').doc(userId).collection('wines').doc(id).get();
 
-    res.json({ wines });
+    if (wineDoc.exists) {
+      res.json({ wine: wineDoc.data() });
+    } else {
+      res.status(404).json({ error: 'Wine not found' });
+    }
   } catch (error) {
     console.error('Error fetching wine data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Route to get wine recommendations based on food input
 app.post('/recommend-wine', authenticateToken, async (req, res) => {

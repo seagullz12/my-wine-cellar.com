@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase Authentication functions
-import './WineList.css'; // Ensure CSS file is correctly imported
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Link } from 'react-router-dom';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+
+// Import your custom CSS
+import '../styles/WineList.css';
 
 const WineList = () => {
-  const [wines, setWines] = useState([]); // Initialize as an empty array
+  const [wines, setWines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-//  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
-   const backendURL = 'http://192.168.2.9:8080'; // dev
+  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
-    // Check for authenticated user
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -23,11 +26,11 @@ const WineList = () => {
     const fetchWines = async () => {
       if (user) {
         try {
-          const token = await user.getIdToken(); // Get the ID token from Firebase Authentication
+          const token = await user.getIdToken();
           const response = await fetch(`${backendURL}/get-wine-data`, {
             headers: {
-              'Authorization': `Bearer ${token}` // Include the token in the request headers
-            }
+              'Authorization': `Bearer ${token}`,
+            },
           });
 
           if (!response.ok) {
@@ -35,52 +38,61 @@ const WineList = () => {
           }
 
           const data = await response.json();
-          console.log('Fetched wine data:', data); // Log the fetched data
-          setWines(data.wines || []); // Ensure wines is set to an empty array if undefined
+          setWines(data.wines || []);
         } catch (error) {
           console.error('Error fetching wine data:', error);
         } finally {
-          setLoading(false); // Stop loading once the data is fetched
+          setLoading(false);
         }
       } else {
-        console.log('User is not logged in');
-        setLoading(false); // Stop loading if no user is logged in
+        setLoading(false);
       }
     };
 
     fetchWines();
   }, [user]);
 
-  // Show a loading message while fetching data
   if (loading) {
     return <p>Loading your wine cellar...</p>;
   }
 
-  // Show a message prompting the user to log in if not authenticated
   if (!user) {
     return <p>Please log in to see your wine cellar.</p>;
   }
 
-  // Render the list of wines
   return (
     <div className="wine-list-container">
       <div className="wine-grid">
         {wines.length > 0 ? (
           wines.map((wine, index) => (
             <div className="wine-card" key={index}>
-              {wine['Image URL'] && <img src={wine['Image URL']} alt={wine.name} className="wine-image" />}
-              <div className="wine-info">
-                <h2 className="wine-name">{wine.name}</h2>
-                <p><strong>Grape:</strong> {wine.grape}</p>
-                <p><strong>Vintage:</strong> {wine.vintage}</p>
-                <p><strong>Region:</strong> {wine.region}</p>
-                <p><strong>Producer:</strong> {wine.producer}</p>
-                <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
-                <p><strong>Colour:</strong> {wine.colour}</p>
-                <p><strong>Nose:</strong> {wine.nose}</p>
-                <p><strong>Palate:</strong> {wine.palate}</p>
-                <p><strong>Pairing:</strong> {wine.pairing}</p>
-              </div>
+              {wine['Image URL'] && (
+                <Link to={`/cellar/${wine.id}`}>
+                  <CardMedia
+                    component="img"
+                    image={wine['Image URL']}
+                    alt={wine.name}
+                    className="wine-image"
+                  />
+                </Link>
+              )}
+              <CardContent className="wine-info">
+                <Typography variant="h6" component="div" className="wine-name">
+                  {wine.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Grape:</strong> {wine.grape}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Vintage:</strong> {wine.vintage}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Region:</strong> {wine.region}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Producer:</strong> {wine.producer}
+                </Typography>
+              </CardContent>
             </div>
           ))
         ) : (

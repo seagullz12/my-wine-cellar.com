@@ -1,0 +1,54 @@
+/* Header.css */
+.header {
+    background-color: #8b3a3a; /* Match the navbar color */
+    color: #ffffff;
+    padding: 60px 10px 20px; /* Increased top padding to avoid overlap with the navbar */
+    text-align: center;
+    position: relative;
+  }
+  
+  .header-content {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header-title {
+    font-size: 1.5em; /* Adjusted for mobile */
+    margin: 0;
+  }
+  
+  .header-tagline {
+    font-size: 1em; /* Adjusted for mobile */
+    margin: 10px 0;
+  }
+  
+  .header-cta {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 1em;
+    color: #ffffff;
+    background-color: #5a1a1a; /* Slightly darker shade for the CTA button */
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
+  .header-cta:hover {
+    background-color: #7a2a2a; /* Darken on hover */
+  }
+  
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .header-title {
+      font-size: 1.3em; /* Smaller title for mobile */
+    }
+  
+    .header-tagline {
+      font-size: 0.9em; /* Smaller tagline for mobile */
+    }
+  
+    .header-cta {
+      font-size: 0.9em; /* Adjust button text size for mobile */
+    }
+  }
+  

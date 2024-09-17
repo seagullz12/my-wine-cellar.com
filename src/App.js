@@ -8,6 +8,8 @@ import WineRecommendations from './components/WineRecommendations';
 import NavBar from './components/NavBar'; // Import the NavBar component
 import SignIn from './components/SignIn'; // Import the SignIn component
 import SignUp from './components/SignUp'; // Import the SignUp component
+import './styles/global.css';
+import WineDetail from './components/WineDetail';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -33,19 +35,20 @@ const App = () => {
         <NavBar />
         <Routes>
           {/* Public Routes */}
-          <Route path="/wine-scanner/sign-in" element={<SignIn />} />
-          <Route path="/wine-scanner/sign-up" element={<SignUp />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
 
           {/* Protected Routes */}
           {user ? (
             <>
-              <Route path="/wine-scanner" element={<Home />} />
-              <Route path="/wine-scanner/cellar" element={<WineList />} />
-              <Route path="/wine-scanner/personal-sommelier" element={<WineRecommendations />} />
-              <Route path="*" element={<Navigate to="/wine-scanner" />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/cellar" element={<WineList />} />
+              <Route path="/personal-sommelier" element={<WineRecommendations />} />
+              <Route path="/cellar/:id" element={<WineDetail />} />
+              <Route path="*" element={<Navigate to="" />} />
             </>
           ) : (
-            <Route path="*" element={<Navigate to="/wine-scanner/sign-in" />} />
+            <Route path="*" element={<Navigate to="/sign-in" />} />
           )}
         </Routes>
       </div>

@@ -1,7 +1,7 @@
-// Home.js
 import React, { useRef, useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase Authentication functions
-import '../App.css';
+import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
+import '../styles/Home.css';
 
 const Home = () => {
     const videoRef = useRef(null);
@@ -25,9 +25,10 @@ const Home = () => {
     const [notification, setNotification] = useState(''); // State for notification
     const [showNotification, setShowNotification] = useState(false); // State for controlling visibility of notification
     const [user, setUser] = useState(null); // State to hold Firebase user
+    const [wineURL, setWineURL] = useState(''); // State to hold the generated wine URL
 
-    const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-    //const backendURL = 'http://192.168.2.9:8080';
+    //const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+    const backendURL = 'http://192.168.2.9:8080';
 
     // Detect if the user is on a mobile device
     useEffect(() => {
@@ -112,15 +113,15 @@ const Home = () => {
         .trim(); // Remove leading and trailing whitespace
     };
 
-    // Function to send wine data to Google Sheets
-    const appendWineDataToSheet = async () => {
-      setOcrResult(`Sending data to Google Sheets: ${JSON.stringify(wineData)}`);
-    
+    // Function to send wine data to backend and receive a unique URL
+    const appendWineDataToFirestore = async () => {
       if (!wineData.name || wineData.name.trim() === 'unknown') {
-        setOcrResult('No name provided. Skipping Google Sheets update.');
+        setOcrResult('No name provided. Skipping Firestore update.');
         return;
       }
-    
+
+      const id = uuidv4(); // Generate a unique ID for the wine
+
       try {
         const response = await fetch(backendURL + '/append-wine-data', {
           method: 'POST',
@@ -128,18 +129,22 @@ const Home = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.accessToken}` // Include the token in the request headers
           },
-          body: JSON.stringify({ wineData, imageUrl: photoURL }), // Include image URL
+          body: JSON.stringify({ wineData, imageUrl: photoURL, id }), // Include ID in the request
         });
-    
+
         const result = await response.json();
         
         if (response.ok) {
-          setOcrResult(`Wine data appended to Google Sheets successfully. Response: ${JSON.stringify(result.response)}`);
-    
-          // Show success notification
-          setNotification(`"${wineData.name}" has been added to your cellar.`);
+          // Construct the wine URL based on the response
+          const wineUrl = `${backendURL}/cellar/${id}`;
+          setWineURL(wineUrl);
+
+          setOcrResult(`Wine data appended to Firestore successfully. Response: ${JSON.stringify(result.response)}`);
+
+          // Show success notification with the URL
+          setNotification(`"${wineData.name}" has been added to your cellar. View it <a href="${wineUrl}" target="_blank">here</a>.`);
           setShowNotification(true);
-    
+
           // Hide notification after 3 seconds
           setTimeout(() => {
             setShowNotification(false);
@@ -262,7 +267,7 @@ const Home = () => {
               {/* Conditionally render the Add to Cellar button based on wine data */}
               {wineData.name !== 'unknown' && !loading && (
                 <button 
-                  onClick={appendWineDataToSheet} 
+                  onClick={appendWineDataToFirestore} 
                   className="custom-button"
                 >
                   Add to Cellar
@@ -271,9 +276,7 @@ const Home = () => {
     
               {/* Show the notification */}
               {showNotification && (
-                <div className="notification">
-                  {notification}
-                </div>
+                <div className="notification" dangerouslySetInnerHTML={{ __html: notification }} />
               )}
     
               <div className="img-container">

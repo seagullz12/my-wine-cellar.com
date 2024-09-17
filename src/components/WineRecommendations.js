@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './WineRecommendations.css'; // Ensure you have this CSS file in the same folder
+import '../styles/WineRecommendations.css'; // Ensure you have this CSS file in the same folder
 import { getAuth } from 'firebase/auth'; // Firebase authentication
 
 const WineRecommendation = () => {

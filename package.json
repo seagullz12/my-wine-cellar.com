@@ -39,7 +39,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://seagullz12.github.io/wine-scanner",
+  "homepage": "/",
   "eslintConfig": {
     "extends": [
       "react-app",

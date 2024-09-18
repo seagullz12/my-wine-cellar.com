@@ -1,5 +1,6 @@
 /* Home.css */
 
+/* Container styling */
 .home-container {
   padding: 20px;
   max-width: 1200px;
@@ -7,25 +8,36 @@
   text-align: center;
 }
 
+.home-header {
+  background: linear-gradient(180deg, #8b3a3a, #6c757d);
+  color: #ffffff;
+  padding: 20px 10px; /* Reduced padding for mobile */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
 .home-title {
-  font-size: 2.5rem;
+  font-size: 1.75rem; /* Smaller font size for mobile */
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #8b3a3a; /* Adjust the color as needed */
+  margin: 0;
+  line-height: 1.2;
 }
 
 .home-subtitle {
-  font-size: 1.25rem;
-  margin-bottom: 20px;
-  color: #6c757d; /* Adjust the color as needed */
+  font-size: 1.2rem; /* Smaller font size for mobile */
+  margin-top: 10px;
+  color: #f0f0f0;
 }
 
+/* Grid layout */
 .home-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
 }
 
+/* Card styling */
 .home-card {
   display: flex;
   flex-direction: column;
@@ -90,11 +102,11 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .home-title {
-    font-size: 1.5rem;
+    font-size: 1.5rem; /* Adjusted for mobile */
   }
 
   .home-subtitle {
-    font-size: 1rem;
+    font-size: 1rem; /* Adjusted for mobile */
   }
 
   .home-grid {

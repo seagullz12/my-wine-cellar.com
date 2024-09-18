@@ -1,15 +1,19 @@
 {
   "files": {
-    "main.css": "/wine-scanner/static/css/main.bba1ea8d.css",
-    "main.js": "/wine-scanner/static/js/main.72b98e99.js",
+    "main.css": "/wine-scanner/static/css/main.d0248f4a.css",
+    "main.js": "/wine-scanner/static/js/main.e4a58ae9.js",
     "static/js/453.d3188f58.chunk.js": "/wine-scanner/static/js/453.d3188f58.chunk.js",
+    "static/media/AddWines.jpg": "/wine-scanner/static/media/AddWines.2da4a58ffa278eeddade.jpg",
+    "static/media/joinUs.jpg": "/wine-scanner/static/media/joinUs.955f8335991324beba34.jpg",
+    "static/media/manageWineCollection.jpg": "/wine-scanner/static/media/manageWineCollection.8bf7d869220c4a3176aa.jpg",
+    "static/media/personalSommelier.jpg": "/wine-scanner/static/media/personalSommelier.f09cb73da1d9be985040.jpg",
     "index.html": "/wine-scanner/index.html",
-    "main.bba1ea8d.css.map": "/wine-scanner/static/css/main.bba1ea8d.css.map",
-    "main.72b98e99.js.map": "/wine-scanner/static/js/main.72b98e99.js.map",
+    "main.d0248f4a.css.map": "/wine-scanner/static/css/main.d0248f4a.css.map",
+    "main.e4a58ae9.js.map": "/wine-scanner/static/js/main.e4a58ae9.js.map",
     "453.d3188f58.chunk.js.map": "/wine-scanner/static/js/453.d3188f58.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.bba1ea8d.css",
-    "static/js/main.72b98e99.js"
+    "static/css/main.d0248f4a.css",
+    "static/js/main.e4a58ae9.js"
   ]
 }

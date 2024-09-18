@@ -268,6 +268,7 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
     const querySnapshot = await winesRef.get();
 
     const wines = querySnapshot.docs.map(doc => ({
+      id: doc.id, // Include the document ID for linking
       name: doc.data().name,
       grape: doc.data().grape,
       vintage: doc.data().vintage,
@@ -277,14 +278,18 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
       colour: doc.data().colour,
       nose: doc.data().nose,
       palate: doc.data().palate,
-      pairing: doc.data().pairing
+      pairing: doc.data().pairing,
+      link: `/cellar/${doc.id}` // Generate a unique link for each wine
     }));
-    
+
     console.log('Wines in the request', wines);
-    // Prepare wine descriptions for the prompt
+
+    // Prepare wine descriptions with identifiers for the prompt
     const wineDescriptions = wines.map(wine => (
-      `${wine.name} (${wine.grape}, ${wine.vintage}) - ${wine.pairing}`
+      `${wine.name} (${wine.grape}, ${wine.vintage}) - ${wine.pairing}. Wine ID: ${wine.id}`
     )).join('\n');
+
+    console.log("WineDetails in prompt: ", wineDescriptions);
 
     // Define OpenAI API request settings
     const settings = {
@@ -301,12 +306,12 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines.' },
-        { role: 'user', content: `Given the following wines: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why: "${food}". Respond in the following format: {"best_pairing_name": "[Wine name]", "best_pairing_explanation": "[Explanation]",  "second_best_pairing_name": "[Wine name]","second_best_pairing_explanation": "[Explanation]","third_best_pairing_name": "[Wine name]","third_best_pairing_explanation": "[Explanation]"` }
+        { role: 'user', content: `Given the following wines with their unique identifiers: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why. Include the ID in your recommendation to link to the correct wine. Respond in the following format: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}` }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
     });
-    
+
     // Log the full OpenAI response
     console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
 

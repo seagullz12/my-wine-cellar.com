@@ -1,15 +1,16 @@
 /* WineDetail.css */
 
-/* Container for the wine detail page */
+/* Card for the wine detail page */
 .wine-detail-card {
     background-color: #fff;
     max-width: 800px;
-    margin: 0px auto;
+    margin: 20px;
     padding: 0px;
     position: relative;
     border: 0px;
     border-radius: 8px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-items: center ;
   }
   
   /* Header styling */

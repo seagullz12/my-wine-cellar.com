@@ -36,8 +36,12 @@ const NavBar = () => {
   // Determine the title based on the current pathname
   const getTitle = () => {
     switch (location.pathname) {
-      case '/cellar':
-        return 'My Wine Cellar';
+      case '/':
+        return '';
+        case '/cellar':
+          return 'My Wine Cellar';
+      case '/add-wine':
+        return 'Add new wines';
       case '/personal-sommelier':
         return 'Personal Sommelier';
       case '/sign-in':
@@ -45,7 +49,7 @@ const NavBar = () => {
       case '/sign-up':
         return 'Sign Up';
       default:
-        return 'Wine Scanner'; // Default title
+        return 'Wine Cellar'; // Default title
     }
   };
 
@@ -60,6 +64,9 @@ const NavBar = () => {
         <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
           <li>
             <Link to="/" className="navbar-item" onClick={() => setMenuOpen(false)}>Home</Link>
+          </li>
+          <li>
+            <Link to="/add-wine" className="navbar-item" onClick={() => setMenuOpen(false)}>Add New Wines</Link>
           </li>
           <li>
             <Link to="/cellar" className="navbar-item" onClick={() => setMenuOpen(false)}>My Wine Cellar</Link>

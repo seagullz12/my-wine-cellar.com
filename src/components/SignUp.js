@@ -1,7 +1,7 @@
-// SignUp.js
 import React, { useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import '../styles/SignUp.css'; // Import the CSS file for styling
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -23,21 +23,31 @@ const SignUp = () => {
   };
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSignUp}>
-        <label>
+    <div className="signup-container">
+      <h2 className="signup-title">Sign Up Now!</h2>
+      <form className="signup-form" onSubmit={handleSignUp}>
+        <label className="signup-label">
           Email:
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="signup-input"
+          />
         </label>
-        <br />
-        <label>
+        <label className="signup-label">
           Password:
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="signup-input"
+          />
         </label>
-        <br />
-        <button type="submit">Sign Up</button>
-        {error && <p>{error}</p>}
+        <button type="submit" className="signup-button">Sign Up</button>
+        {error && <p className="signup-error">{error}</p>}
       </form>
     </div>
   );

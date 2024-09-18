@@ -10,8 +10,8 @@ const WineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
-  // const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+  //const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
+   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
     const auth = getAuth();
@@ -60,7 +60,7 @@ const WineDetail = () => {
           setLoading(false);
         }
       } else {
-        setLoading(false);
+        setLoading(false);  
       }
     };
 
@@ -72,11 +72,13 @@ const WineDetail = () => {
 
   return (
     <div className="wine-detail-container">
-      <Link to="/wine-list" className="back-to-wine-list">Back to Your Cellar</Link>
+        <div className="back-link" align="left">
+        <Link to="/cellar" className="back-to-wine-list"> Back to Your Cellar</Link>
+        </div>
       {wine ? (
-        <div>
+        <div className="wine-detail-card">
           <div className="wine-detail-header">
-            <h2>{wine.name}</h2>
+            <h1>{wine.name}</h1>
           </div>
           {wine['Image URL'] && (
             <img

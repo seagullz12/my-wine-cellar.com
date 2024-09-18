@@ -1,33 +1,45 @@
 /* WineDetail.css */
 
 /* Container for the wine detail page */
-.wine-detail-container {
+.wine-detail-card {
+    background-color: #fff;
     max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    margin: 0px auto;
+    padding: 0px;
+    position: relative;
+    border: 0px;
+    border-radius: 8px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   /* Header styling */
   .wine-detail-header {
     text-align: center;
-    margin-bottom: 20px;
+    object-fit: cover; /* Ensure image scales proportionally */
+    padding: 0px;
+    background-color: #8b3a3a;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
   }
   
-  .wine-detail-header h2 {
-    font-size: 2rem;
-    margin: 0;
-    color: #333;
+  /* Header text styling */
+  .wine-detail-header h1 {
+    font-size: 1.3rem;
+    text-align: center;
+    padding: 10px;
+    color: white; /* Set header text color to white */
   }
   
   /* Image styling */
   .wine-detail-image {
+    background-color: #fff;
+    object-fit: cover; /* Ensure image scales proportionally */
     width: 100%;
     height: auto;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: 0px;
+    margin: 0px;
+    border: 0px;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
   }
   
   /* Wine details styling */
@@ -35,6 +47,12 @@
     font-size: 1rem;
     line-height: 1.6;
     color: #555;
+    padding: 15px;
+    text-align: left;
+    background-color: #fff;
+    flex: 1; /* Make the info section grow to fill available space */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
   
   .wine-detail-info p {
@@ -58,3 +76,8 @@
     color: #5bc0de;
   }
   
+  .back-link {
+    padding: 10px;
+    text-decoration: underline;
+    text-align: left;
+  }

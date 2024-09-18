@@ -5,7 +5,8 @@
   padding: 10px 20px;
   position: relative;
   z-index: 1000; /* Ensure navbar is above other content */
-  border-radius: 8px; /* Rounded corners for the navbar */
+  border-radius: 0px; /* Rounded corners for the navbar */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add a shadow for better visibility */
 }
 
 .navbar-container {
@@ -86,7 +87,7 @@
   }
 
   .navbar-title {
-    font-size: medium
+    font-size: medium;
   }
 
   .navbar-toggle {

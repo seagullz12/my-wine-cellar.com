@@ -27,10 +27,6 @@ ul, ol {
   list-style: none; /* Remove default list styles */
 }
 
-img {
-  max-width: 100%; /* Ensure images do not overflow their container */
-  height: auto; /* Maintain aspect ratio */
-}
 
 input, textarea {
   border: 1px solid #8b3a3a; /* Burgundy border for inputs */

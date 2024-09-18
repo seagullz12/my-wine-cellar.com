@@ -229,6 +229,34 @@ app.get('/get-wine-data', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to delete a specific wine by ID
+app.delete('/delete-wine/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params; // Get wine ID from the URL
+    const userId = req.user.uid;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Wine ID is required' });
+    }
+
+    const wineRef = db.collection('users').doc(userId).collection('wines').doc(id);
+
+    // Check if the wine exists
+    const wineDoc = await wineRef.get();
+    if (!wineDoc.exists) {
+      return res.status(404).json({ error: 'Wine not found' });
+    }
+
+    // Delete the wine document
+    await wineRef.delete();
+
+    res.status(200).json({ message: 'Wine deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting wine:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Route to get wine recommendations based on food input
 app.post('/recommend-wine', authenticateToken, async (req, res) => {
   try {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import { auth, signInWithEmailAndPassword } from './firebase-config';
+import '../styles/SignIn.css'; // Import the CSS file for styling
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -27,31 +28,31 @@ const SignIn = () => {
   };
 
   return (
-    <div>
-      <h2>Sign In</h2>
-      <form onSubmit={handleSignIn}>
-        <label>
+    <div className="signin-container">
+      <h2 className="signin-title">Sign In</h2>
+      <form className="signin-form" onSubmit={handleSignIn}>
+        <label className="signin-label">
           Email:
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="signin-input"
           />
         </label>
-        <br />
-        <label>
+        <label className="signin-label">
           Password:
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="signin-input"
           />
         </label>
-        <br />
-        <button type="submit">Sign In</button>
-        {error && <p>{error}</p>}
+        <button type="submit" className="signin-button">Sign In</button>
+        {error && <p className="signin-error">{error}</p>}
       </form>
     </div>
   );

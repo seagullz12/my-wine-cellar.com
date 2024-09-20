@@ -2,89 +2,131 @@
 
 /* Card for the wine detail page */
 .wine-detail-card {
-    background-color: #fff;
-    max-width: 800px;
-    margin: 20px;
-    padding: 0px;
-    position: relative;
-    border: 0px;
-    border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    align-items: center ;
-  }
-  
-  /* Header styling */
-  .wine-detail-header {
-    text-align: center;
-    object-fit: cover; /* Ensure image scales proportionally */
-    padding: 0px;
-    background-color: #8b3a3a;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
-  
-  /* Header text styling */
-  .wine-detail-header h1 {
-    font-size: 1.3rem;
-    text-align: center;
-    padding: 10px;
-    color: white; /* Set header text color to white */
-  }
-  
-  /* Image styling */
-  .wine-detail-image {
-    background-color: #fff;
-    object-fit: cover; /* Ensure image scales proportionally */
-    width: 100%;
-    max-width: 1200px; /* Max width for desktop */
-    height: auto;
-    border-radius: 0px;
-    margin: 0px;
-    border: 0px;
-    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
-  }
-  
-  /* Wine details styling */
-  .wine-detail-info {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #555;
-    padding: 15px;
-    text-align: left;
-    background-color: #fff;
-    flex: 1; /* Make the info section grow to fill available space */
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
-  
-  .wine-detail-info p {
-    margin: 10px 0;
-  }
-  
-  .wine-detail-info strong {
-    color: #333;
-  }
-  
-  /* Error and loading states */
-  .wine-detail-error,
-  .wine-detail-loading {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #d9534f;
-    margin-top: 20px;
-  }
-  
-  .wine-detail-loading {
-    color: #5bc0de;
-  }
-  
-  .back-link {
-    padding: 10px;
-    text-decoration: underline;
-    text-align: left;
-  }
+  background-color: #fff;
+  max-width: 800px;
+  margin: 20px;
+  padding: 0px;
+  position: relative;
+  border: 0px;
+  border-radius: 8px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+}
 
-    
+/* Header styling */
+.wine-detail-header {
+  text-align: center;
+  object-fit: cover; /* Ensure image scales proportionally */
+  padding: 0px;
+  background-color: #8b3a3a;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Header text styling */
+.wine-detail-header h1 {
+  font-size: 1.3rem;
+  text-align: center;
+  padding: 10px;
+  color: white; /* Set header text color to white */
+}
+
+/* Image styling */
+.wine-detail-image {
+  background-color: #fff;
+  object-fit: cover; /* Ensure image scales proportionally */
+  width: 100%;
+  max-width: 1200px; /* Max width for desktop */
+  height: auto;
+  border-radius: 0px;
+  margin: 0px;
+  border: 0px;
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.0);
+}
+
+/* Wine details styling */
+.wine-detail-info {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+  padding: 15px;
+  text-align: left;
+  background-color: #fff;
+  flex: 1; /* Make the info section grow to fill available space */
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.wine-detail-info p {
+  margin: 10px 0;
+}
+
+.wine-detail-info strong {
+  color: #333;
+}
+
+/* Error and loading states */
+.wine-detail-error,
+.wine-detail-loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #d9534f;
+  margin-top: 20px;
+}
+
+.wine-detail-loading {
+  color: #8b3a3a;
+}
+
+.back-link {
+  padding: 10px;
+  text-decoration: underline;
+  text-align: left;
+}
+
+/* Edit form styling */
+.wine-edit-form {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  background-color: #f9f9f9; /* Slightly different background */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.wine-edit-form div {
+  margin-bottom: 15px;
+}
+
+.wine-edit-form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.wine-edit-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.wine-edit-form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #8b3a3a;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.wine-edit-form button:hover {
+  background-color: #8b3a3a;
+}
+
+/* Responsive adjustments */
 @media (max-width: 600px) {
   .wine-detail-image {
       max-width: 600px; /* Max width for mobile */

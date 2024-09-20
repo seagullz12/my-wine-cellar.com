@@ -273,6 +273,35 @@ app.delete('/delete-wine/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Add this endpoint to your server.js file
+
+// Route to update wine data
+app.put('/update-wine-data', authenticateToken, async (req, res) => {
+  try {
+    const { id, wineData } = req.body;
+    const userId = req.user.uid;
+
+    if (!id || !wineData) {
+      return res.status(400).json({ message: 'Missing id or wineData in request body' });
+    }
+
+    const wineRef = db.collection('users').doc(userId).collection('wines').doc(id);
+    const wineDoc = await wineRef.get();
+
+    if (!wineDoc.exists) {
+      return res.status(404).json({ error: 'Wine not found' });
+    }
+
+    await wineRef.update(wineData);
+    const updatedWine = await wineRef.get();
+
+    res.status(200).json({ data: updatedWine.data() });
+  } catch (error) {
+    console.error('Error updating wine data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Route to get wine recommendations based on food input
 app.post('/recommend-wine', authenticateToken, async (req, res) => {
   try {

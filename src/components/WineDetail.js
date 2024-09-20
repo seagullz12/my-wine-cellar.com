@@ -9,9 +9,10 @@ const WineDetail = () => {
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedWineData, setEditedWineData] = useState({});
 
-  // const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
-   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
     const auth = getAuth();
@@ -26,7 +27,7 @@ const WineDetail = () => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          const response = await fetch(`${backendURL}/get-wine-data?id=${id}`, { // Updated URL with query parameter
+          const response = await fetch(`${backendURL}/get-wine-data?id=${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -34,27 +35,16 @@ const WineDetail = () => {
 
           if (response.ok) {
             const result = await response.json();
-            console.log('Fetched wine data:', result); // Debugging: log the result
-
-            if (result && (result.wine || result.wines)) {
-              // Adjust based on response structure
-              const fetchedWine = result.wine || (result.wines && result.wines.find(wine => wine.id === id));
-              if (fetchedWine) {
-                setWine(fetchedWine); // Directly set the wine object
-              } else {
-                console.error('Wine not found in response:', result); // Debugging: log unexpected format
-                setError('Wine not found');
-              }
+            if (result && result.wine) {
+              setWine(result.wine);
+              setEditedWineData(result.wine); // Initialize edited data
             } else {
-              console.error('Unexpected response format:', result); // Debugging: log unexpected format
-              setError('Unexpected response format');
+              setError('Wine not found');
             }
           } else {
-            console.error('Error fetching wine data:', response.statusText); // Debugging: log status text
             setError('Error fetching wine data');
           }
         } catch (error) {
-          console.error('An error occurred while fetching wine data:', error); // Debugging: log the error
           setError('An error occurred while fetching wine data');
         } finally {
           setLoading(false);
@@ -65,16 +55,65 @@ const WineDetail = () => {
     };
 
     fetchWineData();
-  }, [id, user]); // Added 'user' to dependency array to refetch if user changes
+  }, [id, user]);
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditedWineData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    // Save edited wine data logic
+    // Ensure image URLs are not included
+    const { 'Image URL (Desktop)': _, 'Image URL (Mobile)': __, ...dataToSave } = editedWineData;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`${backendURL}/append-wine-data`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          wineData: dataToSave,
+          id,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Wine data updated successfully!');
+        setIsEditing(false);
+        setWine(prevWine => ({ ...prevWine, ...dataToSave }));
+      } else {
+        setError('Error updating wine data');
+      }
+    } catch (error) {
+      setError('An error occurred while updating wine data');
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedWineData(wine); // Reset edited data to original
+  };
 
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
   if (error) return <p className="wine-detail-error">{error}</p>;
 
   return (
     <div className="wine-detail-container">
-        <div className="back-link" align="left">
+      <div className="back-link" align="left">
         <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
-        </div>
+      </div>
       {wine ? (
         <div className="wine-detail-card">
           <div className="wine-detail-header">
@@ -82,28 +121,73 @@ const WineDetail = () => {
           </div>
           {wine['Image URL (Desktop)'] && (
             <img
-              src={wine['Image URL (Desktop)']} // Fallback for browsers that don't support srcSet
-              srcSet={`
-                ${wine['Image URL (Mobile)']} 600w, 
-                ${wine['Image URL (Desktop)']} 1200w
-              `}
-              sizes="(max-width: 600px) 600px, 1200px"
+              src={wine['Image URL (Desktop)']}
               alt={wine.name}
               className="wine-detail-image"
             />
           )}
-          <div className="wine-detail-info">
-            <p><strong>Grape:</strong> {wine.grape}</p>
-            <p><strong>Vintage:</strong> {wine.vintage}</p>
-            <p><strong>Region:</strong> {wine.region}</p>
-            <p><strong>Producer:</strong> {wine.producer}</p>
-            <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
-            <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
-            <p><strong>Colour:</strong> {wine.colour}</p>
-            <p><strong>Nose:</strong> {wine.nose}</p>
-            <p><strong>Palate:</strong> {wine.palate}</p>
-            <p><strong>Pairing:</strong> {wine.pairing}</p>
-          </div>
+          {isEditing ? (
+            <form className="wine-edit-form" onSubmit={handleSave}>
+              <div>
+                <label>Grape:</label>
+                <input type="text" name="grape" value={editedWineData.grape} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Vintage:</label>
+                <input type="text" name="vintage" value={editedWineData.vintage} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Region:</label>
+                <input type="text" name="region" value={editedWineData.region} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Producer:</label>
+                <input type="text" name="producer" value={editedWineData.producer} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Alcohol Content:</label>
+                <input type="text" name="alcoholContent" value={editedWineData.alcoholContent} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Quality Classification:</label>
+                <input type="text" name="qualityClassification" value={editedWineData.qualityClassification} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Colour:</label>
+                <input type="text" name="colour" value={editedWineData.colour} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Nose:</label>
+                <input type="text" name="nose" value={editedWineData.nose} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Palate:</label>
+                <input type="text" name="palate" value={editedWineData.palate} onChange={handleChange} />
+              </div>
+              <div>
+                <label>Pairing:</label>
+                <input type="text" name="pairing" value={editedWineData.pairing} onChange={handleChange} />
+              </div>
+              <button type="submit">Save</button>
+              <button type="button" onClick={handleCancel}>Cancel</button>
+            </form>
+          ) : (
+            <>
+              <div className="wine-detail-info">
+                <p><strong>Grape:</strong> {wine.grape}</p>
+                <p><strong>Vintage:</strong> {wine.vintage}</p>
+                <p><strong>Region:</strong> {wine.region}</p>
+                <p><strong>Producer:</strong> {wine.producer}</p>
+                <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
+                <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
+                <p><strong>Colour:</strong> {wine.colour}</p>
+                <p><strong>Nose:</strong> {wine.nose}</p>
+                <p><strong>Palate:</strong> {wine.palate}</p>
+                <p><strong>Pairing:</strong> {wine.pairing}</p>
+              </div>
+              <button onClick={handleEditToggle}>{isEditing ? 'Cancel' : 'Edit'}</button>
+            </>
+          )}
         </div>
       ) : (
         <p>Wine data not found</p>

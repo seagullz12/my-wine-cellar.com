@@ -73,16 +73,21 @@ const WineDetail = () => {
   return (
     <div className="wine-detail-container">
         <div className="back-link" align="left">
-        <Link to="/cellar" className="back-to-wine-list"> Back to Your Cellar</Link>
+        <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
         </div>
       {wine ? (
         <div className="wine-detail-card">
           <div className="wine-detail-header">
             <h1>{wine.name}</h1>
           </div>
-          {wine['Image URL'] && (
+          {wine['Image URL (Desktop)'] && (
             <img
-              src={wine['Image URL']}
+              src={wine['Image URL (Desktop)']} // Fallback for browsers that don't support srcSet
+              srcSet={`
+                ${wine['Image URL (Mobile)']} 600w, 
+                ${wine['Image URL (Desktop)']} 1200w
+              `}
+              sizes="(max-width: 600px) 600px, 1200px"
               alt={wine.name}
               className="wine-detail-image"
             />

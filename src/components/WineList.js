@@ -14,8 +14,8 @@ const WineList = () => {
   const [user, setUser] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State to control Snackbar visibility
 
-  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
- // const backendURL = 'http://192.168.2.9:8080';
+ const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+  //const backendURL = 'http://192.168.2.9:8080';
 
   useEffect(() => {
     const auth = getAuth();
@@ -100,14 +100,20 @@ const WineList = () => {
           wines.map((wine, index) => (
             <div className="wine-card" key={index}>
               <div className="image-container">
-                {wine['Image URL'] && (
+                {wine['Image URL (Desktop)'] && (
                   <Link to={`/cellar/${wine.id}`}>
-                  <CardMedia
-                    component="img"
-                    image={wine['Image URL']}
-                    alt={wine.name}
-                    className="wine-image" // Ensure this CSS class is correctly defined
-                  />
+                  <CardMedia>
+                          <img
+                            src={wine['Image URL (Desktop)']} // Default to desktop image
+                            srcSet={`
+                              ${wine['Image URL (Mobile)']} 600w, 
+                              ${wine['Image URL (Desktop)']} 1200w
+                            `}
+                            sizes="(max-width: 600px) 100vw, 1200px" // Change to 100vw for full-width on mobile
+                            alt={wine.name}
+                            className="wine-image"
+                          />
+                  </CardMedia>
                 </Link>
                 )}
               </div>

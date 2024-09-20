@@ -31,6 +31,46 @@ const AddWine = () => {
     const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
     //const backendURL = 'http://192.168.2.9:8080';
 
+    // Function to resize image using canvas
+const resizeImage = (file) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const maxWidth = 800; // Maximum width for resizing
+      const maxHeight = 600; // Maximum height for resizing
+      let width = img.width;
+      let height = img.height;
+
+      // Resize the image while maintaining the aspect ratio
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      // Set canvas dimensions and draw the image
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert canvas to a data URL (webp format, 80% quality)
+      canvas.toBlob((blob) => {
+        resolve(blob); // Pass the resized image blob
+      }, 'image/webp', 0.8);
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+};
+
     // Detect if the user is on a mobile device
     useEffect(() => {
       setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
@@ -52,60 +92,64 @@ const AddWine = () => {
     };
 
     // Function to handle taking a photo and processing it
-    const handleFileChange = async (event) => {
-      const file = event.target.files[0];
-      
-      if (!file) {
-        addLogMessage('No file selected');
-        alert('No file selected.');
-        return;
-      }
+const handleFileChange = async (event) => {
+  const file = event.target.files[0];
+  
+  if (!file) {
+    addLogMessage('No file selected');
+    alert('No file selected.');
+    return;
+  }
 
-      addLogMessage(`File selected: ${file.name}`);
-      
-      const reader = new FileReader();
-      
-      reader.onloadend = async () => {
-        const dataUrl = reader.result;
-        setPhotoURL(dataUrl);
+  addLogMessage(`File selected: ${file.name}`);
+  
+  // Resize the image before further processing
+  const resizedImageBlob = await resizeImage(file);
 
-        addLogMessage('Image loaded, making API call to process image');
-        
-        if (user) { // Proceed only if user is authenticated
-          try {
-            const response = await fetch(backendURL + '/process-image', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.accessToken}` // Include the token in the request headers
-              },
-              body: JSON.stringify({ imageUrl: dataUrl }),
-            });
+  // Convert the resized blob to a data URL
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const dataUrl = reader.result;
+    setPhotoURL(dataUrl);
 
-            if (response.ok) {
-              const result = await response.json();
-              addLogMessage('OCR Result: ' + result.text);
+    addLogMessage('Image resized and loaded, making API call to process image');
+    
+    if (user) { // Proceed only if user is authenticated
+      try {
+        const response = await fetch(backendURL + '/process-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.accessToken}` // Include the token in the request headers
+          },
+          body: JSON.stringify({ imageUrl: dataUrl }),
+        });
 
-              const cleanedText = cleanText(result.text);
-              setOcrResult(cleanedText);
+        if (response.ok) {
+          const result = await response.json();
+          addLogMessage('OCR Result: ' + result.text);
 
-              // Extract wine data and update state
-              await extractWineData(cleanedText);
-            } else {
-              addLogMessage('Error processing image response');
-              alert('Error processing image.');
-            }
-          } catch (error) {
-            addLogMessage('Error processing image: ' + error.message);
-            alert('An error occurred while processing the image.');
-          }
+          const cleanedText = cleanText(result.text);
+          setOcrResult(cleanedText);
+
+          // Extract wine data and update state
+          await extractWineData(cleanedText);
         } else {
-          alert('You must be logged in to scan a bottle.');
+          addLogMessage('Error processing image response');
+          alert('Error processing image.');
         }
-      };
+      } catch (error) {
+        addLogMessage('Error processing image: ' + error.message);
+        alert('An error occurred while processing the image.');
+      }
+    } else {
+      alert('You must be logged in to scan a bottle.');
+    }
+  };
 
-      reader.readAsDataURL(file);
-    };
+  reader.readAsDataURL(resizedImageBlob);
+};
+
 
     const cleanText = (text) => {
       return text

@@ -27,7 +27,7 @@
 }
 
 .wine-card {
-  border: 0px solid #8b3a3a;
+  border: 0; /* Removed unnecessary border property */
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -37,8 +37,6 @@
   flex-direction: column;
   position: relative;
   height: 100%; /* Ensures cards take up the full height of the grid cell */
-  display: flex; /* Ensure flexbox layout for equal card height */
-  flex-direction: column;
   min-height: 400px; /* Adjust this value based on the content */
 }
 

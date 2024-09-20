@@ -7,9 +7,13 @@ require('dotenv').config();
 const { Storage } = require('@google-cloud/storage');
 const { getFirestore, collection, doc, getDocs} = require('firebase-admin/firestore');
 const { initializeApp, cert } = require("firebase-admin/app");
+const path = require('path');
+const sharp = require('sharp')
 
 const app = express();
 const port = 8080;
+
+app.use('/static', express.static(path.join(__dirname, 'static')));
 
 const serviceAccount = {
     type: process.env.FIREBASE_type,
@@ -39,7 +43,7 @@ const uploadImageToGCS = async (imageData, fileName) => {
   const file = bucket.file(fileName);
   const stream = file.createWriteStream({
     resumable: false,
-    contentType: 'image/png' // Adjust based on your image type
+    contentType: 'image/webp' // Adjust based on your image type
   });
 
   return new Promise((resolve, reject) => {
@@ -146,20 +150,33 @@ app.post('/extract-wine-data', authenticateToken, async (req, res) => {
 // Route to append wine data to Firestore
 app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { wineData, imageUrl, id } = req.body; // Expecting id in request body
+    const { wineData, imageUrl, id } = req.body;
 
     if (!wineData || !imageUrl || !id) {
       return res.status(400).json({ message: 'Missing wineData, imageUrl, or id in request body' });
     }
 
-    // Upload image to GCS
-    const imageUrlBase64 = imageUrl.split(',')[1]; // Extract base64 part
+    // Extract base64 part from image URL
+    const imageUrlBase64 = imageUrl.split(',')[1];
     const wineName = wineData.name.replace(/\s+/g, '_');
-    const fileName = `wine-labels/${wineName}.png`; // Generate a unique file name
-    const uploadedImageUrl = await uploadImageToGCS(imageUrlBase64, fileName);
 
-    // Add the image URL to the wineData object
-    wineData['Image URL'] = uploadedImageUrl;
+    // Upload desktop image to GCS
+    const desktopFileName = `wine-labels/${wineName}-desktop.webp`;
+    const uploadedDesktopImageUrl = await uploadImageToGCS(imageUrlBase64, desktopFileName);
+
+    // Create a mobile-optimized image using sharp
+    const mobileImageBuffer = await sharp(Buffer.from(imageUrlBase64, 'base64'))
+      .resize(300) // Resize to 300px width (adjust as necessary)
+      .toFormat('png') // Specify format
+      .toBuffer();
+
+    // Upload mobile image to GCS
+    const mobileFileName = `wine-labels/${wineName}-mobile.webp`;
+    const uploadedMobileImageUrl = await uploadImageToGCS(mobileImageBuffer.toString('base64'), mobileFileName);
+
+    // Add the image URLs to the wineData object
+    wineData['Image URL (Desktop)'] = uploadedDesktopImageUrl;
+    wineData['Image URL (Mobile)'] = uploadedMobileImageUrl;
 
     // Add wine data to Firestore
     const userId = req.user.uid;
@@ -169,18 +186,17 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      // If the user document doesn't exist, create an empty document for the user
-      await userRef.set({}); // You can also initialize with default values if needed
+      await userRef.set({});
     }
 
     // Proceed with adding wine data to the wines sub-collection with the provided id
     const winesCollection = userRef.collection('wines');
-    await winesCollection.doc(id).set(wineData); // Use `doc(id)` to set the document with the provided id
+    await winesCollection.doc(id).set(wineData);
 
     res.status(200).json({
       message: 'Wine data appended to Firestore',
-      response: uploadedImageUrl,
-      wineUrl: `/cellar/${id}` // Return the URL path
+      response: uploadedDesktopImageUrl,
+      wineUrl: `/cellar/${id}`
     });
   } catch (error) {
     console.error('Error appending wine data:', error);

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
-import '../styles/WineDetail.css'; // Import the CSS file
+import '../styles/WineDetail.css';
 
 const WineDetail = () => {
-  const { id } = useParams(); // Get the ID from the URL
+  const { id } = useParams();
   const [user, setUser] = useState(null);
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedWineData, setEditedWineData] = useState({});
+  const [formData, setFormData] = useState({});
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
@@ -35,12 +35,9 @@ const WineDetail = () => {
 
           if (response.ok) {
             const result = await response.json();
-            if (result && result.wine) {
-              setWine(result.wine);
-              setEditedWineData(result.wine); // Initialize edited data
-            } else {
-              setError('Wine not found');
-            }
+            const fetchedWine = result.wine;
+            setWine(fetchedWine);
+            setFormData(fetchedWine); // Set initial form data
           } else {
             setError('Error fetching wine data');
           }
@@ -50,7 +47,7 @@ const WineDetail = () => {
           setLoading(false);
         }
       } else {
-        setLoading(false);  
+        setLoading(false);
       }
     };
 
@@ -62,48 +59,32 @@ const WineDetail = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditedWineData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Save edited wine data logic
-    // Ensure image URLs are not included
-    const { 'Image URL (Desktop)': _, 'Image URL (Mobile)': __, ...dataToSave } = editedWineData;
-
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`${backendURL}/append-wine-data`, {
-        method: 'POST',
+      const response = await fetch(`${backendURL}/update-wine-data`, {
+        method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          wineData: dataToSave,
-          id,
-        }),
+        body: JSON.stringify({ id, wineData: formData }),
       });
 
       if (response.ok) {
-        alert('Wine data updated successfully!');
+        const updatedWine = await response.json();
+        setWine(updatedWine.data);
         setIsEditing(false);
-        setWine(prevWine => ({ ...prevWine, ...dataToSave }));
       } else {
         setError('Error updating wine data');
       }
     } catch (error) {
       setError('An error occurred while updating wine data');
     }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setEditedWineData(wine); // Reset edited data to original
   };
 
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
@@ -127,53 +108,23 @@ const WineDetail = () => {
             />
           )}
           {isEditing ? (
-            <form className="wine-edit-form" onSubmit={handleSave}>
-              <div>
-                <label>Grape:</label>
-                <input type="text" name="grape" value={editedWineData.grape} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Vintage:</label>
-                <input type="text" name="vintage" value={editedWineData.vintage} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Region:</label>
-                <input type="text" name="region" value={editedWineData.region} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Producer:</label>
-                <input type="text" name="producer" value={editedWineData.producer} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Alcohol Content:</label>
-                <input type="text" name="alcoholContent" value={editedWineData.alcoholContent} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Quality Classification:</label>
-                <input type="text" name="qualityClassification" value={editedWineData.qualityClassification} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Colour:</label>
-                <input type="text" name="colour" value={editedWineData.colour} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Nose:</label>
-                <input type="text" name="nose" value={editedWineData.nose} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Palate:</label>
-                <input type="text" name="palate" value={editedWineData.palate} onChange={handleChange} />
-              </div>
-              <div>
-                <label>Pairing:</label>
-                <input type="text" name="pairing" value={editedWineData.pairing} onChange={handleChange} />
-              </div>
+            <form onSubmit={handleSubmit} className="wine-edit-form">
+              {Object.keys(formData).map((key) => (
+                <div key={key}>
+                  <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+                  <input
+                    type="text"
+                    name={key}
+                    value={formData[key]}
+                    onChange={handleChange}
+                  />
+                </div>
+              ))}
               <button type="submit">Save</button>
-              <button type="button" onClick={handleCancel}>Cancel</button>
+              <button type="button" onClick={handleEditToggle}>Cancel</button>
             </form>
           ) : (
-            <>
-              <div className="wine-detail-info">
+            <div className="wine-detail-info">
                 <p><strong>Grape:</strong> {wine.grape}</p>
                 <p><strong>Vintage:</strong> {wine.vintage}</p>
                 <p><strong>Region:</strong> {wine.region}</p>
@@ -184,9 +135,9 @@ const WineDetail = () => {
                 <p><strong>Nose:</strong> {wine.nose}</p>
                 <p><strong>Palate:</strong> {wine.palate}</p>
                 <p><strong>Pairing:</strong> {wine.pairing}</p>
-              </div>
-              <button onClick={handleEditToggle}>{isEditing ? 'Cancel' : 'Edit'}</button>
-            </>
+            
+              <button onClick={handleEditToggle}>Edit</button>
+            </div>
           )}
         </div>
       ) : (

@@ -126,6 +126,26 @@
   background-color: #8b3a3a;
 }
 
+.age-indicator-container {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.age-progress-bar {
+  width: 100%;
+  background-color: #e0e0e0; /* Light gray background */
+  border-radius: 5px;
+  overflow: hidden;
+  height: 20px; /* Height of the progress bar */
+}
+
+.age-progress {
+  height: 100%;
+  background-color: #4caf50; /* Green color for the progress */
+  transition: width 0.3s ease; /* Smooth transition for the progress */
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .wine-detail-image {

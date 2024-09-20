@@ -273,6 +273,7 @@ app.delete('/delete-wine/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to update wine data
 // Add this endpoint to your server.js file
 
 // Route to update wine data

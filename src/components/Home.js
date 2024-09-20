@@ -46,7 +46,7 @@ const HomePage = () => {
           <div className="home-card">
             <img src={addWines} alt="Add Wine" className="home-card-media" />
             <div className="home-card-content">
-              <h3>Add Wine</h3>
+              <h3>Add New Wines</h3>
               <p>Expand your collection by adding new wines to your cellar.</p>
               <Link to="/add-wine" className="home-button">Add Wine</Link>
             </div>

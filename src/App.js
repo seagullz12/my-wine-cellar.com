@@ -4,6 +4,7 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Home from './components/Home';
 import AddWine from './components/AddWine';
+import AddWineBatch from './components/AddWineBatch';
 import WineList from './components/WineList';
 import WineRecommendations from './components/WineRecommendations';
 import WineDetail from './components/WineDetail';
@@ -44,6 +45,7 @@ const App = () => {
           {user ? (
             <>
               <Route path="/add-wine" element={<AddWine />} />
+              <Route path="/add-wine-batch" element={<AddWineBatch />} />
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />
               <Route path="/cellar/:id" element={<WineDetail />} />

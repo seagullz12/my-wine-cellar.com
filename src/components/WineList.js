@@ -133,6 +133,9 @@ const WineList = () => {
                 <Typography variant="body2" color="textSecondary">
                   <strong>Producer:</strong> {wine.producer}
                 </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  <strong>Quality Classification:</strong> {wine.qualityClassification}
+                </Typography>
               </CardContent>
 
               {/* Buttons */}

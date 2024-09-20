@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import '../styles/Home.css'; // Import the CSS file for styling
-import personalSommelier from '../assets/images/personalSommelier.jpg'; // Import the image
-import manageWineCollection from '../assets/images/manageWineCollection.jpg'; // Import the image
-import joinUs from '../assets/images/joinUs.jpg'; // Import the image
-import addWines from '../assets/images/AddWines.jpg'; // Import the image
+import personalSommelier from '../assets/images/personalSommelier.webp'; // Import the image
+import manageWineCollection from '../assets/images/manageWineCollection.webp'; // Import the image
+import joinUs from '../assets/images/joinUs.webp'; // Import the image
+import addWines from '../assets/images/AddWines.webp'; // Import the image
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

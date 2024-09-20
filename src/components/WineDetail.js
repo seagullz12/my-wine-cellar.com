@@ -10,7 +10,7 @@ const WineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  //const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
+  // const backendURL = 'http://192.168.2.9:8080'; // Ensure this matches your actual backend URL
    const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
@@ -98,6 +98,7 @@ const WineDetail = () => {
             <p><strong>Region:</strong> {wine.region}</p>
             <p><strong>Producer:</strong> {wine.producer}</p>
             <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
+            <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
             <p><strong>Colour:</strong> {wine.colour}</p>
             <p><strong>Nose:</strong> {wine.nose}</p>
             <p><strong>Palate:</strong> {wine.palate}</p>

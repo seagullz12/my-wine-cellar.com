@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
 import '../styles/AddWine.css';
 
 const AddWine = () => {
-    const videoRef = useRef(null);
     const [ocrResult, setOcrResult] = useState('');
     const [wineData, setWineData] = useState({
       name: 'unknown',
@@ -13,6 +12,7 @@ const AddWine = () => {
       region: 'unknown',
       producer: 'unknown',
       alcoholContent: 'unknown',
+      qualityClassification: 'unknown',
       colour: 'unknown',
       nose: 'unknown',
       palate: 'unknown',
@@ -29,7 +29,7 @@ const AddWine = () => {
     const [wineURL, setWineURL] = useState(''); // State to hold the generated wine URL
 
     const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-    //const backendURL = 'http://192.168.2.9:8080';
+   // const backendURL = 'http://192.168.2.9:8080';
 
     // Function to resize image using canvas
 const resizeImage = (file) => {
@@ -153,7 +153,7 @@ const handleFileChange = async (event) => {
 
     const cleanText = (text) => {
       return text
-        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove non-alphanumeric characters (excluding space)
+        .replace(/[^a-zA-Z0-9\sÀ-ÿ]/g, '') // Keep alphanumeric characters and accented characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
         .trim(); // Remove leading and trailing whitespace
     };
@@ -236,64 +236,72 @@ const handleFileChange = async (event) => {
   
     const parseWineData = (data) => {
       const result = {
-        name: 'unknown',
-        grape: 'unknown',
-        vintage: 'unknown',
-        region: 'unknown',
-        producer: 'unknown',
-        alcoholContent: 'unknown',
-        colour: 'unknown',
-        nose: 'unknown',
-        palate: 'unknown',
-        pairing: 'unknown',
+          name: 'unknown',
+          grape: 'unknown',
+          vintage: 'unknown',
+          region: 'unknown',
+          producer: 'unknown',
+          alcoholContent: 'unknown',
+          qualityClassification: 'unknown',
+          colour: 'unknown',
+          nose: 'unknown',
+          palate: 'unknown',
+          pairing: 'unknown',
       };
   
-      const regex = /(\w+):\s*([^;]+)/g;
+      // Match the name separately
+      const nameMatch = data.match(/Name:\s*([^;]+)/);
+      if (nameMatch) {
+          result.name = nameMatch[1].trim();
+      }
+  
+      const regex = /([^:;]+):\s*([^;]+)/g;
       let match;
   
       while ((match = regex.exec(data)) !== null) {
-        const field = match[1].toLowerCase();
-        const value = match[2].trim();
+          const field = match[1].toLowerCase().trim();
+          const value = match[2].trim();
   
-        switch (field) {
-          case 'name':
-            result.name = value;
-            break;
-          case 'grape':
-            result.grape = value;
-            break;
-          case 'vintage':
-            result.vintage = value;
-            break;
-          case 'region':
-            result.region = value;
-            break;
-          case 'producer':
-            result.producer = value;
-            break;
-          case 'alcohol content':
-            result.alcoholContent = value;
-            break;
-          case 'colour':
-            result.colour = value;
-            break;
-          case 'nose':
-            result.nose = value;
-            break;
-          case 'palate':
-            result.palate = value;
-            break;
-          case 'pairing':
-            result.pairing = value;
-            break;
-          default:
-            addLogMessage(`Unrecognized field: ${field}`);
-        }
+          switch (field) {
+              case 'grape':
+                  result.grape = value;
+                  break;
+              case 'vintage':
+                  result.vintage = value;
+                  break;
+              case 'region':
+                  result.region = value;
+                  break;
+              case 'producer':
+                  result.producer = value;
+                  break;
+              case 'alcohol content':
+                  result.alcoholContent = value;
+                  break;
+              case 'quality classification':
+                  result.qualityClassification = value;
+                  break;
+              case 'colour':
+                  result.colour = value;
+                  break;
+              case 'nose':
+                  result.nose = value;
+                  break;
+              case 'palate':
+                  result.palate = value;
+                  break;
+              case 'pairing':
+                  result.pairing = value;
+                  break;
+              default:
+                  // Skip logging for fields not recognized, but allow for additional fields
+                  if (!Object.keys(result).includes(field)) {
+                      console.log(`Unrecognized field: ${field}`);
+                  }
+          }
       }
-  
-      return result;
-    };
-  
+      return result;  
+  };  
     return (
       <div className="AddWine">
         <div className="container">
@@ -347,6 +355,7 @@ const handleFileChange = async (event) => {
                   <li><strong>Region:</strong> {wineData.region}</li>
                   <li><strong>Producer:</strong> {wineData.producer}</li>
                   <li><strong>Alcohol Content:</strong> {wineData.alcoholContent}</li>
+                  <li><strong>Quality Classification:</strong> {wineData.qualityClassification}</li>
                   <li><strong>Colour:</strong> {wineData.colour}</li>
                   <li><strong>Nose:</strong> {wineData.nose}</li>
                   <li><strong>Palate:</strong> {wineData.palate}</li>

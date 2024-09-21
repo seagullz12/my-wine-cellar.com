@@ -3,9 +3,9 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
 import WineDetailEditForm from './WineDetailEditForm';
 import '../styles/WineDetail.css';
-import AgeTracker from './AgeTracker';
 import WineMap from './WineMap'; // Import the new component
 import AgeBadge from './AgeBadge';
+import PeakMaturityBadge from './PeakMaturityBadge';
 
 const WineDetail = () => {
   const { id } = useParams();
@@ -15,7 +15,7 @@ const WineDetail = () => {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
-  const [successMessage, setSuccessMessage] = useState(''); 
+  const [successMessage, setSuccessMessage] = useState('');
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
@@ -107,18 +107,25 @@ const WineDetail = () => {
             <h1>{wine.name}</h1>
           </div>
           {wine['Image URL (Desktop)'] && (
-            <img
-              src={wine['Image URL (Desktop)']}
-              alt={wine.name}
-              className="wine-detail-image"
-            />
-
+            <div className="wine-details-image-container">
+              <img
+                src={wine['Image URL (Desktop)']} // Default to desktop image
+                srcSet={`
+                          ${wine['Image URL (Mobile)']} 600w, 
+                          ${wine['Image URL (Desktop)']} 1200w
+                        `}
+                sizes="(max-width: 600px) 100vw, 1200px" // Change to 100vw for full-width on mobile
+                alt={wine.name}
+                className="wine-detail-image"
+              />
+              <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false}  /> 
+            </div>
           )}
           {successMessage && (
             <div className="success-notification">
               <span className="success-icon">✔️</span> {successMessage}
             </div>
-          )} 
+          )}
 
           {isEditing ? (
             <WineDetailEditForm
@@ -130,7 +137,7 @@ const WineDetail = () => {
 
           ) : (
             <div className="wine-detail-info">
-      
+
               <p><strong>Grape:</strong> {wine.grape}</p>
               <p><strong>Vintage:</strong> {wine.vintage}</p>
               <p><strong>Region:</strong> {wine.region}</p>
@@ -141,25 +148,20 @@ const WineDetail = () => {
               <p><strong>Nose:</strong> {wine.nose}</p>
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
-              {wine && (
-  <div className="wine-image-container">
-    <img src={wine['Image URL (Desktop)']} alt={wine.name} className="wine-detail-image" />
-    <AgeBadge vintage={wine.vintage} /> {/* Pass vintage directly */}
-  </div>
-)}
+              <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
 
-               {/* Age Tracker visual */}   
-              <AgeTracker vintage={wine.vintage} />
-             
+              {/* Age Tracker visual */}
+              {/* <AgeTracker vintage={wine.vintage} /> */}
+
               <button onClick={handleEditToggle}>Edit</button>
               <div className="wine-detail-info">
-              {/* Existing wine details... */}
+                {/* Existing wine details... */}
 
-              {/* Map of Wine Region */}
-              <WineMap region={wine.region} />
-              
+                {/* Map of Wine Region */}
+                <WineMap region={wine.region} />
+
               </div>
-            </div>
+            </div>  
           )}
         </div>
       ) : (

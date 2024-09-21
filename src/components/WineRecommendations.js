@@ -69,17 +69,17 @@ const WineRecommendation = () => {
       <div className="recommendations-list">
         <div className="recommendation-item">
           <h3>Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" href={"/wine-scanner/#" + data.best_pairing_link}>{data.best_pairing_name}</a></p>
+          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href={"/#" + data.best_pairing_link}>{data.best_pairing_name}</a></p>
           <p><strong>Explanation:</strong> {data.best_pairing_explanation}</p>
         </div>
         <div className="recommendation-item">
           <h3>Second Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" href={"/wine-scanner/#" + data.second_best_pairing_link}>{data.second_best_pairing_name}</a></p>
+          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href={"/#" + data.second_best_pairing_link}>{data.second_best_pairing_name}</a></p>
           <p><strong>Explanation:</strong> {data.second_best_pairing_explanation}</p>
         </div>
         <div className="recommendation-item">
           <h3>Third Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" href ={"/wine-scanner/#" + data.third_best_pairing_link}>{data.third_best_pairing_name}</a></p>
+          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href ={"/#" + data.third_best_pairing_link}>{data.third_best_pairing_name}</a></p>
           <p><strong>Explanation:</strong> {data.third_best_pairing_explanation}</p>
         </div>
       </div>

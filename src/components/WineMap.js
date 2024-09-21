@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/WineMap.css'; // Ensure to create this CSS file for styling
+import '../styles/WineMap.css'; 
 
 const WineMap = ({ region }) => {
-    const [regionCoordinates, setRegionCoordinates] = useState(null);
-    const [error, setError] = useState(null);
-    const [isVisible, setIsVisible] = useState(false);
+  const [regionCoordinates, setRegionCoordinates] = useState(null);
+  const [error, setError] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const geocodingAPIKey = process.env.GEOCODINGAPIKEY; // Replace with your API key
+  const geocodingAPIKey = process.env.REACT_APP_GEOCODING_API_KEY; 
+  console.log(process.env.REACT_APP_GEOCODING_API_KEY);
+
   const geocodingAPIUrl = 'https://api.opencagedata.com/geocode/v1/json';
 
   useEffect(() => {
@@ -34,7 +36,7 @@ const WineMap = ({ region }) => {
     };
 
     fetchCoordinates();
-  }, [region]);
+  }, [region, geocodingAPIKey]); // Include geocodingAPIKey here
 
   // Lazy loading using IntersectionObserver
   useEffect(() => {

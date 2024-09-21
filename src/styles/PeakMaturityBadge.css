@@ -1,0 +1,58 @@
+.wine-image-container {
+  position: relative; 
+}
+
+.wine-details-image-container {
+  position: relative; 
+}
+  .peak-maturity-badge {
+    position: absolute;
+    bottom: 15px; /* Distance from the bottom */
+    right: 10px; /* Distance from the right */
+    background-color: rgb(205, 253, 134);
+    border: 2px solid #007531;
+    border-radius: 8px;
+    padding: 10px 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    transition: transform 0.3s, background-color 0.3s;
+  }
+  
+  .peak-maturity-text {
+    font-size: 1.0 rem; /* Larger font size */
+    font-weight: bold;
+  }
+  
+  .round-peak-maturity-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 255, 255, 0.409); /* Semi-transparent white */
+    color: #333;
+    border-radius: 50%;
+    width: 70px; /* Adjusted size */
+    height: 70px; /* Adjusted size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s;
+  }
+  
+  .round-peak-maturity-badge:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 195, 113, 0.8);
+  }
+
+  .peak-maturity-badge.at-peak,
+  .round-peak-maturity-badge.at-peak {
+    background-color: rgba(34, 195, 98, 0.582); /* Bright teal when at peak */
+    color: #ffffff; /* White text for contrast */
+    font-size: 0.8em;
+  }
+
+
+  

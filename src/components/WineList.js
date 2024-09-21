@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 import Snackbar from '@mui/material/Snackbar'; // Snackbar for user notification
 import Alert from '@mui/material/Alert'; // Alert component for showing success message
 import '../styles/WineList.css'; // Ensure this file includes the updated CSS
+import AgeBadge from './AgeBadge';
+import PeakMaturityBadge from './PeakMaturityBadge';
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -103,6 +105,7 @@ const WineList = () => {
                 {wine['Image URL (Desktop)'] && (
                   <Link to={`/cellar/${wine.id}`}>
                   <CardMedia>
+                  <div className="wine-image-container">
                           <img
                             src={wine['Image URL (Desktop)']} // Default to desktop image
                             srcSet={`
@@ -113,6 +116,14 @@ const WineList = () => {
                             alt={wine.name}
                             className="wine-image"
                           />
+                        
+                        { !wine.peakMaturity ? (
+                          <AgeBadge vintage={wine.vintage} round={true} />
+                        ) : (
+                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={true}  />
+                        )
+                        } 
+                      </div>
                   </CardMedia>
                 </Link>
                 )}

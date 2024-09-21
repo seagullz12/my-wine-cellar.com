@@ -39,3 +39,8 @@
   .wine-edit-form button:hover {
     background-color: #8b3a3a;
   }
+
+  .wine-edit-form input[type="range"] {
+    width: 100%; /* Full width */
+  }
+  

@@ -5,6 +5,7 @@ import WineDetailEditForm from './WineDetailEditForm';
 import '../styles/WineDetail.css';
 import AgeTracker from './AgeTracker';
 import WineMap from './WineMap'; // Import the new component
+import AgeBadge from './AgeBadge';
 
 const WineDetail = () => {
   const { id } = useParams();
@@ -140,6 +141,12 @@ const WineDetail = () => {
               <p><strong>Nose:</strong> {wine.nose}</p>
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
+              {wine && (
+  <div className="wine-image-container">
+    <img src={wine['Image URL (Desktop)']} alt={wine.name} className="wine-detail-image" />
+    <AgeBadge vintage={wine.vintage} /> {/* Pass vintage directly */}
+  </div>
+)}
 
                {/* Age Tracker visual */}   
               <AgeTracker vintage={wine.vintage} />

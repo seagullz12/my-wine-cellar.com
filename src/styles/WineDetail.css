@@ -1,4 +1,4 @@
-/* WineDetail.css */
+/* WineDetailEditForm.css */
 
 /* Card for the wine detail page */
 .wine-detail-card {
@@ -84,48 +84,6 @@
   text-align: left;
 }
 
-/* Edit form styling */
-.wine-edit-form {
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  background-color: #f9f9f9; /* Slightly different background */
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.wine-edit-form div {
-  margin-bottom: 15px;
-}
-
-.wine-edit-form label {
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #333;
-}
-
-.wine-edit-form input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.wine-edit-form button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  background-color: #8b3a3a;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
-}
-
-.wine-edit-form button:hover {
-  background-color: #8b3a3a;
-}
-
 .age-indicator-container {
   margin-top: 10px;
   text-align: center;
@@ -145,6 +103,26 @@
   transition: width 0.3s ease; /* Smooth transition for the progress */
 }
 
+.success-notification {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dff0d8;
+  color: #3c763d;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid #d6e9c6;
+  margin: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.success-icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
 
 /* Responsive adjustments */
 @media (max-width: 600px) {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
+import WineDetailEditForm from './WineDetailEditForm';
 import '../styles/WineDetail.css';
 
 const WineDetail = () => {
@@ -11,6 +12,7 @@ const WineDetail = () => {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
+  const [successMessage, setSuccessMessage] = useState(''); 
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
@@ -79,6 +81,7 @@ const WineDetail = () => {
         const updatedWine = await response.json();
         setWine(updatedWine.data);
         setIsEditing(false);
+        setSuccessMessage('Wine details saved successfully!'); // Set success message
       } else {
         setError('Error updating wine data');
       }
@@ -106,36 +109,36 @@ const WineDetail = () => {
               alt={wine.name}
               className="wine-detail-image"
             />
+
           )}
+          {successMessage && (
+            <div className="success-notification">
+              <span className="success-icon">✔️</span> {successMessage}
+            </div>
+          )} 
+
           {isEditing ? (
-            <form onSubmit={handleSubmit} className="wine-edit-form">
-              {Object.keys(formData).map((key) => (
-                <div key={key}>
-                  <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
-                  <input
-                    type="text"
-                    name={key}
-                    value={formData[key]}
-                    onChange={handleChange}
-                  />
-                </div>
-              ))}
-              <button type="submit">Save</button>
-              <button type="button" onClick={handleEditToggle}>Cancel</button>
-            </form>
+            <WineDetailEditForm
+              formData={formData}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              handleEditToggle={handleEditToggle}
+            />
+
           ) : (
             <div className="wine-detail-info">
-                <p><strong>Grape:</strong> {wine.grape}</p>
-                <p><strong>Vintage:</strong> {wine.vintage}</p>
-                <p><strong>Region:</strong> {wine.region}</p>
-                <p><strong>Producer:</strong> {wine.producer}</p>
-                <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
-                <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
-                <p><strong>Colour:</strong> {wine.colour}</p>
-                <p><strong>Nose:</strong> {wine.nose}</p>
-                <p><strong>Palate:</strong> {wine.palate}</p>
-                <p><strong>Pairing:</strong> {wine.pairing}</p>
-            
+      
+              <p><strong>Grape:</strong> {wine.grape}</p>
+              <p><strong>Vintage:</strong> {wine.vintage}</p>
+              <p><strong>Region:</strong> {wine.region}</p>
+              <p><strong>Producer:</strong> {wine.producer}</p>
+              <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
+              <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
+              <p><strong>Colour:</strong> {wine.colour}</p>
+              <p><strong>Nose:</strong> {wine.nose}</p>
+              <p><strong>Palate:</strong> {wine.palate}</p>
+              <p><strong>Pairing:</strong> {wine.pairing}</p>
+
               <button onClick={handleEditToggle}>Edit</button>
             </div>
           )}

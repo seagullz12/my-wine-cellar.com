@@ -13,14 +13,11 @@ const SignIn = () => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const idToken = await user.getIdToken();
-      
-      // Handle the ID token (e.g., send it to your backend)
-      console.log('ID Token:', idToken);
+      //const user = userCredential.user;
+      //const idToken = await user.getIdToken();
 
       // Redirect to Home page after successful sign-in
-      navigate('/wine-scanner');
+      navigate('/');
     } catch (error) {
       setError('Failed to sign in. Please check your email and password.');
       console.error('Sign In Error:', error);

@@ -1,0 +1,22 @@
+.wine-map {
+  position: relative;
+}
+
+.map-container {
+  position: relative;
+}
+
+.region-name {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the element */
+  background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333; /* Darker text color */
+  z-index: 10; /* Ensure it's above the map */
+  text-align: center; /* Center the text */
+}

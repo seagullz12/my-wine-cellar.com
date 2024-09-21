@@ -1,0 +1,42 @@
+.age-tracker-container {
+    background-color: #f9f9f9; /* Light background for subtlety */
+    border: 1px solid #e0e0e0; /* Soft border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 16px; /* Space inside the container */
+    margin: 10px 0; /* Space outside the container */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  }
+  
+  .age-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Center the content */
+    color: #333; /* Dark text for readability */
+  }
+  
+  .age-number {
+    font-size: 2rem; /* Larger font for age */
+    font-weight: bold; /* Emphasize the age */
+    color: #4CAF50; /* Green color for a fresh look */
+  }
+  
+  .age-label {
+    font-size: 1rem; /* Slightly smaller label */
+    color: #777; /* Softer color for the label */
+  }
+  
+  .age-description {
+    text-align: center; /* Center align text */
+    font-size: 0.9rem; /* Smaller font for description */
+    color: #555; /* More muted color for less emphasis */
+  }
+  
+  .invalid {
+    color: #d9534f; /* Red color for invalid state */
+  }
+  
+  .subtle {
+    opacity: 0.9; /* Slightly faded for subtlety */
+  }
+  

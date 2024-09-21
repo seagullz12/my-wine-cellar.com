@@ -3,6 +3,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
 import WineDetailEditForm from './WineDetailEditForm';
 import '../styles/WineDetail.css';
+import AgeTracker from './AgeTracker';
+import WineMap from './WineMap'; // Import the new component
 
 const WineDetail = () => {
   const { id } = useParams();
@@ -139,7 +141,17 @@ const WineDetail = () => {
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
 
+               {/* Age Tracker visual */}   
+              <AgeTracker vintage={wine.vintage} />
+             
               <button onClick={handleEditToggle}>Edit</button>
+              <div className="wine-detail-info">
+              {/* Existing wine details... */}
+
+              {/* Map of Wine Region */}
+              <WineMap region={wine.region} />
+              
+              </div>
             </div>
           )}
         </div>

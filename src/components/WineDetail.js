@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
 import WineDetailEditForm from './WineDetailEditForm';
-import '../styles/WineDetail.css';
-import WineMap from './WineMap'; // Import the new component
-import AgeBadge from './AgeBadge';
+import WineMap from './WineMap'; 
 import PeakMaturityBadge from './PeakMaturityBadge';
+import ShareWineButton from './ShareWineButton';
+import '../styles/WineDetail.css';
+import { getTokenFromUrl, getWineIdFromToken } from './utils'; 
 
 const WineDetail = () => {
-  const { id } = useParams();
+  const { id: wineId } = useParams(); // Directly use the wineId from params
   const [user, setUser] = useState(null);
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,20 +30,22 @@ const WineDetail = () => {
 
   useEffect(() => {
     const fetchWineData = async () => {
-      if (user) {
+      const token = getTokenFromUrl();
+      const resolvedWineId = token ? await getWineIdFromToken(token) : wineId;
+
+      if (user && resolvedWineId) {
         try {
-          const token = await user.getIdToken();
-          const response = await fetch(`${backendURL}/get-wine-data?id=${id}`, {
+          const authToken = await user.getIdToken();
+          const response = await fetch(`${backendURL}/get-wine-data?id=${resolvedWineId}`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${authToken}`,
             },
           });
 
           if (response.ok) {
             const result = await response.json();
-            const fetchedWine = result.wine;
-            setWine(fetchedWine);
-            setFormData(fetchedWine); // Set initial form data
+            setWine(result.wine);
+            setFormData(result.wine);
           } else {
             setError('Error fetching wine data');
           }
@@ -57,7 +60,7 @@ const WineDetail = () => {
     };
 
     fetchWineData();
-  }, [id, user]);
+  }, [wineId, user]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -77,14 +80,14 @@ const WineDetail = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, wineData: formData }),
+        body: JSON.stringify({ id: wineId, wineData: formData }),
       });
 
       if (response.ok) {
         const updatedWine = await response.json();
         setWine(updatedWine.data);
         setIsEditing(false);
-        setSuccessMessage('Wine details saved successfully!'); // Set success message
+        setSuccessMessage('Wine details saved successfully!');
       } else {
         setError('Error updating wine data');
       }
@@ -109,16 +112,16 @@ const WineDetail = () => {
           {wine['Image URL (Desktop)'] && (
             <div className="wine-details-image-container">
               <img
-                src={wine['Image URL (Desktop)']} // Default to desktop image
+                src={wine['Image URL (Desktop)']}
                 srcSet={`
                           ${wine['Image URL (Mobile)']} 600w, 
                           ${wine['Image URL (Desktop)']} 1200w
                         `}
-                sizes="(max-width: 600px) 100vw, 1200px" // Change to 100vw for full-width on mobile
+                sizes="(max-width: 600px) 100vw, 1200px"
                 alt={wine.name}
                 className="wine-detail-image"
               />
-              <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false}  /> 
+              <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
             </div>
           )}
           {successMessage && (
@@ -134,10 +137,8 @@ const WineDetail = () => {
               handleSubmit={handleSubmit}
               handleEditToggle={handleEditToggle}
             />
-
           ) : (
             <div className="wine-detail-info">
-
               <p><strong>Grape:</strong> {wine.grape}</p>
               <p><strong>Vintage:</strong> {wine.vintage}</p>
               <p><strong>Region:</strong> {wine.region}</p>
@@ -149,18 +150,9 @@ const WineDetail = () => {
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
               <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-
-              {/* Age Tracker visual */}
-              {/* <AgeTracker vintage={wine.vintage} /> */}
-
+              {/* <ShareWineButton wineName={wine.name} wineId={wineId} /> */}
               <button onClick={handleEditToggle}>Edit</button>
-              <div className="wine-detail-info">
-                {/* Existing wine details... */}
-
-                {/* Map of Wine Region */}
-                <WineMap region={wine.region} />
-
-              </div>
+              <WineMap region={wine.region} />
             </div>  
           )}
         </div>

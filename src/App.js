@@ -11,6 +11,7 @@ import WineDetail from './components/WineDetail';
 import NavBar from './components/NavBar'; 
 import SignIn from './components/SignIn'; 
 import SignUp from './components/SignUp'; 
+import SharedWineDetail from './components/SharedWineDetail';
 import './styles/global.css';
 
 const App = () => {
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/shared/:token" element={<SharedWineDetail />} /> 
 
           {/* Protected Routes */}
           {user ? (
@@ -49,6 +51,7 @@ const App = () => {
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />
               <Route path="/cellar/:id" element={<WineDetail />} />
+
               <Route path="*" element={<Navigate to="" />} />
             </>
           ) : (

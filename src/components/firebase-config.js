@@ -4,7 +4,6 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebas
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
-//const firebaseConfig = process.env.FIREBASE_CONFIG;
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,

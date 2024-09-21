@@ -8,8 +8,6 @@ const WineMap = ({ region }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const geocodingAPIKey = process.env.REACT_APP_GEOCODING_API_KEY; 
-  console.log(process.env.REACT_APP_GEOCODING_API_KEY);
-
   const geocodingAPIUrl = 'https://api.opencagedata.com/geocode/v1/json';
 
   useEffect(() => {

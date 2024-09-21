@@ -9,8 +9,8 @@
     position: absolute;
     bottom: 15px; /* Distance from the bottom */
     right: 10px; /* Distance from the right */
-    background-color: rgb(205, 253, 134);
-    border: 2px solid #007531;
+    background-color: rgba(255, 255, 255, 0.409); /* Semi-transparent white */
+    color: #333;
     border-radius: 8px;
     padding: 10px 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

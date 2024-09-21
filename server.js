@@ -98,8 +98,8 @@ const getWineDataFromText = async (text) => {
     const response = await openai.chat.completions.create({
       model: settings.model,
       messages: [
-        { role: 'system', content: 'You are a helpful assistant with expert knowledge about wines.' },
-        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol Content: [alcohol content]; Quality Classification: [quality classification]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]. If information is missing then complete it using your knowledge.` }
+        { role: 'system', content: 'You are a helpful sommelier with expert knowledge about wines.' },
+        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol Content: [alcohol content]; Quality Classification: [quality classification]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; description. If information is missing then complete it using your knowledge.` }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
@@ -207,8 +207,48 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
   }
 });
 
-// Get all wine data for a user
-// Route to get wine data with optional ID query parameter
+// Get wine data by ID without authentication
+app.get('/get-wine-by-token', async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    // Look up the wineId using the shared token
+    const tokenDoc = await db.collection('sharedWineTokens').doc(token).get();
+    console.log(tokenDoc)
+
+    if (!tokenDoc.exists) {
+      return res.status(404).json({ error: 'Token not found' });
+    }
+
+    const { wineId } = tokenDoc.data();
+
+    // Now fetch the wine from the users' collections
+    const usersRef = db.collection('users');
+    const userSnapshot = await usersRef.get();
+    console.log(userSnapshot)
+
+    let wineData = null;
+
+    for (const userDoc of userSnapshot.docs) {
+      const wineDoc = await userDoc.ref.collection('wines').doc(wineId).get();
+      if (wineDoc.exists) {
+        wineData = wineDoc.data();
+        break; // Found the wine, exit the loop
+      }
+    }
+
+    if (!wineData) {
+      return res.status(404).json({ error: 'Wine not found' });
+    }
+
+    res.json({ wine: wineData });
+  } catch (error) {
+    console.error('Error fetching wine by token:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Get all wine data for a user (requires authentication)
 app.get('/get-wine-data', authenticateToken, async (req, res) => {
   try {
     const { id } = req.query; // Get ID from query parameters
@@ -233,7 +273,7 @@ app.get('/get-wine-data', authenticateToken, async (req, res) => {
       }
 
       const wines = querySnapshot.docs.map(doc => ({
-        id: doc.id, // Include the document ID for linking
+        id: doc.id,
         ...doc.data()
       }));
 
@@ -353,7 +393,7 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines.' },
-        { role: 'user', content: `Given the following wines with their unique identifiers: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why. Include the ID in your recommendation to link to the correct wine. Respond in the following format: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}` }
+        { role: 'user', content: `Given the following wines with their unique identifiers: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why. Respond *only* in the following exact JSON format without any additional text: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}`}
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
@@ -367,14 +407,20 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
     console.log(`Total tokens used: ${totalTokens}`);
 
     // Extract and send recommendations
-    const recommendations = recommendationResponse.choices[0].message.content;
-    res.json({ recommendations });
+      const recommendationsString = recommendationResponse.choices[0].message.content;
+      try {
+        const recommendations = JSON.parse(recommendationsString);
+        res.json({ recommendations });
+      } catch (parseError) {
+        console.error('Error parsing recommendations:', parseError);
+        res.status(400).json({ error: 'Failed to parse recommendations.' });
+      }
 
-  } catch (error) {
-    console.error('Error recommending wine:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+    } catch (error) {
+      console.error('Error recommending wine:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 
 app.listen(port, () => {
   console.log(`Server running at ${port}`);

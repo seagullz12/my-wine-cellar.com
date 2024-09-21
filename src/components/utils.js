@@ -1,16 +1,22 @@
-
-export const getTokenFromUrl = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('token'); // Adjust this if your token is stored differently
-  };
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebase-config'; // Ensure you import your Firestore instance
   
-  export const getWineIdFromToken = (token) => {
+ export const getWineIdFromToken = async (token) => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // Decode base64
-      return payload.wineId; // Adjust this according to your token structure
+      // Fetch the document from Firestore using the token as the document ID
+      const docRef = doc(db, 'sharedWineTokens', token);
+      const docSnap = await getDoc(docRef);
+  
+      if (docSnap.exists()) {
+        // Extract the wineId from the document data
+        const { wineId } = docSnap.data();
+        return wineId; // Return the wineId
+      } else {
+        console.error('No such document!');
+        return null;
+      }
     } catch (error) {
-      console.error('Error decoding token:', error);
-      return null; // Return null if there's an error
+      console.error('Error fetching wine ID from token:', error);
+      return null; // Handle the error appropriately
     }
   };
-  

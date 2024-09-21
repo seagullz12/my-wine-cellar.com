@@ -18,6 +18,6 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and Firestore
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app, "wine-scanner");
 
 export { auth, db, signInWithEmailAndPassword, onAuthStateChanged };

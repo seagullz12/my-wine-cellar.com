@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { db } from './firebase-config'; // Adjust the path as needed
 import { doc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const ShareWineButton = ({ wineName, wineId }) => {
   const [isLoading, setIsLoading] = useState(false); // For button loading state
@@ -15,12 +16,21 @@ const ShareWineButton = ({ wineName, wineId }) => {
     }
 
     try {
-      const token = uuid();
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        setErrorMessage('User is not authenticated.');
+        return null;
+      }
+
+      const token = uuid(); // Generate a unique token and set in firestore
       await setDoc(doc(db, 'sharedWineTokens', token), {
         wineId: wineId,
         createdAt: new Date(),
       });
+
       return token;
+
     } catch (error) {
       console.error('Error generating unique token:', error);
       setErrorMessage('An error occurred while sharing the wine.');
@@ -31,11 +41,12 @@ const ShareWineButton = ({ wineName, wineId }) => {
   const handleShare = async () => {
     setIsLoading(true); // Show loading state
     setErrorMessage(null); // Reset any previous error message
-    console.log("Wine ID:", wineId); // Check the ID here
-    const token = await generateUniqueToken();
+    
+    const token = await generateUniqueToken(); // Get the token
+//    const encodedToken = btoa(token)
 
     if (token) {
-      const message = `Check out this wine: ${wineName}! Here’s the link: https://my-wine-cellar.com/#/shared/${token}`;
+      const message = `Heeeey let's drink this wine together!: ${wineName}! http://my-wine-cellar.com/#/shared/${token}`;
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     } else {

@@ -6,7 +6,7 @@ import WineMap from './WineMap';
 import PeakMaturityBadge from './PeakMaturityBadge';
 import ShareWineButton from './ShareWineButton';
 import '../styles/WineDetail.css';
-import { getTokenFromUrl, getWineIdFromToken } from './utils'; 
+import { getWineIdFromToken } from './utils'; 
 
 const WineDetail = () => {
   const { id: wineId } = useParams(); // Directly use the wineId from params
@@ -17,6 +17,7 @@ const WineDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const { token } = useParams();
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
@@ -30,7 +31,6 @@ const WineDetail = () => {
 
   useEffect(() => {
     const fetchWineData = async () => {
-      const token = getTokenFromUrl();
       const resolvedWineId = token ? await getWineIdFromToken(token) : wineId;
 
       if (user && resolvedWineId) {
@@ -60,7 +60,7 @@ const WineDetail = () => {
     };
 
     fetchWineData();
-  }, [wineId, user]);
+  }, [wineId, user, token]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -150,7 +150,7 @@ const WineDetail = () => {
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
               <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-              {/* <ShareWineButton wineName={wine.name} wineId={wineId} /> */}
+              <ShareWineButton wineName={wine.name} wineId={wineId} />
               <button onClick={handleEditToggle}>Edit</button>
               <WineMap region={wine.region} />
             </div>  

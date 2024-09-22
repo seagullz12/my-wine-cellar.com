@@ -124,6 +124,19 @@
   margin-right: 10px;
 }
 
+.share-button-container {
+  width:100%;
+  position: relative;
+  align-content: right;
+}
+
+.share-wine-button {
+  background-color: #29ea77;
+  border-radius: 8px;
+  color: #fff;
+
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .wine-detail-image {

@@ -150,8 +150,8 @@ const WineDetail = () => {
               <p><strong>Palate:</strong> {wine.palate}</p>
               <p><strong>Pairing:</strong> {wine.pairing}</p>
               <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-              <ShareWineButton wineName={wine.name} wineId={wineId} />
-              <button onClick={handleEditToggle}>Edit</button>
+              <button onClick={handleEditToggle}>Edit Details</button>
+              <div className="share-button-container"><ShareWineButton wineName={wine.name} wineId={wineId} /></div>
               <WineMap region={wine.region} />
             </div>  
           )}

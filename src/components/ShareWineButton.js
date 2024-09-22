@@ -46,7 +46,7 @@ const ShareWineButton = ({ wineName, wineId }) => {
 //    const encodedToken = btoa(token)
 
     if (token) {
-      const message = `Heeeey let's drink this wine together!: ${wineName}! http://my-wine-cellar.com/#/shared/${token}`;
+      const message = `Heeeey, let's drink this wine together!: *${wineName}* ! https://my-wine-cellar.com/#/shared/${token}`;
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     } else {

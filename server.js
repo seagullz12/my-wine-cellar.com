@@ -209,12 +209,10 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
 
 // Get wine data by ID without authentication
 app.get('/get-wine-by-token', async (req, res) => {
-  const { token } = req.query;
+  const token = req.query.token;
 
   try {
-    // Look up the wineId using the shared token
     const tokenDoc = await db.collection('sharedWineTokens').doc(token).get();
-    console.log(tokenDoc)
 
     if (!tokenDoc.exists) {
       return res.status(404).json({ error: 'Token not found' });
@@ -353,36 +351,37 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
     const winesRef = db.collection('users').doc(userId).collection('wines');
     const querySnapshot = await winesRef.get();
 
-    const wines = querySnapshot.docs.map(doc => ({
-      id: doc.id, // Include the document ID for linking
-      name: doc.data().name,
-      grape: doc.data().grape,
-      vintage: doc.data().vintage,
-      region: doc.data().region,
-      producer: doc.data().producer,
-      alcoholContent: doc.data().alcoholContent,
-      qualityClassification: doc.data().qualityClassification,
-      colour: doc.data().colour,
-      nose: doc.data().nose,
-      palate: doc.data().palate,
-      pairing: doc.data().pairing,
-      link: `/cellar/${doc.id}` // Generate a unique link for each wine
-    }));
+    // Format wine data for OpenAI prompt
+    const wines = querySnapshot.docs.map(doc => {
+      const wineData = doc.data();
+      return {
+        id: doc.id,
+        name: wineData.name,
+        grape: wineData.grape,
+        vintage: wineData.vintage,
+        pairing: wineData.pairing,
+        peakMaturity: wineData.peakMaturity || null, // Include peakMaturity if not null
+        link: `/cellar/${doc.id}`
+      };
+    });
 
-    console.log('Wines in the request', wines);
+    console.log('Wines in the request:', wines);
 
-    // Prepare wine descriptions with identifiers for the prompt
-    const wineDescriptions = wines.map(wine => (
-      `${wine.name} (${wine.grape}, ${wine.vintage}) - ${wine.pairing}. Wine ID: ${wine.id}`
-    )).join('\n');
-
-    console.log("WineDetails in prompt: ", wineDescriptions);
-
+    // Prepare wine descriptions including peakMaturity if available
+    const wineDescriptions = wines.map(wine => {
+      let description = `${wine.name} (${wine.grape}, ${wine.vintage})`;//- ${wine.pairing}`;
+      if (wine.peakMaturity) {
+        description += `. Peak maturity: ${wine.peakMaturity}`;
+      }
+      description += `. Wine ID: ${wine.id}`;
+      return description;
+    }).join('\n');
+    
     // Define OpenAI API request settings
     const settings = {
-      model: "gpt-4o-mini", // Or another suitable model
-      temperature: 0.7, // Adjust temperature as needed
-      max_tokens: 300 // Adjust token limit as needed
+      model: "gpt-4o-mini", // Using the gpt-4 model for more structured output
+      temperature: 0.3, // Lower temperature to keep responses focused
+      max_tokens: 500,  // Adjust token limit as needed
     };
 
     // Log the settings used
@@ -392,8 +391,14 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
     const recommendationResponse = await openai.chat.completions.create({
       model: settings.model,
       messages: [
-        { role: 'system', content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines.' },
-        { role: 'user', content: `Given the following wines with their unique identifiers: ${wineDescriptions}, recommend your top 3 wines that pair well with the following food and explain why. Respond *only* in the following exact JSON format without any additional text: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}`}
+        {
+          role: 'system',
+          content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines. Always return a structured JSON response.'
+        },
+        {
+          role: 'user',
+          content: `Here are the wines available: \n${wineDescriptions}\n\nGiven the above wines, recommend your top 3 wines to pair with "${food}". Only return valid JSON in this format: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}`
+        }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
@@ -401,26 +406,32 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
 
     // Log the full OpenAI response
     console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
+    
+    // Extract the response content
+    let recommendationsString = recommendationResponse.choices[0].message.content;
 
-    // Log the tokens used
-    const totalTokens = recommendationResponse.usage.total_tokens;
-    console.log(`Total tokens used: ${totalTokens}`);
+    // Remove markdown formatting (```json and ```)
+    recommendationsString = recommendationsString.replace(/```json|```/g, '').trim();
 
-    // Extract and send recommendations
-      const recommendationsString = recommendationResponse.choices[0].message.content;
-      try {
-        const recommendations = JSON.parse(recommendationsString);
-        res.json({ recommendations });
-      } catch (parseError) {
-        console.error('Error parsing recommendations:', parseError);
-        res.status(400).json({ error: 'Failed to parse recommendations.' });
-      }
+    // Log the full OpenAI response
+    console.log('Full cleaned OpenAI response:', JSON.stringify(recommendationsString, null, 2));   
 
-    } catch (error) {
-      console.error('Error recommending wine:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    // Attempt to parse the JSON response
+    try {
+      const recommendations = JSON.parse(recommendationsString);
+      res.json({ recommendations });
+    } catch (parseError) {
+      console.error('Error parsing recommendations:', parseError);
+      
+      // Retry or fallback logic (optional)
+      res.status(400).json({ error: 'Failed to parse recommendations. Please try again.' });
     }
-  });
+
+  } catch (error) {
+    console.error('Error recommending wine:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running at ${port}`);

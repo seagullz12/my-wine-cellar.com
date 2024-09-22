@@ -1,43 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import WineMap from './WineMap'; 
 import PeakMaturityBadge from './PeakMaturityBadge';
 import { Helmet } from 'react-helmet'; // Import Helmet
-
 import '../styles/WineDetail.css';
 
-const SharedWineDetail = () => {
+const SharedWineDetail = ({ wine }) => {
   const { token } = useParams();
-  const [wine, setWine] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-    const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-  // const backendURL = 'http://192.168.2.9:8080';
-
-  useEffect(() => {
-    
-    const fetchWineByToken = async () => {
-      try {
-        const response = await fetch(`${backendURL}/get-wine-by-token?token=${token}`);
-        if (!response.ok) throw new Error('Failed to fetch wine');
-    
-        const result = await response.json();
-        setWine(result.wine);
-      } catch (error) {
-        console.error('Error fetching wine by token:', error);
-        setError('Error fetching wine data');
-      } finally {
-        setLoading(false); // Stop loading state here
-      }
-    };    
-
-    fetchWineByToken();
-  }, [token, wine]);
-  
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (!wine) return <div>Loading...</div>;
 
   return (
     <div className="wine-detail-container">
@@ -46,6 +17,13 @@ const SharedWineDetail = () => {
       </div>
       {wine ? (
         <div className="wine-detail-card">
+          <Helmet>
+            <title>{wine.name} - My Wine Cellar</title>
+            <meta property="og:title" content={wine.name} />
+            <meta property="og:description" content={`Details about ${wine.name}`} />
+            <meta property="og:image" content={wine['Image URL (Desktop)'] || ''} />
+            <meta property="og:url" content={`https://yourdomain.com/shared-wine/${token}`} />
+          </Helmet>
           <div className="wine-detail-header">
             <h1>{wine.name}</h1>
           </div>
@@ -76,7 +54,6 @@ const SharedWineDetail = () => {
             <p><strong>Palate:</strong> {wine.palate}</p>
             <p><strong>Pairing:</strong> {wine.pairing}</p>
             <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-            {/* Map of Wine Region */}
             <WineMap region={wine.region} />
           </div>
         </div>

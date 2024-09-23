@@ -99,7 +99,7 @@ const getWineDataFromText = async (text) => {
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a helpful sommelier with expert knowledge about wines.' },
-        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol Content: [alcohol content]; Quality Classification: [quality classification]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; description. If information is missing then complete it using your knowledge.` }
+        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol: [alcohol content]; Classification: [quality classification]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; description. If information is missing then complete it using your knowledge.` }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens

@@ -154,12 +154,12 @@
                   <Link to={`/cellar/${wine.id}`} className="view-button">
                     View Wine
                   </Link>
-                  {/* <button 
+                  <button 
                     className="delete-button" 
                     onClick={() => handleDelete(wine.id)}
                   >
                     Remove from Cellar
-                  </button> */}
+                  </button>
                 </div>
               </div>
             ))

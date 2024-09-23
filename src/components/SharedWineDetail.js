@@ -69,8 +69,8 @@ const SharedWineDetail = () => {
             <p><strong>Vintage:</strong> {wine.vintage}</p>
             <p><strong>Region:</strong> {wine.region}</p>
             <p><strong>Producer:</strong> {wine.producer}</p>
-            <p><strong>Alcohol Content:</strong> {wine.alcoholContent}</p>
-            <p><strong>Quality Classification:</strong> {wine.qualityClassification}</p>
+            <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
+            <p><strong>Quality Classification:</strong> {wine.classification}</p>
             <p><strong>Colour:</strong> {wine.colour}</p>
             <p><strong>Nose:</strong> {wine.nose}</p>
             <p><strong>Palate:</strong> {wine.palate}</p>

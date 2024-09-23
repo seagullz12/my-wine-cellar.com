@@ -72,8 +72,8 @@ const WineDetailEditForm = ({ formData, handleChange, handleSubmit, handleEditTo
         Alcohol Content:
         <input
           type="text"
-          name="alcoholContent"
-          value={formData.alcoholContent || ''}
+          name="alcohol"
+          value={formData.alcohol || ''}
           onChange={handleChange}
         />
       </label>
@@ -82,8 +82,8 @@ const WineDetailEditForm = ({ formData, handleChange, handleSubmit, handleEditTo
         Quality Classification:
         <input
           type="text"
-          name="qualityClassification"
-          value={formData.qualityClassification || ''}
+          name="classification"
+          value={formData.classification || ''}
           onChange={handleChange}
         />
       </label>

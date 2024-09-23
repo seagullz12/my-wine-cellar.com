@@ -1,0 +1,37 @@
+.tasting-notes-form {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background-color: #f9f9f9; 
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+  }
+  
+  .tasting-notes-form h2 {
+    margin-bottom: 15px;
+  }
+  
+  .tasting-notes-form textarea,
+  .tasting-notes-form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .tasting-notes-form button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #8b3a3a;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .tasting-notes-form button:hover {
+    background-color: #793232;
+  }
+  

@@ -14,6 +14,7 @@ import NavBar from './components/NavBar';
 import SignIn from './pages/SignIn'; 
 import SignUp from './pages/SignUp'; 
 import SharedWineDetail from './pages/SharedWineDetail';
+import TastingPage from './pages/TastingPage';
 import './styles/global.css';
 
 const App = () => {
@@ -53,7 +54,7 @@ const App = () => {
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />
               <Route path="/cellar/:id" element={<WineDetail />} />
-
+              <Route path="/tasting/:id" element={<TastingPage />} />
               <Route path="*" element={<Navigate to="" />} />
             </>
           ) : (

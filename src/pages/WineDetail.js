@@ -5,9 +5,10 @@ import WineDetailEditForm from '../components/WineDetailEditForm';
 import WineMap from '../components/WineMap'; 
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import ShareWineButton from '../components/ShareWineButton';
-import StartTastingButton from '../components/StartTastingButton';
-import '../styles/WineDetail.css';
+//import StartTastingButton from '../components/StartTastingButton';
 import { getWineIdFromToken } from '../components/utils'; 
+import TastingNotesForm from '../components/TastingNotesForm';
+import '../styles/WineDetail.css';
 
 const WineDetail = () => {
   const { id: wineId } = useParams(); // Directly use the wineId from params
@@ -16,8 +17,10 @@ const WineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isTasting, setIsTasting] = useState(false);
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [tastingStarted, setTastingStarted] = useState(false); // State to track tasting session
   const { token } = useParams();
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
@@ -98,79 +101,99 @@ const WineDetail = () => {
     }
   };
 
-  // Update the wine state with the new data
-  const handleTastingStarted = (updatedWine) => {
-    setWine(updatedWine); 
+  const handleIsTasting = () => {
+    setIsTasting(!isTasting)
   };
 
+    
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
   if (error) return <p className="wine-detail-error">{error}</p>;
 
-  return (
-    <div className="wine-detail-container">
-      <div className="back-link" align="left">
-        <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
-      </div>
-      {wine ? (
-        <div className="wine-detail-card">
-          <div className="wine-detail-header">
-            <h1>{wine.name}</h1>
-          </div>
-          {wine.image.desktop && (
-            <div className="wine-details-image-container">
-              <img
-                src={wine.image.desktop} // Default to desktop image
-                srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
-                sizes="(max-width: 600px) 100vw, 1200px"
-                alt={wine.name}
-                className="wine-detail-image"
-              />
-              <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-            </div>
-          )}
-          {successMessage && (
-            <div className="success-notification">
-              <span className="success-icon">✔️</span> {successMessage}
-            </div>
-          )}
-
-          {isEditing ? (
-            <WineDetailEditForm
-              formData={formData}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              handleEditToggle={handleEditToggle}
-            />
-          ) : (
-            <div className="wine-detail-info">
-              <p><strong>Grape:</strong> {wine.grape}</p>
-              <p><strong>Vintage:</strong> {wine.vintage}</p>
-              <p><strong>Region:</strong> {wine.region}</p>
-              <p><strong>Producer:</strong> {wine.producer}</p>
-              <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
-              <p><strong>Quality Classification:</strong> {wine.classification}</p>
-              <p><strong>Colour:</strong> {wine.colour}</p>
-              <p><strong>Nose:</strong> {wine.nose}</p>
-              <p><strong>Palate:</strong> {wine.palate}</p>
-              <p><strong>Pairing:</strong> {wine.pairing}</p>
-              <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-              <button onClick={handleEditToggle}>Edit Details</button>
-              <div className="share-button-container"><ShareWineButton wineName={wine.name} wineId={wineId} /></div>
-              <StartTastingButton
-              wineId={wineId}
-              backendURL={backendURL}
-              user={user} // Ensure user is passed here
-              onTastingStarted={handleTastingStarted}
-            />
-              <WineMap region={wine.region} />
-            </div>  
-          )}
-        </div>
-      ) : (
-        <p>Wine data not found</p>
-      )}
+  // Inside the return statement of WineDetail
+return (
+  <div className="wine-detail-container">
+    <div className="back-link" align="left">
+      <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
     </div>
-  );
+    {wine ? (
+      <div className="wine-detail-card">
+        <div className="wine-detail-header">
+          <h1>{wine.name}</h1>
+        </div>
+        {wine.image.desktop && (
+          <div className="wine-details-image-container">
+            <img
+              src={wine.image.desktop}
+              srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
+              sizes="(max-width: 600px) 100vw, 1200px"
+              alt={wine.name}
+              className="wine-detail-image"
+            />
+            <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
+          </div>
+        )}
+        {successMessage && (
+          <div className="success-notification">
+            <span className="success-icon">✔️</span> {successMessage}
+          </div>
+        )}
+
+        {/* Conditional Rendering */}
+        {isEditing ? (
+          <WineDetailEditForm
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            handleEditToggle={handleEditToggle}
+          />
+        ) : (
+          <>
+            {!isTasting && (
+              <div className="wine-detail-info">
+                <p><strong>Grape:</strong> {wine.grape}</p>
+                <p><strong>Vintage:</strong> {wine.vintage}</p>
+                <p><strong>Region:</strong> {wine.region}</p>
+                <p><strong>Producer:</strong> {wine.producer}</p>
+                <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
+                <p><strong>Quality Classification:</strong> {wine.classification}</p>
+                <p><strong>Colour:</strong> {wine.colour}</p>
+                <p><strong>Nose:</strong> {wine.nose}</p>
+                <p><strong>Palate:</strong> {wine.palate}</p>
+                <p><strong>Pairing:</strong> {wine.pairing}</p>
+                <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
+                <div className="button-container">
+                  <button onClick={handleEditToggle}>Edit Details</button>
+                  <button onClick={handleIsTasting}>Start Tasting</button>
+                  {/* <StartTastingButton
+                    wineId={wineId}
+                    backendURL={backendURL}
+                    user={user}
+                    onTastingStarted={handleTastingStarted}
+                  /> */}
+                </div>
+                <div className="share-button-container">
+                  <ShareWineButton wineName={wine.name} wineId={wineId} />
+                </div>
+                <WineMap region={wine.region} />
+              </div>
+            )}
+            {isTasting && (
+              <TastingNotesForm
+                wineId={wineId}
+                backendURL={backendURL}
+                user={user}
+                handleIsTasting={handleIsTasting}
+              />
+            )}
+          </>
+        )}
+      </div>
+    ) : (
+      <p>Wine data not found</p>
+    )}
+  </div>
+);
+
 };
 
 export default WineDetail;

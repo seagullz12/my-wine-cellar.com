@@ -2,19 +2,16 @@ const StartTastingButton = ({ wineId, backendURL, user, onTastingStarted }) => {
   if (!user) return <p>User not authenticated</p>; // Ensure user is authenticated
 
   const startTastingSession = async () => {
-    try {
-      const token = await user.getIdToken(); // Get the user's ID token for authorization
 
-      // Create the body with both 'id' and 'wineData'
-      console.log('wine id: ', wineId)
+    try {
+      const token = await user.getIdToken();
       const requestBody = {
-        id: wineId, // This is the wine's unique ID
+        id: wineId, 
         wineData: {
-          status: 'in_tasting', // Update the status to indicate the wine is being tasted
-          tastingSession: {
-            inProgress: true,
-            openedDate: new Date().toISOString(), // Set the opened date to the current time
-          },
+          status: 'consumed', // Update status if applicable
+            tasting: {
+            openedAt: new Date().toISOString()
+            }
         },
       };
 

@@ -1,0 +1,94 @@
+/* TastingPage.css */
+
+.tasting-page {
+    background-color: #f8f9fa; /* Light background */
+    color: #333; /* Dark text color */
+    font-family: 'Arial', sans-serif; /* Font style */
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tasting-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tasting-header h1 {
+    font-size: 2.5rem; /* Large title */
+    margin-right: 20px;
+}
+
+.wine-image {
+    width: 150px; /* Fixed width for the image */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.wine-details {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #ffffff; /* White background for details */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.wine-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee; /* Light border for separation */
+}
+
+.wine-detail:last-child {
+    border-bottom: none; /* No border on the last item */
+}
+
+.tasting-notes {
+    margin-top: 20px;
+}
+
+.tasting-notes h2 {
+    font-size: 1.5rem; /* Subheading for notes */
+    margin-bottom: 10px;
+}
+
+.tasting-notes p {
+    font-style: italic; /* Italic for tasting notes */
+    color: #555; /* Slightly lighter color */
+}
+
+.start-tasting-btn {
+    background-color: #007bff; /* Primary button color */
+    color: white; /* Text color */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.start-tasting-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+@media (max-width: 600px) {
+    .tasting-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wine-image {
+        width: 100%; /* Full width on mobile */
+        max-width: 150px; /* Max width */
+        margin-bottom: 10px; /* Spacing below image */
+    }
+
+    .tasting-header h1 {
+        font-size: 2rem; /* Responsive title size */
+    }
+}

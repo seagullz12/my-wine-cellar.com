@@ -175,8 +175,8 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
     const uploadedMobileImageUrl = await uploadImageToGCS(mobileImageBuffer.toString('base64'), mobileFileName);
 
     // Add the image URLs to the wineData object
-    wineData['Image URL (Desktop)'] = uploadedDesktopImageUrl;
-    wineData['Image URL (Mobile)'] = uploadedMobileImageUrl;
+    wineData.image.desktop = uploadedDesktopImageUrl;
+    wineData.image.mobile = uploadedMobileImageUrl;
 
     // Add wine data to Firestore
     const userId = req.user.uid;

@@ -4,8 +4,8 @@
   import WineDetailEditForm from './WineDetailEditForm';
   import '../styles/AddWine.css';
 
-    //  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-    const backendURL = 'http://192.168.2.9:8080';
+      const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+   // const backendURL = 'http://192.168.2.9:8080';
 
 
   const AddWine = () => {

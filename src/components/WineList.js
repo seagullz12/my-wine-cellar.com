@@ -102,16 +102,13 @@
             wines.map((wine, index) => (
               <div className="wine-card" key={index}>
                 <div className="image-container">
-                  {wine['Image URL (Desktop)'] && (
+                  {wine.image.desktop && (
                     <Link to={`/cellar/${wine.id}`}>
                     <CardMedia>
                     <div className="wine-image-container">
                             <img
-                              src={wine['Image URL (Desktop)']} // Default to desktop image
-                              srcSet={`
-                                ${wine['Image URL (Mobile)']} 600w, 
-                                ${wine['Image URL (Desktop)']} 1200w
-                              `}
+                              src={wine.image.desktop} // Default to desktop image
+                              srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
                               sizes="(max-width: 600px) 100vw, 1200px" // Change to 100vw for full-width on mobile
                               alt={wine.name}
                               className="wine-image"
@@ -154,12 +151,12 @@
                   <Link to={`/cellar/${wine.id}`} className="view-button">
                     View Wine
                   </Link>
-                  {/* <button 
+                  <button 
                     className="delete-button" 
                     onClick={() => handleDelete(wine.id)}
                   >
                     Remove from Cellar
-                  </button> */}
+                  </button>
                 </div>
               </div>
             ))

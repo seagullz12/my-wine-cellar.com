@@ -21,20 +21,17 @@ const SharedWineDetail = ({ wine }) => {
             <title>{wine.name} - My Wine Cellar</title>
             <meta property="og:title" content={wine.name} />
             <meta property="og:description" content={`Details about ${wine.name}`} />
-            <meta property="og:image" content={wine['Image URL (Desktop)'] || ''} />
+            <meta property="og:image" content={wine.image.desktop || ''} />
             <meta property="og:url" content={`https://yourdomain.com/shared-wine/${token}`} />
           </Helmet>
           <div className="wine-detail-header">
             <h1>{wine.name}</h1>
           </div>
-          {wine['Image URL (Desktop)'] && (
+          {wine.image.desktop && (
             <div className="wine-details-image-container">
               <img
-                src={wine['Image URL (Desktop)']}
-                srcSet={`
-                          ${wine['Image URL (Mobile)']} 600w, 
-                          ${wine['Image URL (Desktop)']} 1200w
-                        `}
+                src={wine.image.desktop} // Default to desktop image
+                srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
                 sizes="(max-width: 600px) 100vw, 1200px"
                 alt={wine.name}
                 className="wine-detail-image"

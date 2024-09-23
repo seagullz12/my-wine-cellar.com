@@ -49,14 +49,11 @@ const SharedWineDetail = () => {
           <div className="wine-detail-header">
             <h1>{wine.name}</h1>
           </div>
-          {wine['Image URL (Desktop)'] && (
+          {wine.image.desktop && (
             <div className="wine-details-image-container">
               <img
-                src={wine['Image URL (Desktop)']}
-                srcSet={`
-                          ${wine['Image URL (Mobile)']} 600w, 
-                          ${wine['Image URL (Desktop)']} 1200w
-                        `}
+              src={wine.image.desktop} // Default to desktop image
+              srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
                 sizes="(max-width: 600px) 100vw, 1200px"
                 alt={wine.name}
                 className="wine-detail-image"

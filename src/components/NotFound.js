@@ -1,5 +1,4 @@
 // src/components/NotFound.js
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 //import './NotFound.css'; // Optional: if you have specific styles

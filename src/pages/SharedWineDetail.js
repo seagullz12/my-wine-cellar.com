@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import WineMap from './WineMap'; 
-import PeakMaturityBadge from './PeakMaturityBadge';
+import WineMap from '../components/WineMap'; 
+import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import { Helmet } from 'react-helmet'; // Import Helmet
 
 import '../styles/WineDetail.css';

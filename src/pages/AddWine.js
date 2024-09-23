@@ -1,7 +1,7 @@
   import React, { useRef, useState, useEffect } from 'react';
   import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Import Firebase Authentication functions
   import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
-  import WineDetailEditForm from './WineDetailEditForm';
+  import WineDetailEditForm from '../components/WineDetailEditForm';
   import '../styles/AddWine.css';
 
       const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';

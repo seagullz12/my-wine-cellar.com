@@ -7,8 +7,8 @@
   import Snackbar from '@mui/material/Snackbar'; // Snackbar for user notification
   import Alert from '@mui/material/Alert'; // Alert component for showing success message
   import '../styles/WineList.css'; // Ensure this file includes the updated CSS
-  import AgeBadge from './AgeBadge';
-  import PeakMaturityBadge from './PeakMaturityBadge';
+  import AgeBadge from '../components/AgeBadge';
+  import PeakMaturityBadge from '../components/PeakMaturityBadge';
 
   const WineList = () => {
     const [wines, setWines] = useState([]);

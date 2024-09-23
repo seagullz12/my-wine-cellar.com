@@ -2,16 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import Home from './components/Home';
-import AddWine from './components/AddWine';
-import AddWineBatch from './components/AddWineBatch';
-import WineList from './components/WineList';
-import WineRecommendations from './components/WineRecommendations';
-import WineDetail from './components/WineDetail';
+
+//import pages
+import Home from './pages/Home';
+import AddWine from './pages/AddWine';
+import AddWineBatch from './pages/AddWineBatch';
+import WineList from './pages/WineList';
+import WineRecommendations from './pages/WineRecommendations';
+import WineDetail from './pages/WineDetail';
 import NavBar from './components/NavBar'; 
-import SignIn from './components/SignIn'; 
-import SignUp from './components/SignUp'; 
-import SharedWineDetail from './components/SharedWineDetail';
+import SignIn from './pages/SignIn'; 
+import SignUp from './pages/SignUp'; 
+import SharedWineDetail from './pages/SharedWineDetail';
 import './styles/global.css';
 
 const App = () => {

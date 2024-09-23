@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
-import WineDetailEditForm from './WineDetailEditForm';
-import WineMap from './WineMap'; 
-import PeakMaturityBadge from './PeakMaturityBadge';
-import ShareWineButton from './ShareWineButton';
+import WineDetailEditForm from '../components/WineDetailEditForm';
+import WineMap from '../components/WineMap'; 
+import PeakMaturityBadge from '../components/PeakMaturityBadge';
+import ShareWineButton from '../components/ShareWineButton';
+import StartTastingButton from '../components/StartTastingButton';
 import '../styles/WineDetail.css';
-import { getWineIdFromToken } from './utils'; 
+import { getWineIdFromToken } from '../components/utils'; 
 
 const WineDetail = () => {
   const { id: wineId } = useParams(); // Directly use the wineId from params
@@ -62,6 +63,7 @@ const WineDetail = () => {
     fetchWineData();
   }, [wineId, user, token]);
 
+  // handle fucntions
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -94,6 +96,11 @@ const WineDetail = () => {
     } catch (error) {
       setError('An error occurred while updating wine data');
     }
+  };
+
+  // Update the wine state with the new data
+  const handleTastingStarted = (updatedWine) => {
+    setWine(updatedWine); 
   };
 
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
@@ -149,6 +156,12 @@ const WineDetail = () => {
               <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
               <button onClick={handleEditToggle}>Edit Details</button>
               <div className="share-button-container"><ShareWineButton wineName={wine.name} wineId={wineId} /></div>
+              <StartTastingButton
+              wineId={wineId}
+              backendURL={backendURL}
+              user={user} // Ensure user is passed here
+              onTastingStarted={handleTastingStarted}
+            />
               <WineMap region={wine.region} />
             </div>  
           )}

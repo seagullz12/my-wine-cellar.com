@@ -11,6 +11,7 @@ import AgeBadge from '../components/AgeBadge';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import WineListFilters from '../components/WineListFilters'; // Importing WineFilter component
 import WineListSorting from '../components/WineListSorting';
+import CellarStatistics from '../components/CellarStatistics';
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -170,6 +171,9 @@ if (!user) {
 
   return (
     <div className="wine-list-container">
+      {/* Wine Statistics Component */}
+      <CellarStatistics wines={filteredWines.length > 0 ? filteredWines : wines} />
+
       <div className='filter-sort-container'>
       {/* Wine Filter Component */}
       <WineListFilters 

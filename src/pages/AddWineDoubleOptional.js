@@ -267,7 +267,7 @@ const AddWine = () => {
         setOcrResult(`Wine data appended to Firestore successfully. Response: ${JSON.stringify(result.response)}`);
 
         // Set notification message
-        setNotification(`"${wineData.name}" has been added to your cellar. View it <a href="${wineUrl}" target="_blank">here</a>.`);
+        setNotification(`"${wineData.name}" has been added to your cellar. View it <a href="https://my-wine-cellar.com/cellar/${id}" target="_blank">here</a>.`);
         setShowNotification(true);  // Show notification
 
         // Hide notification after 5 seconds (increased time for visibility)

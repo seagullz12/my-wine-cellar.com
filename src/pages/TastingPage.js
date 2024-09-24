@@ -99,7 +99,13 @@ const TastingPage = () => {
     <div className="tasting-page">
         <div className="tasting-header">
             <h1>{wine.name}</h1>
-            <img src={wine.image.desktop} alt={wine.name} className="wine-image" />
+            <img
+                    src={wine.images.front.desktop}
+                    srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
+                    sizes="(max-width: 600px) 100vw, 1200px"
+                    alt={`${wine.name} front image`}
+                    className="wine-detail-image"
+                  />
         </div>
         <div className="wine-details">
             <div className="wine-detail">

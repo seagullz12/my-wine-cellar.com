@@ -23,8 +23,47 @@ const WineList = () => {
   const [sortOrder, setSortOrder] = useState('asc'); // Default sort order
   
   const [filters, setFilters] = useState({
-    colours: ['Red', 'White', 'Rosé'],
-    grapes: [],
+    colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
+    grapes: [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Pinot Noir",
+      "Syrah (Shiraz)",
+      "Zinfandel",
+      "Chardonnay",
+      "Sauvignon Blanc",
+      "Riesling",
+      "Malbec",
+      "Tempranillo",
+      "Grenache",
+      "Cabernet Franc",
+      "Sangiovese",
+      "Mourvèdre",
+      "Viognier",
+      "Pinot Grigio (Pinot Gris)",
+      "Semillon",
+      "Nebbiolo",
+      "Barbera",
+      "Touriga Nacional",
+      "Petit Verdot",
+      "Chenin Blanc",
+      "Garganega",
+      "Grüner Veltliner",
+      "Fiano",
+      "Albariño",
+      "Vermentino",
+      "Nero d'Avola",
+      "Carignan",
+      "Dolcetto",
+      "Aglianico",
+      "Carmenère",
+      "Primitivo",
+      "Moscato",
+      "Torrontés",
+      "Saint Laurent",
+      "Tannat",
+      "Cinsault"
+    ],
     vintages: [],
     statuses: ['in_cellar', 'consumed'],
   });
@@ -59,16 +98,16 @@ const WineList = () => {
           setWines(fetchedWines);
           setFilteredWines(fetchedWines); 
 
-          // Get filter values from firestore database
-          const distinctGrapes = [...new Set(fetchedWines.map(wine => wine.grape))];
-          setFilters(prevFilters => ({
-            ...prevFilters,
-            grapes: distinctGrapes,  // Update grapes in filters
-          }));
+          // // Get filter values from firestore database
+          // const distinctGrapes = [...new Set(fetchedWines.map(wine => wine.grape))];
+          // setFilters(prevFilters => ({
+          //   ...prevFilters,
+          //   grapes: distinctGrapes,  // Update grapes in filters
+          // }));
           const distinctVintages = [...new Set(fetchedWines.map(wine => wine.vintage))];
           setFilters(prevFilters => ({
             ...prevFilters,
-            vintages: distinctVintages.sort(),  // Update grapes in filters
+            vintages: distinctVintages.sort(),  // Update vintages in filters
           }));
           
  
@@ -114,8 +153,10 @@ const WineList = () => {
 
   const handleFilterChange = (newFilters) => {
     const filtered = wines.filter(wine =>
-      (!newFilters.colour.length || newFilters.colour.includes(wine.colour)) &&
-      (!newFilters.grape.length || newFilters.grape.includes(wine.grape)) &&
+    //  (!newFilters.colour.length || newFilters.colour.includes(wine.colour)) &&
+      (!newFilters.colour.length || newFilters.colour.some(colour => wine.colour.toLowerCase().includes(colour.toLowerCase()))) && // contains
+    //  (!newFilters.grape.length || newFilters.grape.includes(wine.grape)) && // exact match
+      (!newFilters.grape.length || newFilters.grape.some(grape => wine.grape.toLowerCase().includes(grape.toLowerCase()))) && // contains
       (!newFilters.vintage.length || newFilters.vintage.includes(wine.vintage)) &&
       (!newFilters.status.length || newFilters.status.includes(wine.status))
     );

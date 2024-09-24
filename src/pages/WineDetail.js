@@ -22,7 +22,7 @@ const WineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isTasting, setIsTasting] = useState(false);
+  const [tastingStarted, setTastingStarted] = useState(false); // State to track tasting session
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const { token } = useParams();
@@ -105,8 +105,10 @@ const WineDetail = () => {
     }
   };
 
-  const handleIsTasting = () => {
-    setIsTasting(!isTasting);
+
+  const handleTastingStarted = (updatedWine) => {
+    setWine(updatedWine); 
+    setTastingStarted(true); // Set tastingStarted to true when tasting starts
   };
 
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
@@ -182,7 +184,7 @@ const WineDetail = () => {
             />
           ) : (
             <>
-              {!isTasting && (
+              {!tastingStarted && (
                 <div className="wine-detail-info">
                   <p><strong>Grape:</strong> {wine.grape}</p>
                   <p><strong>Vintage:</strong> {wine.vintage}</p>
@@ -197,7 +199,7 @@ const WineDetail = () => {
                   <p><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</p>
                   <div className="button-container">
                     <button onClick={handleEditToggle}>Edit Details</button>
-                    <button onClick={handleIsTasting}>Start Tasting</button>
+                    <button onClick={handleTastingStarted}>Start Tasting</button>
                   </div>
                   <div className="share-button-container">
                     <ShareWineButton wineName={wine.name} wineId={wineId} />
@@ -205,13 +207,12 @@ const WineDetail = () => {
                   <WineMap region={wine.region} />
                 </div>
               )}
-              {isTasting && (
-                <TastingNotesForm
-                  wineId={wineId}
-                  backendURL={backendURL}
-                  user={user}
-                  handleIsTasting={handleIsTasting}
-                />
+               {tastingStarted && (
+              <TastingNotesForm
+                wineId={wineId}
+                backendURL={backendURL}
+                user={user}
+              />
               )}
             </>
           )}

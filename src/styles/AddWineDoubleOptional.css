@@ -1,0 +1,49 @@
+.img-container {
+  display: flex;                  /* Use flexbox for layout */
+  justify-content: space-between; /* Space between items */
+  margin-bottom: 20px;
+}
+
+.img-container div {
+  flex: 1;                        /* Allow both images to take equal space */
+  margin: 0 10px;                /* Add horizontal margin for spacing */
+  position: relative;             /* Position for the skip button */
+}
+
+.img-container img {
+  width: 100%;                   /* Ensure images take full width of their container */
+  border-radius: 8px;           /* Round corners for images */
+}
+
+.skip-button, .scan-button {
+  position: absolute;            /* Position the button at the bottom */
+  bottom: 10px;                  /* Adjust bottom spacing */
+  left: 50%;                     /* Center button horizontally */
+  /* transform: translateX(-50%);  Center button */
+  padding: 5px 10px;            /* Button padding */
+  background-color: #8b3a3a;    /* Button color */
+  color: white;                  /* Button text color */
+  border: none;                  /* No border */
+  border-radius: 8px;           /* Round button corners */
+  cursor: pointer;               /* Pointer cursor on hover */
+  font-size:1em;
+}
+
+.skip-button:hover {
+  background-color: rgb(78, 15, 15);     /* Darker shade on hover */
+}
+
+.image-wrapper {
+  display: inline-block;
+  margin-right: 20px; /* Space between images */
+}
+
+.button-group {
+  display: flex;
+  margin-top: 10px; /* Space above the button group */
+}
+
+.scan-button, .skip-button {
+  margin-left: 10px; /* Space between buttons */
+}
+

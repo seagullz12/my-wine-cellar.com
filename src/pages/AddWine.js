@@ -284,7 +284,6 @@ const AddWine = () => {
   return (
     <div className="add-wine-container">
       <div className="container">
-        {isMobile ? (
           <>
             <input
               type="file"
@@ -294,13 +293,13 @@ const AddWine = () => {
               style={{ display: 'none' }}
               id="takePhotoInput"
             />
-            <label htmlFor="takePhotoInput" className="custom-button">Scan Wine Label</label>
+            <label htmlFor="takePhotoInput" className="upload-button">Scan Wine Label</label>
             {!isEditing ? (
               // Conditionally render the Add to Cellar button
               wineData.name !== 'unknown' && !loading && (
                 <button
                   onClick={handleFormSubmit}
-                  className="custom-button"
+                  className="add-button"
                 >
                   Add to Cellar
                 </button>
@@ -316,9 +315,6 @@ const AddWine = () => {
               {photoURL && <img src={photoURL} alt="Captured" />}
             </div>
           </>
-        ) : (
-          <p>Camera scanning not available on desktop.</p>
-        )}
 
         {!isEditing ? (
           <div className="data-container">

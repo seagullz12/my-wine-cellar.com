@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,8 +17,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and Firestore
+// Initialize Firebase Authentication and Firestore and Analytics
 const auth = getAuth(app);
 const db = getFirestore(app, "wine-scanner");
+const analytics = getAnalytics(app);
 
-export { auth, db, signInWithEmailAndPassword, onAuthStateChanged };
+export { auth, db, analytics, signInWithEmailAndPassword, onAuthStateChanged };

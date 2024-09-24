@@ -1,5 +1,5 @@
 /* AddWine.css */
-.AddWine {
+.add-wine-container {
     text-align: center;
     background-color: #f5f0f0; /* Soft beige background to resemble a wine cellar */
     color: #3d0a02; /* Deep wine color for text */
@@ -29,7 +29,7 @@
     border: 4px solid #8b3a3a; /* Rich burgundy border around video/image */
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    width: 100%;
+    width: 50%;
     height: auto;
   }
   
@@ -151,7 +151,7 @@
     }
   }
   
-  .custom-button {
+  .add-button, .upload-button {
     background-color: #6f2c2c;
     color: white;
     padding: 12px 24px;
@@ -164,7 +164,7 @@
     transition: background-color 0.3s ease;
   }
   
-  .custom-button:hover {
+  .add-button:hover {
     background-color: #3d0a02; /* Darker color on hover */
   }
   

@@ -30,7 +30,7 @@ const CellarStatistics = ({ wines }) => {
     <Accordion expanded={expanded} onChange={handleChange} sx={{ marginBottom: '20px', boxShadow: 3 }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
         <Typography variant="h6" component="div">
-          My Cellar Statistics
+          My Wine Cellar Summary
         </Typography>
       </AccordionSummary>
       <AccordionDetails>

@@ -31,9 +31,6 @@ const WineList = () => {
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
-  console.log("Wines:", wines);
-  
-
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

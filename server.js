@@ -8,7 +8,8 @@ const { Storage } = require('@google-cloud/storage');
 const { getFirestore, collection, doc, getDocs} = require('firebase-admin/firestore');
 const { initializeApp, cert } = require("firebase-admin/app");
 const path = require('path');
-const sharp = require('sharp')
+const sharp = require('sharp');
+const multer = require('multer');
 
 const app = express();
 const port = 8080;
@@ -115,23 +116,23 @@ const getWineDataFromText = async (text) => {
   }
 };
 
-// Route to process image using Google Cloud Vision API
-app.post('/process-image', authenticateToken, async (req, res) => {
+// Route to process both front and back images using Google Cloud Vision API
+// Set up multer for handling image uploads
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/process-image', authenticateToken, upload.single('image'), async (req, res) => {
   try {
-    const { imageUrl } = req.body;
-    const base64Image = imageUrl.split(',')[1];
+    const imageBuffer = req.file.buffer; // Get the uploaded image buffer
 
-    const [result] = await visionClient.textDetection({
-      image: { content: base64Image },
-    });
+    // Process the image using Google Cloud Vision API
+    const [result] = await visionClient.textDetection({ image: { content: imageBuffer.toString('base64') } });
 
-    const textAnnotations = result.textAnnotations;
-    const text = textAnnotations.length > 0 ? textAnnotations[0].description : '';
+    const extractedText = result.textAnnotations.length > 0 ? result.textAnnotations[0].description : '';
 
-    res.json({ text });
+    res.status(200).json({ text: extractedText }); // Send extracted text back to the front-end
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error processing image:', error);
+    res.status(500).json({ error: 'Failed to process the image.' });
   }
 });
 
@@ -148,35 +149,59 @@ app.post('/extract-wine-data', authenticateToken, async (req, res) => {
 });
 
 // Route to append wine data to Firestore
+// Route to append wine data with both front and back images
 app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { wineData, imageUrl, id } = req.body;
+    const { wineData, frontImageUrl, backImageUrl, id } = req.body;
 
-    if (!wineData || !imageUrl || !id) {
-      return res.status(400).json({ message: 'Missing wineData, imageUrl, or id in request body' });
+    if (!wineData || !frontImageUrl || !backImageUrl || !id) {
+      return res.status(400).json({ message: 'Missing wineData, frontImageUrl, backImageUrl, or id in request body' });
     }
 
-    // Extract base64 part from image URL
-    const imageUrlBase64 = imageUrl.split(',')[1];
+    // Extract base64 part from both image URLs
+    const frontImageUrlBase64 = frontImageUrl.split(',')[1];
+    const backImageUrlBase64 = backImageUrl.split(',')[1];
     const wineName = wineData.name.replace(/\s+/g, '_');
 
-    // Upload desktop image to GCS
-    const desktopFileName = `wine-labels/${wineName}-desktop.webp`;
-    const uploadedDesktopImageUrl = await uploadImageToGCS(imageUrlBase64, desktopFileName);
+    // Upload front desktop image to GCS
+    const frontDesktopFileName = `wine-labels/${wineName}-front-desktop.webp`;
+    const uploadedFrontDesktopImageUrl = await uploadImageToGCS(frontImageUrlBase64, frontDesktopFileName);
 
-    // Create a mobile-optimized image using sharp
-    const mobileImageBuffer = await sharp(Buffer.from(imageUrlBase64, 'base64'))
+    // Upload back desktop image to GCS
+    const backDesktopFileName = `wine-labels/${wineName}-back-desktop.webp`;
+    const uploadedBackDesktopImageUrl = await uploadImageToGCS(backImageUrlBase64, backDesktopFileName);
+
+    // Create mobile-optimized front image using sharp
+    const frontMobileImageBuffer = await sharp(Buffer.from(frontImageUrlBase64, 'base64'))
       .resize(300) // Resize to 300px width (adjust as necessary)
       .toFormat('png') // Specify format
       .toBuffer();
 
-    // Upload mobile image to GCS
-    const mobileFileName = `wine-labels/${wineName}-mobile.webp`;
-    const uploadedMobileImageUrl = await uploadImageToGCS(mobileImageBuffer.toString('base64'), mobileFileName);
+    // Upload front mobile image to GCS
+    const frontMobileFileName = `wine-labels/${wineName}-front-mobile.webp`;
+    const uploadedFrontMobileImageUrl = await uploadImageToGCS(frontMobileImageBuffer.toString('base64'), frontMobileFileName);
+
+    // Create mobile-optimized back image using sharp
+    const backMobileImageBuffer = await sharp(Buffer.from(backImageUrlBase64, 'base64'))
+      .resize(300) // Resize to 300px width (adjust as necessary)
+      .toFormat('png') // Specify format
+      .toBuffer();
+
+    // Upload back mobile image to GCS
+    const backMobileFileName = `wine-labels/${wineName}-back-mobile.webp`;
+    const uploadedBackMobileImageUrl = await uploadImageToGCS(backMobileImageBuffer.toString('base64'), backMobileFileName);
 
     // Add the image URLs to the wineData object
-    wineData.image.desktop = uploadedDesktopImageUrl;
-    wineData.image.mobile = uploadedMobileImageUrl;
+    wineData.images = {
+      front: {
+        desktop: uploadedFrontDesktopImageUrl,
+        mobile: uploadedFrontMobileImageUrl
+      },
+      back: {
+        desktop: uploadedBackDesktopImageUrl,
+        mobile: uploadedBackMobileImageUrl
+      }
+    };
 
     // Add wine data to Firestore
     const userId = req.user.uid;
@@ -195,7 +220,7 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
 
     res.status(200).json({
       message: 'Wine data appended to Firestore',
-      response: uploadedDesktopImageUrl,
+      response: { frontImage: uploadedFrontDesktopImageUrl, backImage: uploadedBackDesktopImageUrl },
       wineUrl: `/cellar/${id}`
     });
   } catch (error) {

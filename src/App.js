@@ -16,6 +16,7 @@ import SignUp from './pages/SignUp';
 import SharedWineDetail from './pages/SharedWineDetail';
 import TastingPage from './pages/TastingPage';
 import './styles/global.css';
+import AddWineDouble from './pages/AddWineDouble';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -50,6 +51,7 @@ const App = () => {
           {user ? (
             <>
               <Route path="/add-wine" element={<AddWine />} />
+              <Route path="/add-wine-double" element={<AddWineDouble />} />
               <Route path="/add-wine-batch" element={<AddWineBatch />} />
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />

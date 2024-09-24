@@ -92,13 +92,13 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
   };
 
   return (
-    <Accordion defaultExpanded={false} sx={{ marginBottom: '20px' }}>
+    <Accordion defaultExpanded={false} sx={{ marginBottom: '20px', boxShadow: 3}}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="filter-content"
         id="filter-header"
       >
-        <Typography variant="h6">Filter Wines</Typography>
+        <Typography variant="body1">Filter Wines</Typography>
       </AccordionSummary>
 
       <AccordionDetails>

@@ -53,7 +53,7 @@
 }
 
 .swiper-slide {
-  display: flex; /* Use flexbox for centering */
+  /* display: flex;  */
   justify-content: center; /* Center content horizontally */
   align-items: center; /* Center content vertically */
 }

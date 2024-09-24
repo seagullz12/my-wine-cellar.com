@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import '../styles/WineRecommendations.css'; // Ensure you have this CSS file in the same folder
+import '../styles/WineRecommendations.css'; // Ensure CSS is in the same folder
 import { getAuth } from 'firebase/auth'; // Firebase authentication
+
+const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
 
 const WineRecommendation = () => {
   const [food, setFood] = useState('');
@@ -8,88 +10,51 @@ const WineRecommendation = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
-  //const backendURL = 'http://192.168.2.9:8080'; // dev
-
-  // Function to get the Firebase Auth token
+  // Get Firebase Auth token
   const getToken = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
-    if (user) {
-      return await user.getIdToken();
-    }
-    return null;
+    return user ? user.getIdToken() : null;
   };
 
+  // Fetch wine recommendations from backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // Get Firebase auth token
       const token = await getToken();
-      if (!token) {
-        throw new Error('User not authenticated.');
-      }
+      if (!token) throw new Error('User not authenticated.');
 
-      // Fetch recommendations from the backend
-      const response = await fetch(`${backendURL}/recommend-wine`, { 
+      const response = await fetch(`${backendURL}/recommend-wine`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Pass token in Authorization header
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ food }) // Send the food input as request body
+        body: JSON.stringify({ food }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get recommendations from server.');
+        throw new Error('Failed to get recommendations from the server.');
       }
 
       const data = await response.json();
-      console.log('Data from server:', data); // Debugging log
-
-      // Use the recommendations directly without parsing
       setRecommendations(data.recommendations);
     } catch (err) {
-      setError(err.message || 'Failed to get recommendations.');
-      console.error('Error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  // Function to format recommendations into JSX
-  const formatRecommendations = (data) => {
-    if (!data) return null;
-  
-    return (
-      <div className="recommendations-list">
-        <div className="recommendation-item">
-          <h3>Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href={data.best_pairing_link}>{data.best_pairing_name}</a></p>
-          <p><strong>Explanation:</strong> {data.best_pairing_explanation}</p>
-        </div>
-        <div className="recommendation-item">
-          <h3>Second Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href={data.second_best_pairing_link}>{data.second_best_pairing_name}</a></p>
-          <p><strong>Explanation:</strong> {data.second_best_pairing_explanation}</p>
-        </div>
-        <div className="recommendation-item">
-          <h3>Third Best Pairing</h3>
-          <p><strong>Name:</strong> <a target="_blank" rel="noreferrer" href={data.third_best_pairing_link}>{data.third_best_pairing_name}</a></p>
-          <p><strong>Explanation:</strong> {data.third_best_pairing_explanation}</p>
-        </div>
-      </div>
-    );
-  };  
 
   return (
     <div className="wine-recommendation-container">
       <form onSubmit={handleSubmit} className="recommendation-form">
         <label className="form-label">
-          <h3>Hi! I am your personal sommelier.</h3> 
-          <br />Enter your food and I'll find the best wine pairing from your cellar:
+          <h3>Hi! I am your personal sommelier.</h3>
+          <p>Enter your food, and I'll find the best wine pairing from your cellar:</p>
           <input
             type="text"
             value={food}
@@ -102,8 +67,30 @@ const WineRecommendation = () => {
           {loading ? 'Loading...' : 'Get Recommendations'}
         </button>
       </form>
-      {recommendations && formatRecommendations(recommendations)}
+
+      {/* Loading State */}
+      {loading && <p>Loading recommendations...</p>}
+
+      {/* Error State */}
       {error && <p className="error-message">{error}</p>}
+
+      {/* Recommendations */}
+      {recommendations && (
+        <div className="recommendations-list">
+          {['best', 'second_best', 'third_best'].map((rank) => (
+            <div key={rank} className="recommendation-item">
+              <h3>{rank.replace('_', ' ')} Pairing</h3>
+              <p>
+                <strong>Name:</strong>{' '}
+                <a href={"https://www.my-wine-cellar.com/#" + recommendations[`${rank}_pairing_link`]} target="_blank" rel="noreferrer">
+                  {recommendations[`${rank}_pairing_name`]}
+                </a>
+              </p>
+              <p><strong>Explanation:</strong> {recommendations[`${rank}_pairing_explanation`]}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

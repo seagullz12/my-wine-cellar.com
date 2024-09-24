@@ -380,13 +380,13 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
     const wines = querySnapshot.docs.map(doc => {
       const wineData = doc.data();
       return {
-        id: doc.id,
+        id: wineData.id,
         name: wineData.name,
         grape: wineData.grape,
         vintage: wineData.vintage,
         pairing: wineData.pairing,
         peakMaturity: wineData.peakMaturity || null, // Include peakMaturity if not null
-        link: `/cellar/${doc.id}`
+        link: `/#/cellar/${wineData.id}`
       };
     });
 

@@ -7,7 +7,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Home from './pages/Home';
 //import AddWine from './pages/AddWine';
 import AddWineBatch from './pages/AddWineBatch';
-import WineList from './pages/WineList';
+import WineList from './pages/WineList.js';
 import WineRecommendations from './pages/WineRecommendations';
 import WineDetail from './pages/WineDetail';
 import NavBar from './components/NavBar'; 
@@ -17,6 +17,12 @@ import SharedWineDetail from './pages/SharedWineDetail';
 import TastingPage from './pages/TastingPage';
 import './styles/global.css';
 import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
+import WineDetailOrig from './pages/WineDetailOrig';
+
+// mui styles
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './components/theme.js'; // Import your theme
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -37,6 +43,8 @@ const App = () => {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
     <Router>
       <div className="App">
         <NavBar />
@@ -56,6 +64,7 @@ const App = () => {
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />
               <Route path="/cellar/:id" element={<WineDetail />} />
+              <Route path="/cellar_orig/:id" element={<WineDetailOrig />} />
               <Route path="/tasting/:id" element={<TastingPage />} />
               <Route path="*" element={<Navigate to="" />} />
             </>
@@ -65,6 +74,7 @@ const App = () => {
         </Routes>
       </div>
     </Router>
+     </ThemeProvider>
   );
 };
 

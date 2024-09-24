@@ -27,20 +27,20 @@ const CellarStatistics = ({ wines }) => {
   };
 
   return (
-    <Accordion expanded={expanded} onChange={handleChange} sx={{ marginBottom: '20px', boxShadow: 3 }}>
+    <Accordion expanded={expanded} onChange={handleChange} sx={{ marginBottom: '20px', boxShadow: 3}}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-        <Typography variant="h6" component="div">
+        <Typography variant="body1" component="div">
           My Wine Cellar Summary
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Card variant="outlined" sx={{ width: '100%' }}>
           <CardContent>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.primary">
               Total Wines: {totalWines}
             </Typography>
 
-            <Typography variant="h6" component="div" sx={{ marginTop: '10px' }}>
+            <Typography variant="body1" component="div" sx={{ marginTop: '10px' }}>
               By Color:
             </Typography>
             {Object.entries(coloursCount).map(([colour, count]) => (
@@ -49,16 +49,16 @@ const CellarStatistics = ({ wines }) => {
               </Typography>
             ))}
 
-            <Typography variant="h6" component="div" sx={{ marginTop: '10px' }}>
+            {/* <Typography variant="h6" component="div" sx={{ marginTop: '10px' }}>
               By Grape:
             </Typography>
             {Object.entries(grapesCount).map(([grape, count]) => (
               <Typography key={grape} variant="body2" color="text.secondary">
                 {grape}: {count}
               </Typography>
-            ))}
+            ))} */}
 
-            <Typography variant="h6" component="div" sx={{ marginTop: '10px' }}>
+            <Typography variant="body1" component="div" sx={{ marginTop: '10px' }}>
               By Vintage:
             </Typography>
             {Object.entries(vintagesCount).map(([vintage, count]) => (

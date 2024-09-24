@@ -25,13 +25,13 @@ button:hover {
   transform: scale(1.05); /* Slight zoom effect */
 }
 
-video, img {
-  border: 4px solid #8b3a3a; /* Burgundy border */
+/* video, img {
+  border: 4px solid #8b3a3a; 
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   width: 50%;
   height: auto;
-}
+} */
 
 h1 {
   font-size: 2.5em; /* Adjusted size */

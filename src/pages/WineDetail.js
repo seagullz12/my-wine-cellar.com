@@ -7,26 +7,37 @@ import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import ShareWineButton from '../components/ShareWineButton';
 import TastingNotesForm from '../components/TastingNotesForm';
 import { getWineIdFromToken } from '../components/utils';
-
-//swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
-import '../styles/WineDetail.css'; // Import your custom styles
 
+//import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
+//import '../styles/WineDetail.css'; // Import your custom styles
+
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+  Snackbar,
+  IconButton,
+  Card, 
+  CardContent, 
+  CardActions,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const WineDetail = () => {
-  const { id: wineId } = useParams(); // Directly use the wineId from params
+  const { id: wineId, token } = useParams(); // Directly use the wineId from params
   const [user, setUser] = useState(null);
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [tastingStarted, setTastingStarted] = useState(false); // State to track tasting session
+  const [tastingStarted, setTastingStarted] = useState(false);
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const { token } = useParams();
-  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
@@ -70,7 +81,6 @@ const WineDetail = () => {
     fetchWineData();
   }, [wineId, user, token]);
 
-  // handle functions
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -97,6 +107,7 @@ const WineDetail = () => {
         setWine(updatedWine.data);
         setIsEditing(false);
         setSuccessMessage('Wine details saved successfully!');
+        setSnackbarOpen(true);
       } else {
         setError('Error updating wine data');
       }
@@ -105,122 +116,194 @@ const WineDetail = () => {
     }
   };
 
-
   const handleTastingStarted = (updatedWine) => {
-    setWine(updatedWine); 
-    setTastingStarted(true); // Set tastingStarted to true when tasting starts
+    setWine(updatedWine);
+    setTastingStarted(true);
   };
 
-  if (loading) return <p className="wine-detail-loading">Loading...</p>;
-  if (error) return <p className="wine-detail-error">{error}</p>;
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
+  
+  const spacingValue = 1.5; // You can adjust this value to control spacing
   return (
-    <div className="wine-detail-container">
-      <div className="back-link" align="left">
-        <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
-      </div>
+    <Box sx={{ padding: 0, maxWidth: 800, margin: '0 auto' }}>
+<Box display="flex" justifyContent="flex-start" alignItems="center" sx={{ mt: 2 }}>
+  <Link to="/cellar" style={{ textDecoration: 'none' }}>
+    <Button 
+      variant="text" 
+      color="text.primary" 
+      startIcon={<ArrowBackIcon />} 
+      sx={{ 
+        textTransform: 'none', 
+        fontWeight: 'bold',
+        '&:hover': {
+          backgroundColor: 'primary.light', 
+          textDecoration: 'underline',
+        } 
+      }}
+    >
+      Back to Cellar
+    </Button>
+  </Link>
+</Box>
+      
       {wine ? (
-        <div className="wine-detail-card">
-          <div className="wine-detail-header">
-            <h1>{wine.name}</h1>
-          </div>
+        <Box sx={{ 
+          borderRadius: 2, 
+          padding: 2, 
+          }}>
 
           {/* Swiper Carousel for Front and Back Images */}
+          <Card sx={{ backgroundColor: '#F5F5F5'}}>
+          {/* Header for Wine Name */}
+        <Box sx={{backgroundColor:"#8b3a3a"}}>
+          <Typography variant="h4" component="h1" sx={{ padding: 2, textAlign: "center" }}>
+          {wine.name}
+        </Typography>
+        </Box>
+          <CardContent sx={{padding:0}}>
           {wine.images && (
-             <div className="wine-details-image-container">
-            <Swiper
-            modules={[Navigation, Pagination]} // Pass the modules to the Swiper
-            spaceBetween={10}
-            slidesPerView={1}
-            navigation
-            pagination={{ clickable: true }}
-          >
-            {wine.images.front?.desktop && (
-              <SwiperSlide>
-                <div className="wine-detail-image">
-                  <img
-                    src={wine.images.front.desktop}
-                    srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
-                    sizes="(max-width: 600px) 100vw, 1200px"
-                    alt={`${wine.name} front image`}
-                    className="wine-detail-image"
-                  />
-                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-                </div>
-              </SwiperSlide>
-            )}
-          
-            {wine.images.back?.desktop && (
-              <SwiperSlide>
-                <div className="wine-detail-image">
-                  <img
-                    src={wine.images.back.desktop}
-                    srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
-                    sizes="(max-width: 600px) 100vw, 1200px"
-                    alt={`${wine.name} back image`}
-                    className="wine-detail-image"
-                  />
-                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-                </div>
-              </SwiperSlide>
-            )}
-        
-          </Swiper>
-          </div>
+              <Box sx={{backgroundColor:"#8b3a3a"}}>
+              <Swiper
+                modules={[Navigation, Pagination]} // Pass the modules to the Swiper
+                spaceBetween={10}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                style={{
+                  "--swiper-pagination-color": "#8b3a3a",
+                  "--swiper-pagination-bullet-inactive-color": "#fff",
+                  "--swiper-pagination-bullet-inactive-opacity": "1",
+                  "--swiper-navigation-color":"#fff"  
+                }}
+              >
+                {wine.images.front?.desktop && (
+                  <SwiperSlide>
+                    <Box position="relative">
+                      <img
+                        src={wine.images.front.desktop}
+                        srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
+                        sizes="(max-width: 600px) 100vw, 1200px"
+                        alt={`${wine.name} front image`}
+                        style={{ width: '100%', borderRadius: '0px' }}
+                      />
+                      {/* Position the PeakMaturityBadge absolutely within the Box */}
+                      <Box
+                        position="absolute"
+                        bottom={20} // Adjust this value to position the badge vertically
+                        left={10} // Adjust this value to position the badge horizontally
+                        zIndex={1} // Ensure the badge appears above the image
+                         sx={{padding:0}}
+                      >
+                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
+                      </Box>
+                    </Box>
+                  </SwiperSlide>
+                )}
+                {wine.images.back?.desktop && (
+                  <SwiperSlide>
+                  <Box position="relative">
+                    <img
+                      src={wine.images.back.desktop}
+                      srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
+                      sizes="(max-width: 600px) 100vw, 1200px"
+                      alt={`${wine.name} back image`}
+                      style={{ width: '100%', borderRadius: '0px' }}
+                    />
+                    {/* Position the PeakMaturityBadge absolutely within the Box */}
+                    <Box
+                        position="absolute"
+                        bottom={20} // Adjust this value to position the badge vertically
+                        left={10} // Adjust this value to position the badge horizontally
+                        zIndex={1} // Ensure the badge appears above the image
+                         sx={{padding:0}}
+                    >
+                      <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
+                    </Box>
+                  </Box>
+                </SwiperSlide> 
+                )}
+              </Swiper>
+              </Box>
+
           )}
 
-          {successMessage && (
-            <div className="success-notification">
-              <span className="success-icon">✔️</span> {successMessage}
-            </div>
-          )}
+          {/* Success Notification Snackbar */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            message={successMessage}
+            action={
+              <IconButton size="small" color="inherit" onClick={handleSnackbarClose}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
+          />
 
-          {isEditing ? (
-            <WineDetailEditForm
-              formData={formData}
-              handleChange={handleChange}
-              handleSubmit={handleSubmit}
-              handleEditToggle={handleEditToggle}
-            />
-          ) : (
-            <>
-              {!tastingStarted && (
-                <div className="wine-detail-info">
-                  <p><strong>Grape:</strong> {wine.grape}</p>
-                  <p><strong>Vintage:</strong> {wine.vintage}</p>
-                  <p><strong>Region:</strong> {wine.region}</p>
-                  <p><strong>Producer:</strong> {wine.producer}</p>
-                  <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
-                  <p><strong>Quality Classification:</strong> {wine.classification}</p>
-                  <p><strong>Colour:</strong> {wine.colour}</p>
-                  <p><strong>Nose:</strong> {wine.nose}</p>
-                  <p><strong>Palate:</strong> {wine.palate}</p>
-                  <p><strong>Pairing:</strong> {wine.pairing}</p>
-                  <p><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</p>
-                  <div className="button-container">
-                    <button onClick={handleEditToggle}>Edit Details</button>
-                    <button onClick={handleTastingStarted}>Start Tasting</button>
-                  </div>
-                  <div className="share-button-container">
-                    <ShareWineButton wineName={wine.name} wineId={wineId} />
-                  </div>
+          {/* Wine Details Card */}
+              {isEditing ? (
+                <WineDetailEditForm
+                  formData={formData}
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmit}
+                  handleEditToggle={handleEditToggle}
+                />
+              ) : (
+                <>
+                  {!tastingStarted && (
+                   <Box sx={{ 
+                    padding: 2,
+                    margin: 1
+                    }}>
+                     <Typography sx={{ mb: spacingValue }}><strong>Grape:</strong> {wine.grape}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Vintage:</strong> {wine.vintage}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Region:</strong> {wine.region}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Producer:</strong> {wine.producer}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Alcohol Content:</strong> {wine.alcohol}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Quality Classification:</strong> {wine.classification}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Nose:</strong> {wine.nose}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Palate:</strong> {wine.palate}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
+                     <Typography sx={{ mb: 0 }}><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</Typography>
+                   </Box>
+                  )}
+                     
+                  <CardActions>
+                  {!tastingStarted && (
+                    <Box sx={{ display: 'flex', gap: 1, margin: 1, padding: 1 }}>
+                      <Button variant="contained" color="primary" onClick={handleEditToggle}>Edit Details</Button>
+                      <Button variant="contained" color="primary" onClick={handleTastingStarted}>Start Tasting</Button>
+                      <ShareWineButton wineName={wine.name} wineId={wineId} />
+                    </Box>
+              )}
+                  </CardActions>
+                  {!tastingStarted && (
+                  <Box sx={{ alignItems: "center", margin: 2, padding: 1 }}>
                   <WineMap region={wine.region} />
-                </div>
+                  </Box>
+                )}
+                </>
               )}
-               {tastingStarted && (
-              <TastingNotesForm
-                wineId={wineId}
-                backendURL={backendURL}
-                user={user}
-              />
+              {tastingStarted && (
+                <TastingNotesForm
+                  wineId={wineId}
+                  backendURL={backendURL}
+                  user={user}
+                />
               )}
-            </>
-          )}
-        </div>
+            </CardContent>
+            </Card>
+        </Box>
       ) : (
-        <p>Wine data not found</p>
+        <Typography color="error">Wine data not found</Typography>
       )}
-    </div>
+    </Box>
   );
 };
 

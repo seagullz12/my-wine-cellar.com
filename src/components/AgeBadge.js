@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/AgeBadge.css'; // Ensure you have the styles
+import { Box, Typography } from '@mui/material';
 
 const AgeBadge = ({ vintage, round }) => {
   const calculateAge = (vintage) => {
@@ -11,9 +11,25 @@ const AgeBadge = ({ vintage, round }) => {
   const age = calculateAge(vintage);
 
   return (
-    <div className={round ? 'round-age-badge' : 'age-badge'}>
-      <span className="age-text">{age} years old </span>
-    </div>
+    <Box
+    sx={{
+      backgroundColor: '#6c757d', // Optional background for better contrast
+      opacity: '70%',
+      padding: 1,
+      display: 'inline-block',
+    }}
+    >
+      <Typography
+        variant="body2"
+        component="span"
+        sx={{
+          color: 'primary.contrastText',
+          fontWeight: 'bold',
+        }}
+      >
+        {age} years old
+      </Typography>
+    </Box>
   );
 };
 

@@ -6,7 +6,7 @@ import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/mat
 const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderChange }) => {
   return (
     <Box display="flex" alignItems="center" marginBottom={2}>
-     <FormControl variant="outlined" sx={{ minWidth: 120, marginRight: '10px'}}>
+     <FormControl variant="outlined" sx={{ minWidth: 120, marginRight: '10px',boxShadow: 3}}>
         <InputLabel id="sort-select-label">Sort by</InputLabel>
         <Select
           labelId="sort-select-label"
@@ -21,7 +21,7 @@ const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderCha
       <Button variant="contained" 
               color= "white" 
               onClick={onSortOrderChange}
-              sx={{ height: '56px'}} // Match height of dropdown
+              sx={{boxShadow: 3}} // Match height of dropdown
               >
         {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
       </Button>

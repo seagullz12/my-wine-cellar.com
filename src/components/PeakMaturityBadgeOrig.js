@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+//import '../styles/PeakMaturityBadge.css';
 
 const PeakMaturityBadge = ({ vintage, peakMaturity, round }) => {
   if (!peakMaturity) return null;
@@ -21,29 +21,15 @@ const PeakMaturityBadge = ({ vintage, peakMaturity, round }) => {
   const isAtPeak = yearsUntilPeak === 0;
 
   return (
-    <Box
-      sx={{
-        backgroundColor: isAtPeak ? '#800020' : '#6c757d', // Optional background for better contrast
-        opacity: '70%',
-        padding: 1,
-        display: 'inline-block',
-      }}
-    >
-      <Typography
-        variant="body2"
-        component="span"
-        sx={{
-          color: isAtPeak ? 'success.contrastText' : 'warning.contrastText',
-          fontWeight: 'bold',
-        }}
-      >
+    <div className={round ? `round-peak-maturity-badge ${isAtPeak ? 'at-peak' : ''}`  : `peak-maturity-badge ${isAtPeak ? 'at-peak' : ''}`}>
+      <span className="peak-maturity-text">
         {yearsUntilPeak > 0 
-          ? `${yearsUntilPeak} year${yearsUntilPeak>1 ? 's' : ''} until peak` 
+          ? `${yearsUntilPeak} years until peak` 
           : isAtPeak 
           ? 'At peak maturity' 
           : 'Already Peaked'}
-      </Typography>
-    </Box>
+      </span>
+    </div>
   );
 };
 

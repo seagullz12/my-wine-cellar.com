@@ -3,14 +3,10 @@ import { v4 as uuid } from 'uuid';
 import { db } from './firebase-config'; // Adjust the path as needed
 import { doc, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { Button, Snackbar, IconButton, Typography, Box } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 
 const ShareWineButton = ({ wineName, wineId }) => {
   const [isLoading, setIsLoading] = useState(false); // For button loading state
   const [errorMessage, setErrorMessage] = useState(null); // Error message state
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Snackbar open state
-  const [snackbarMessage, setSnackbarMessage] = useState(''); // Snackbar message
 
   const generateUniqueToken = async () => {
     if (!wineId) {
@@ -47,13 +43,12 @@ const ShareWineButton = ({ wineName, wineId }) => {
     setErrorMessage(null); // Reset any previous error message
     
     const token = await generateUniqueToken(); // Get the token
+//    const encodedToken = btoa(token)
 
     if (token) {
       const message = `Heeeey, let's drink this wine together!: *${wineName}* ! https://my-wine-cellar.com/#/shared/${token}`;
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
-      setSnackbarMessage('Wine shared successfully!'); // Set success message
-      setSnackbarOpen(true); // Open snackbar
     } else {
       console.error('Failed to generate token or wineId was invalid.');
     }
@@ -61,38 +56,13 @@ const ShareWineButton = ({ wineName, wineId }) => {
     setIsLoading(false); // End loading state
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   return (
-    <Box>
-      <Button 
-        variant="contained" 
-        color="success" 
-        onClick={handleShare} 
-        disabled={isLoading} 
-      >
+    <>
+      <button onClick={handleShare} className="share-wine-button" disabled={isLoading}>
         {isLoading ? 'Sharing...' : 'Share on WhatsApp'}
-      </Button>
-      {errorMessage && (
-        <Typography color="error" variant="body2" gutterBottom>
-          {errorMessage}
-        </Typography>
-      )}
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message={snackbarMessage}
-        action={
-          <IconButton size="small" color="inherit" onClick={handleSnackbarClose}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
-    </Box>
+      </button>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+    </>
   );
 };
 

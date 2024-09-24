@@ -2,13 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useParams, Link } from 'react-router-dom';
 import WineDetailEditForm from '../components/WineDetailEditForm';
-import WineMap from '../components/WineMap'; 
+import WineMap from '../components/WineMap';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import ShareWineButton from '../components/ShareWineButton';
-//import StartTastingButton from '../components/StartTastingButton';
-import { getWineIdFromToken } from '../components/utils'; 
 import TastingNotesForm from '../components/TastingNotesForm';
-import '../styles/WineDetail.css';
+import { getWineIdFromToken } from '../components/utils';
+
+//swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
+import '../styles/WineDetail.css'; // Import your custom styles
+
 
 const WineDetail = () => {
   const { id: wineId } = useParams(); // Directly use the wineId from params
@@ -20,9 +25,8 @@ const WineDetail = () => {
   const [isTasting, setIsTasting] = useState(false);
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const [tastingStarted, setTastingStarted] = useState(false); // State to track tasting session
   const { token } = useParams();
-
+  
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
@@ -66,7 +70,7 @@ const WineDetail = () => {
     fetchWineData();
   }, [wineId, user, token]);
 
-  // handle fucntions
+  // handle functions
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -102,98 +106,121 @@ const WineDetail = () => {
   };
 
   const handleIsTasting = () => {
-    setIsTasting(!isTasting)
+    setIsTasting(!isTasting);
   };
 
-    
   if (loading) return <p className="wine-detail-loading">Loading...</p>;
   if (error) return <p className="wine-detail-error">{error}</p>;
 
-  // Inside the return statement of WineDetail
-return (
-  <div className="wine-detail-container">
-    <div className="back-link" align="left">
-      <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
-    </div>
-    {wine ? (
-      <div className="wine-detail-card">
-        <div className="wine-detail-header">
-          <h1>{wine.name}</h1>
-        </div>
-        {wine.image.desktop && (
-          <div className="wine-details-image-container">
-            <img
-              src={wine.image.desktop}
-              srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
-              sizes="(max-width: 600px) 100vw, 1200px"
-              alt={wine.name}
-              className="wine-detail-image"
-            />
-            <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
-          </div>
-        )}
-        {successMessage && (
-          <div className="success-notification">
-            <span className="success-icon">✔️</span> {successMessage}
-          </div>
-        )}
-
-        {/* Conditional Rendering */}
-        {isEditing ? (
-          <WineDetailEditForm
-            formData={formData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            handleEditToggle={handleEditToggle}
-          />
-        ) : (
-          <>
-            {!isTasting && (
-              <div className="wine-detail-info">
-                <p><strong>Grape:</strong> {wine.grape}</p>
-                <p><strong>Vintage:</strong> {wine.vintage}</p>
-                <p><strong>Region:</strong> {wine.region}</p>
-                <p><strong>Producer:</strong> {wine.producer}</p>
-                <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
-                <p><strong>Quality Classification:</strong> {wine.classification}</p>
-                <p><strong>Colour:</strong> {wine.colour}</p>
-                <p><strong>Nose:</strong> {wine.nose}</p>
-                <p><strong>Palate:</strong> {wine.palate}</p>
-                <p><strong>Pairing:</strong> {wine.pairing}</p>
-                <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
-                <div className="button-container">
-                  <button onClick={handleEditToggle}>Edit Details</button>
-                  <button onClick={handleIsTasting}>Start Tasting</button>
-                  {/* <StartTastingButton
-                    wineId={wineId}
-                    backendURL={backendURL}
-                    user={user}
-                    onTastingStarted={handleTastingStarted}
-                  /> */}
-                </div>
-                <div className="share-button-container">
-                  <ShareWineButton wineName={wine.name} wineId={wineId} />
-                </div>
-                <WineMap region={wine.region} />
-              </div>
-            )}
-            {isTasting && (
-              <TastingNotesForm
-                wineId={wineId}
-                backendURL={backendURL}
-                user={user}
-                handleIsTasting={handleIsTasting}
-              />
-            )}
-          </>
-        )}
+  return (
+    <div className="wine-detail-container">
+      <div className="back-link" align="left">
+        <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
       </div>
-    ) : (
-      <p>Wine data not found</p>
-    )}
-  </div>
-);
+      {wine ? (
+        <div className="wine-detail-card">
+          <div className="wine-detail-header">
+            <h1>{wine.name}</h1>
+          </div>
 
+          {/* Swiper Carousel for Front and Back Images */}
+          {wine.images && (
+             <div className="wine-details-image-container">
+            <Swiper
+            modules={[Navigation, Pagination]} // Pass the modules to the Swiper
+            spaceBetween={10}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+          >
+            {wine.images.front?.desktop && (
+              <SwiperSlide>
+                <div className="wine-detail-image">
+                  <img
+                    src={wine.images.front.desktop}
+                    srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
+                    sizes="(max-width: 600px) 100vw, 1200px"
+                    alt={`${wine.name} front image`}
+                    className="wine-detail-image"
+                  />
+                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
+                </div>
+              </SwiperSlide>
+            )}
+          
+            {wine.images.back?.desktop && (
+              <SwiperSlide>
+                <div className="wine-detail-image">
+                  <img
+                    src={wine.images.back.desktop}
+                    srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
+                    sizes="(max-width: 600px) 100vw, 1200px"
+                    alt={`${wine.name} back image`}
+                    className="wine-detail-image"
+                  />
+                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
+                </div>
+              </SwiperSlide>
+            )}
+        
+          </Swiper>
+          </div>
+          )}
+
+          {successMessage && (
+            <div className="success-notification">
+              <span className="success-icon">✔️</span> {successMessage}
+            </div>
+          )}
+
+          {isEditing ? (
+            <WineDetailEditForm
+              formData={formData}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              handleEditToggle={handleEditToggle}
+            />
+          ) : (
+            <>
+              {!isTasting && (
+                <div className="wine-detail-info">
+                  <p><strong>Grape:</strong> {wine.grape}</p>
+                  <p><strong>Vintage:</strong> {wine.vintage}</p>
+                  <p><strong>Region:</strong> {wine.region}</p>
+                  <p><strong>Producer:</strong> {wine.producer}</p>
+                  <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
+                  <p><strong>Quality Classification:</strong> {wine.classification}</p>
+                  <p><strong>Colour:</strong> {wine.colour}</p>
+                  <p><strong>Nose:</strong> {wine.nose}</p>
+                  <p><strong>Palate:</strong> {wine.palate}</p>
+                  <p><strong>Pairing:</strong> {wine.pairing}</p>
+                  <p><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</p>
+                  <div className="button-container">
+                    <button onClick={handleEditToggle}>Edit Details</button>
+                    <button onClick={handleIsTasting}>Start Tasting</button>
+                  </div>
+                  <div className="share-button-container">
+                    <ShareWineButton wineName={wine.name} wineId={wineId} />
+                  </div>
+                  <WineMap region={wine.region} />
+                </div>
+              )}
+              {isTasting && (
+                <TastingNotesForm
+                  wineId={wineId}
+                  backendURL={backendURL}
+                  user={user}
+                  handleIsTasting={handleIsTasting}
+                />
+              )}
+            </>
+          )}
+        </div>
+      ) : (
+        <p>Wine data not found</p>
+      )}
+    </div>
+  );
 };
 
 export default WineDetail;

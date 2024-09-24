@@ -151,7 +151,7 @@
     }
   }
   
-  .add-button, .upload-button {
+  .add-button, .edit-button, .upload-button {
     background-color: #6f2c2c;
     color: white;
     padding: 12px 24px;

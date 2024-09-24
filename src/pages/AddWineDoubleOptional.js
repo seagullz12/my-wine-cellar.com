@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import WineDetailEditForm from '../components/WineDetailEditForm';
 import '../styles/AddWineDoubleOptional.css';
 
-//const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; 
-const backendURL = 'http://192.168.2.9:8080';
+const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; 
+//const backendURL = 'http://192.168.2.9:8080';
 
 const AddWine = () => {
   const [ocrResult, setOcrResult] = useState('');  // Combined OCR result from front and back images
@@ -249,12 +249,12 @@ const AddWine = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.accessToken}`
         },
-        body: JSON.stringify({ 
-          wineData, 
+        body: JSON.stringify({
+          wineData,
           frontImageUrl: frontImageURL || null, // Send null if no image uploaded
           backImageUrl: backImageURL || null,   // Send null if no image uploaded
-          id 
-        }), 
+          id
+        }),
       });
 
       const result = await response.json();
@@ -283,129 +283,136 @@ const AddWine = () => {
     }
   };
 
-// Function to handle skipping the front label
-const handleSkipFrontLabel = () => {
-  addLogMessage('Skipped front label upload.');
-  // Trigger extraction for back label or other processing if needed
-  if (backImageURL) {
+  // Function to handle skipping the front label
+  const handleSkipFrontLabel = () => {
+    addLogMessage('Skipped front label upload.');
+    // Trigger extraction for back label or other processing if needed
+    if (backImageURL) {
       extractWineData(`${ocrResult}`); // Combine current OCR results for extraction
-  } else {
+    } else {
       addLogMessage('No back label uploaded, unable to extract data.');
-  }
-};
+    }
+  };
 
-// Function to handle skipping the back label
-const handleSkipBackLabel = () => {
-  addLogMessage('Skipped back label upload.');
-  // Trigger extraction for front label or other processing if needed
-  if (frontImageURL) {
+  // Function to handle skipping the back label
+  const handleSkipBackLabel = () => {
+    addLogMessage('Skipped back label upload.');
+    // Trigger extraction for front label or other processing if needed
+    if (frontImageURL) {
       extractWineData(`${ocrResult}`); // Combine current OCR results for extraction
-  } else {
+    } else {
       addLogMessage('No front label uploaded, unable to extract data.');
-  }
-};
+    }
+  };
 
 
-return (
-  <div className="add-wine-container">
-    <div className="file-upload-container">
-      <button 
-        className="upload-button"
-        onClick={() => document.getElementById('front-label-upload').click()}
-      >
-        Scan Front Label
-      </button>
-      <input
-        type="file"
-        accept="image/*"
-        id="front-label-upload"
-        style={{ display: 'none' }}
-        onChange={(e) => handleFileChange(e, 'front')}
-      />
-
-      <button 
-        className="upload-button"
-        onClick={() => document.getElementById('back-label-upload').click()}
-      >
-        Scan Back Label
-      </button>
-      <input
-        type="file"
-        accept="image/*"
-        id="back-label-upload"
-        style={{ display: 'none' }}
-        onChange={(e) => handleFileChange(e, 'back')}
-      />
-    </div>
-
-    <div className="wine-details">
-      {showNotification && (
-        <div className="notification" dangerouslySetInnerHTML={{ __html: notification }} />
-      )}
-      <div className="img-container">
-        {frontImageURL && (
-          <div>
-            <img src={frontImageURL} alt="Front Label" />
-            {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-               <button className="skip-button" onClick={handleSkipBackLabel}>Proceed with only the Front Label</button>
-              ) : null }
-          </div>
-        )}
-        {backImageURL && (
-          <div>
-            <img src={backImageURL} alt="Back Label" />
-            {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-            <button className="skip-button" onClick={handleSkipFrontLabel}>Proceed with only the Back Label</button>
-          ) : null }
-          </div>
-        )}
-      </div>
-
-      <div className="data-container">
-        <h3>About this bottle:</h3>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          wineData.name !== 'unknown' &&  !isEditing? (
-            <ul>
-              <li><strong>Name:</strong> {wineData.name}</li>
-              <li><strong>Grape:</strong> {wineData.grape}</li>
-              <li><strong>Vintage:</strong> {wineData.vintage}</li>
-              <li><strong>Region:</strong> {wineData.region}</li>
-              <li><strong>Producer:</strong> {wineData.producer}</li>
-              <li><strong>Alcohol Content:</strong> {wineData.alcohol}</li>
-              <li><strong>Quality Classification:</strong> {wineData.classification}</li>
-              <li><strong>Colour:</strong> {wineData.colour}</li>
-              <li><strong>Nose:</strong> {wineData.nose}</li>
-              <li><strong>Palate:</strong> {wineData.palate}</li>
-              <li><strong>Pairing:</strong> {wineData.pairing}</li>
-              <button className="custom-button" onClick={toggleEditForm}>Edit Details</button>
-              {!isEditing && wineData.name !== 'unknown' && !loading && (
-        <button 
-          onClick={handleFormSubmit} 
-          className="custom-button"
+  return (
+    <div className="add-wine-container">
+      <div className="file-upload-container">
+        <button
+          className="upload-button"
+          onClick={() => document.getElementById('front-label-upload').click()}
         >
-          Add to Cellar
+          Scan Front Label
         </button>
-      )}
-            </ul>
+        <input
+          type="file"
+          accept="image/*"
+          id="front-label-upload"
+          style={{ display: 'none' }}
+          onChange={(e) => handleFileChange(e, 'front')}
+        />
+
+        <button
+          className="upload-button"
+          onClick={() => document.getElementById('back-label-upload').click()}
+        >
+          Scan Back Label
+        </button>
+        <input
+          type="file"
+          accept="image/*"
+          id="back-label-upload"
+          style={{ display: 'none' }}
+          onChange={(e) => handleFileChange(e, 'back')}
+        />
+
+        <div className="wine-details">
+          {showNotification && (
+            <div className="notification" dangerouslySetInnerHTML={{ __html: notification }} />
+          )}
+          <div className="img-container">
+            {frontImageURL && (
+              <div>
+                <img src={frontImageURL} alt="Front Label" />
+                {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
+                  <button className="skip-button" onClick={handleSkipBackLabel}>Proceed with only the Front Label</button>
+                ) : null}
+              </div>
+            )}
+            {backImageURL && (
+              <div>
+                <img src={backImageURL} alt="Back Label" />
+                {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
+                  <button className="skip-button" onClick={handleSkipFrontLabel}>Proceed with only the Back Label</button>
+                ) : null}
+              </div>
+            )}
+          </div>
+        </div>
+        {/* {!isEditing && wineData.name !== 'unknown' && !loading && (
+                  <button
+                    onClick={handleFormSubmit}
+                    className="add-button"
+                  >
+                    Add to Cellar
+                  </button>
+                )} */}
+        <div className="data-container">
+          <h3>About this bottle:</h3>
+          {loading ? (
+            <p>Loading...</p>
           ) : (
-            <p align='center'>Please scan a bottle label first.</p>
-          )
+            wineData.name !== 'unknown' && !isEditing ? (
+              <ul>
+                <li><strong>Name:</strong> {wineData.name}</li>
+                <li><strong>Grape:</strong> {wineData.grape}</li>
+                <li><strong>Vintage:</strong> {wineData.vintage}</li>
+                <li><strong>Region:</strong> {wineData.region}</li>
+                <li><strong>Producer:</strong> {wineData.producer}</li>
+                <li><strong>Alcohol Content:</strong> {wineData.alcohol}</li>
+                <li><strong>Quality Classification:</strong> {wineData.classification}</li>
+                <li><strong>Colour:</strong> {wineData.colour}</li>
+                <li><strong>Nose:</strong> {wineData.nose}</li>
+                <li><strong>Palate:</strong> {wineData.palate}</li>
+                <li><strong>Pairing:</strong> {wineData.pairing}</li>
+                <button className="edit-button" onClick={toggleEditForm}>Edit Details</button>
+                {!isEditing && wineData.name !== 'unknown' && !loading && (
+                  <button
+                    onClick={handleFormSubmit}
+                    className="add-button"
+                  >
+                    Add to Cellar
+                  </button>
+                )}
+              </ul>
+            ) : (
+              <p align='center'>Please scan a bottle label first.</p>
+            )
+          )}
+        </div>
+
+        {isEditing && (
+          <WineDetailEditForm
+            formData={wineData}
+            handleChange={handleFormChange}
+            handleSubmit={handleFormSubmit}
+            handleEditToggle={toggleEditForm}
+          />
         )}
       </div>
-
-      {isEditing && (
-        <WineDetailEditForm
-          formData={wineData}
-          handleChange={handleFormChange}
-          handleSubmit={handleFormSubmit}
-          handleEditToggle={toggleEditForm}
-        />
-      )}
     </div>
-  </div>
-);
+  );
 };
 
 export default AddWine;

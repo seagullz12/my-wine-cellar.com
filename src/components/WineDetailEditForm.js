@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/WineDetailEditForm.css'; // Optional: create a separate CSS for this form
+import '../styles/WineDetailEditForm.css'; 
 
 const WineDetailEditForm = ({ formData, handleChange, handleSubmit, handleEditToggle }) => {
   const [peakMaturityError, setPeakMaturityError] = useState(''); // State for peak maturity error message
@@ -130,13 +130,13 @@ const WineDetailEditForm = ({ formData, handleChange, handleSubmit, handleEditTo
 
       <label>
         Peak Maturity: 
-        <span> {formData.peakMaturity || 0} years</span> {/* Display current value */}
+        <span> {formData.peakMaturity || 0} years</span>
         <input
           type="range"
           name="peakMaturity"
           min="0" 
           max="10"
-          value={formData.peakMaturity || 3}
+          value={formData.peakMaturity || 3 }
           onChange={handlePeakMaturityChange}
         /> 
       </label>

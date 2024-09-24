@@ -22,6 +22,7 @@ const AddWine = () => {
     nose: 'unknown',
     palate: 'unknown',
     pairing: 'unknown',
+    dateAdded: 'unknwown'
   });
 
   const [loading, setLoading] = useState(false);
@@ -207,6 +208,7 @@ const AddWine = () => {
       nose: 'unknown',
       palate: 'unknown',
       pairing: 'unknown',
+      dateAdded: 'unknown',
     };
 
     const regex = /([^:;]+):\s*([^;]+)/g;

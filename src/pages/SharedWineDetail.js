@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import WineMap from '../components/WineMap'; 
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
-import { Helmet } from 'react-helmet'; // Import Helmet
 
-import '../styles/WineDetail.css';
+//swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
+
+import '../styles/WineDetail.css'; // Import your custom styles
 
 const SharedWineDetail = () => {
   const { token } = useParams();
@@ -49,17 +53,49 @@ const SharedWineDetail = () => {
           <div className="wine-detail-header">
             <h1>{wine.name}</h1>
           </div>
-          {wine.image.desktop && (
-            <div className="wine-details-image-container">
-              <img
-              src={wine.image.desktop} // Default to desktop image
-              srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
-                sizes="(max-width: 600px) 100vw, 1200px"
-                alt={wine.name}
-                className="wine-detail-image"
-              />
-              <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-            </div>
+
+          {/* Swiper Carousel for Front and Back Images */}
+          {wine.images && (
+             <div className="wine-details-image-container">
+            <Swiper
+            modules={[Navigation, Pagination]} // Pass the modules to the Swiper
+            spaceBetween={10}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+          >
+            {wine.images.front?.desktop && (
+              <SwiperSlide>
+                <div className="wine-detail-image">
+                  <img
+                    src={wine.images.front.desktop}
+                    srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
+                    sizes="(max-width: 600px) 100vw, 1200px"
+                    alt={`${wine.name} front image`}
+                    className="wine-detail-image"
+                  />
+                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
+                </div>
+              </SwiperSlide>
+            )}
+          
+            {wine.images.back?.desktop && (
+              <SwiperSlide>
+                <div className="wine-detail-image">
+                  <img
+                    src={wine.images.back.desktop}
+                    srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
+                    sizes="(max-width: 600px) 100vw, 1200px"
+                    alt={`${wine.name} back image`}
+                    className="wine-detail-image"
+                  />
+                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
+                </div>
+              </SwiperSlide>
+            )}
+        
+          </Swiper>
+          </div>
           )}
           <div className="wine-detail-info">
             <p><strong>Grape:</strong> {wine.grape}</p>
@@ -72,7 +108,7 @@ const SharedWineDetail = () => {
             <p><strong>Nose:</strong> {wine.nose}</p>
             <p><strong>Palate:</strong> {wine.palate}</p>
             <p><strong>Pairing:</strong> {wine.pairing}</p>
-            <p><strong>Peak Maturity:</strong> {wine.peakMaturity}</p>
+            <p><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</p>
             {/* Map of Wine Region */}
             <WineMap region={wine.region} />
           </div>

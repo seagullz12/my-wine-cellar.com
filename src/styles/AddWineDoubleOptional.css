@@ -1,27 +1,268 @@
+/* AddWine.css */
+.add-wine-container {
+  text-align: center;
+  background-color: #f5f0f0; /* Soft beige background */
+  color: #3d0a02; /* Deep wine color for text */
+  font-family: 'Georgia', serif;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+button {
+  background-color: #8b3a3a; /* Rich burgundy color for buttons */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #6f2c2c; /* Darker burgundy on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+video, img {
+  border: 4px solid #8b3a3a; /* Burgundy border */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 50%;
+  height: auto;
+}
+
+h1 {
+  font-size: 2.5em; /* Adjusted size */
+  margin: 0;
+  color: #faf7f7; /* Light text for header */
+  font-family: 'Georgia', serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+h3 {
+  color: #3d0a02; /* Deep wine color */
+  margin-top: 20px;
+  font-size: 1.5em;
+  border-bottom: 2px solid #8b3a3a;
+  padding-bottom: 10px;
+}
+
+p {
+  color: #4f2a1e; /* Slightly lighter text */
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  background-color: #8b3a3a; /* Burgundy background */
+  color: white;
+  padding: 20px 0;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  margin: 0;
+  font-family: 'Georgia', serif;
+}
+
+/* Camera Field Container */
+.camera-field-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  margin-bottom: 30px;
+}
+
+.video-container, .img-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+.video-container video, .img-container img {
+  border-radius: 12px;
+}
+
+/* Wine Data Container */
+.data-container {
+  margin-top: 30px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: left;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.data-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.data-container li {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #3d0a02;
+}
+
+.data-container li strong {
+  color: #8b3a3a; /* Burgundy color */
+}
+
+/* Inputs */
+input, textarea {
+  border-radius: 8px;
+  border: 1px solid #8b3a3a;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 16px;
+  width: calc(100% - 22px); /* Adjust width for padding */
+}
+
+input:focus, textarea:focus {
+  border-color: #6f2c2c;
+  outline: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .header h1, .data-container h3 {
+    font-size: 1.8em;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+.add-button, .edit-button, .upload-button {
+  background-color: #6f2c2c;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.add-button:hover {
+  background-color: #3d0a02;
+}
+
+/* Notifications */
+.notification {
+  margin-top: 20px;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #a79a60;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  animation: fade-in 0.5s ease-in-out, fade-out 0.5s ease-in-out 2.5s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Image Container with Buttons */
 .img-container {
-  display: flex;                  /* Use flexbox for layout */
-  justify-content: space-between; /* Space between items */
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
 .img-container div {
-  flex: 1;                        /* Allow both images to take equal space */
-  margin: 0 10px;                /* Add horizontal margin for spacing */
-  position: relative;             /* Position for the skip button */
+  flex: 1;
+  margin: 0 10px;
+  position: relative;
 }
 
 .img-container img {
-  width: 100%;                   /* Ensure images take full width of their container */
-  border-radius: 8px;           /* Round corners for images */
+  width: 100%;
+  border-radius: 8px;
 }
 
-.skip-button, .scan-button {
+.img-buttons {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.img-buttons button {
+  flex: 1;
+  background-color: #8b3a3a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.img-buttons button:hover {
+  background-color: rgb(78, 15, 15);
+}
+
+.image-wrapper {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.button-group {
+  display: flex;
+  margin-top: 10px;
+}
+
+.skip-button {
   position: absolute;            /* Position the button at the bottom */
   bottom: 10px;                  /* Adjust bottom spacing */
   left: 50%;                     /* Center button horizontally */
   /* transform: translateX(-50%);  Center button */
   padding: 5px 10px;            /* Button padding */
   background-color: #8b3a3a;    /* Button color */
+  /* background-color: rgb(138, 168, 15); */
   color: white;                  /* Button text color */
   border: none;                  /* No border */
   border-radius: 8px;           /* Round button corners */
@@ -30,20 +271,5 @@
 }
 
 .skip-button:hover {
-  background-color: rgb(78, 15, 15);     /* Darker shade on hover */
+  background-color: rgb(138, 168, 15);     /* Darker shade on hover */
 }
-
-.image-wrapper {
-  display: inline-block;
-  margin-right: 20px; /* Space between images */
-}
-
-.button-group {
-  display: flex;
-  margin-top: 10px; /* Space above the button group */
-}
-
-.scan-button, .skip-button {
-  margin-left: 10px; /* Space between buttons */
-}
-

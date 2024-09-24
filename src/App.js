@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 //import pages
 import Home from './pages/Home';
-import AddWine from './pages/AddWine';
+//import AddWine from './pages/AddWine';
 import AddWineBatch from './pages/AddWineBatch';
 import WineList from './pages/WineList';
 import WineRecommendations from './pages/WineRecommendations';
@@ -17,7 +17,6 @@ import SharedWineDetail from './pages/SharedWineDetail';
 import TastingPage from './pages/TastingPage';
 import './styles/global.css';
 import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
-import AddWineDouble from './pages/AddWineDoubleOptional';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -51,10 +50,8 @@ const App = () => {
           {/* Protected Routes */}
           {user ? (
             <>
-              <Route path="/add-wine" element={<AddWine />} />
-              <Route path="/add-wine-double" element={<AddWineDouble />} />
-              <Route path="/add-wine-double-optional" element={<AddWineDoubleOptional />} />
-              add-wine-double-optional
+              {/* <Route path="/add-wine" element={<AddWine />} /> */}
+              <Route path="/add-wine" element={<AddWineDoubleOptional />} />
               <Route path="/add-wine-batch" element={<AddWineBatch />} />
               <Route path="/cellar" element={<WineList />} />
               <Route path="/personal-sommelier" element={<WineRecommendations />} />

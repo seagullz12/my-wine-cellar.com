@@ -190,17 +190,18 @@ if (!user) {
           filteredWines.map((wine, index) => (
             <div className="wine-card" key={index}>
               <div className="image-container">
-                {wine.image.desktop && (
+                {(wine.images.front.desktop || wine.images.back.desktop) && (
                   <Link to={`/cellar/${wine.id}`}>
                     <CardMedia>
                       <div className="wine-image-container">
-                        <img
-                          src={wine.image.desktop}
-                          srcSet={`${wine.image.mobile} 600w, ${wine.image.desktop} 1200w`}
-                          sizes="(max-width: 600px) 100vw, 1200px"
-                          alt={wine.name}
-                          className="wine-image"
-                        />
+                      <img
+                        src={wine.images?.front?.desktop ? wine.images.front.desktop : wine.images?.back?.desktop}
+                        srcSet={`${wine.images?.front?.mobile ? wine.images.front.mobile : wine.images?.back?.mobile} 600w, 
+                                ${wine.images?.front?.desktop ? wine.images.front.desktop : wine.images?.back?.desktop} 1200w`}
+                        sizes="(max-width: 600px) 100vw, 1200px"
+                        alt={wine.name}
+                        className="wine-image"
+                      />
                         {!wine.peakMaturity ? (
                           <AgeBadge vintage={wine.vintage} round={true} />
                         ) : (

@@ -16,8 +16,10 @@ import {
   Chip,
   OutlinedInput,
   Tooltip,
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
   const [selectedFilters, setSelectedFilters] = useState({
@@ -85,8 +87,8 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
     onResetFilters(); // Notify parent to reset filters
   };
 
-  const handleClearGrapes = () => {
-    handleFilterChange('grape', []);
+  const handleClearFilterSection = (filterType) => {
+    handleFilterChange(filterType, []);
   };
 
   return (
@@ -103,7 +105,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
         <Box sx={{ padding: '20px' }}>
           <FormGroup>
             {/* Colour Filters */}
-            <Typography variant="subtitle1">Colour</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="subtitle1">Colour</Typography>
+              <Tooltip title="Clear Colour Filters">
+                <IconButton size="small" onClick={() => handleClearFilterSection('colour')}>
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
             {filters.colours.map(colour => (
               <FormControlLabel
                 key={colour}
@@ -159,7 +168,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
                   },
                 }}
               >
-                <MenuItem value="select-all" onClick={handleClearGrapes}>
+                <MenuItem value="select-all" onClick={() => handleClearFilterSection('grape')}>
                   <em>Clear All</em>
                 </MenuItem>
                 {filters.grapes.map(grape => (
@@ -171,7 +180,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
             </FormControl>
 
             {/* Vintage Filters */}
-            <Typography variant="subtitle1">Vintage</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+              <Typography variant="subtitle1">Vintage</Typography>
+              <Tooltip title="Clear Vintage Filters">
+                <IconButton size="small" onClick={() => handleClearFilterSection('vintage')}>
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
             {filters.vintages.map(vintage => (
               <FormControlLabel
                 key={vintage}
@@ -199,7 +215,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
             )}
 
             {/* Status Filters */}
-            <Typography variant="subtitle1">Status</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+              <Typography variant="subtitle1">Status</Typography>
+              <Tooltip title="Clear Status Filters">
+                <IconButton size="small" onClick={() => handleClearFilterSection('status')}>
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
             {filters.statuses.map(status => (
               <FormControlLabel
                 key={status}
@@ -227,14 +250,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
             )}
           </FormGroup>
 
-          {/* Reset Filters Button */}
+          {/* Reset All Filters Button */}
           <Button
             variant="contained"
             color="primary"
             onClick={handleResetFilters}
             sx={{ marginTop: '10px' }}
           >
-            Reset Filters
+            Reset All Filters
           </Button>
         </Box>
       </AccordionDetails>

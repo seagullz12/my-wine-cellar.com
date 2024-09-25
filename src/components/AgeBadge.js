@@ -27,7 +27,7 @@ const AgeBadge = ({ vintage, round }) => {
           fontWeight: 'bold',
         }}
       >
-        {age} years old
+        {age} year{age===1 ? '' : 's'} old
       </Typography>
     </Box>
   );

@@ -10,11 +10,17 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const path = require('path');
 const sharp = require('sharp');
 const multer = require('multer');
+const { generateSitemap } = require('./sitemap');
 
 const app = express();
 const port = 8080;
 
 app.use('/static', express.static(path.join(__dirname, 'static')));
+
+app.get('/sitemap.xml', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  res.send(generateSitemap());
+});
 
 const serviceAccount = {
     type: process.env.FIREBASE_type,

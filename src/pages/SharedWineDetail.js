@@ -10,8 +10,19 @@ import { Navigation, Pagination } from 'swiper/modules';
 // ga4 (analytics)
 import ReactGA from 'react-ga4';
 
-import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
-import '../styles/WineDetail.css'; // Import your custom styles
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+  Snackbar,
+  IconButton,
+  Card, 
+  CardContent, 
+  CardActions,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const SharedWineDetail = () => {
   const { token } = useParams();
@@ -30,7 +41,7 @@ const SharedWineDetail = () => {
         hitType: 'pageview',
         page: `/cellar/shared-wine-detail`,  // You can replace this with a slug or wine-specific identifier
         title: `Shared Wine Detail - ${wine.name} (${wine.vintage})`,
-      });
+      }); 
     }
   }, [wine, location]);
 
@@ -58,81 +69,118 @@ const SharedWineDetail = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
-  return (
-    <div className="wine-detail-container">
-      <div className="back-link" align="left">
-        <Link to="/cellar" className="back-to-wine-list">Back to Your Cellar</Link>
-      </div>
-      {wine ? (
-        <div className="wine-detail-card">
-          <div className="wine-detail-header">
-            <h1>{wine.name}</h1>
-          </div>
-
-          {/* Swiper Carousel for Front and Back Images */}
-          {wine.images && (
-             <div className="wine-details-image-container">
-            <Swiper
-            modules={[Navigation, Pagination]} // Pass the modules to the Swiper
-            spaceBetween={10}
-            slidesPerView={1}
-            navigation
-            pagination={{ clickable: true }}
-          >
-            {wine.images.front?.desktop && (
-              <SwiperSlide>
-                <div className="wine-detail-image">
-                  <img
-                    src={wine.images.front.desktop}
-                    srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
-                    sizes="(max-width: 600px) 100vw, 1200px"
-                    alt={`${wine.name} front image`}
-                    className="wine-detail-image"
-                  />
-                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-                </div>
-              </SwiperSlide>
+const spacingValue = 1.5;
+    return (
+      <Box sx={{ padding: 0, maxWidth: 800, margin: '0 auto' }}>
+        {wine ? (
+          <Box sx={{ 
+            borderRadius: 2, 
+            padding: 2, 
+            }}>
+  
+            {/* Swiper Carousel for Front and Back Images */}
+            <Card sx={{ backgroundColor: '#F5F5F5'}}>
+            {/* Header for Wine Name */}
+          <Box sx={{backgroundColor:"#8b3a3a"}}>
+            <Typography variant="h4" component="h1" sx={{ padding: 2, textAlign: "center" }}>
+            {wine.name}
+          </Typography>
+          </Box>
+            <CardContent sx={{padding:0}}>
+            {wine.images && (
+                <Box sx={{backgroundColor:"#8b3a3a"}}>
+                <Swiper
+                  modules={[Navigation, Pagination]} // Pass the modules to the Swiper
+                  spaceBetween={10}
+                  slidesPerView={1}
+                  navigation
+                  pagination={{ clickable: true }}
+                  style={{
+                    "--swiper-pagination-color": "#8b3a3a",
+                    "--swiper-pagination-bullet-inactive-color": "#fff",
+                    "--swiper-pagination-bullet-inactive-opacity": "1",
+                    "--swiper-navigation-color":"#fff"  
+                  }}
+                >
+                  {wine.images.front?.desktop && (
+                    <SwiperSlide>
+                      <Box position="relative">
+                        <img
+                          src={wine.images.front.desktop}
+                          srcSet={`${wine.images.front.mobile} 600w, ${wine.images.front.desktop} 1200w`}
+                          sizes="(max-width: 600px) 100vw, 1200px"
+                          alt={`${wine.name} front image`}
+                          style={{ width: '100%', borderRadius: '0px' }}
+                        />
+                        {/* Position the PeakMaturityBadge absolutely within the Box */}
+                        <Box
+                          position="absolute"
+                          bottom={20} // Adjust this value to position the badge vertically
+                          left={10} // Adjust this value to position the badge horizontally
+                          zIndex={1} // Ensure the badge appears above the image
+                           sx={{padding:0}}
+                        >
+                          <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
+                        </Box>
+                      </Box>
+                    </SwiperSlide>
+                  )}
+                  {wine.images.back?.desktop && (
+                    <SwiperSlide>
+                    <Box position="relative">
+                      <img
+                        src={wine.images.back.desktop}
+                        srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
+                        sizes="(max-width: 600px) 100vw, 1200px"
+                        alt={`${wine.name} back image`}
+                        style={{ width: '100%', borderRadius: '0px' }}
+                      />
+                      {/* Position the PeakMaturityBadge absolutely within the Box */}
+                      <Box
+                          position="absolute"
+                          bottom={20} // Adjust this value to position the badge vertically
+                          left={10} // Adjust this value to position the badge horizontally
+                          zIndex={1} // Ensure the badge appears above the image
+                           sx={{padding:0}}
+                      >
+                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} />
+                      </Box>
+                    </Box>
+                  </SwiperSlide> 
+                  )}
+                </Swiper>
+                </Box>
+  
             )}
-          
-            {wine.images.back?.desktop && (
-              <SwiperSlide>
-                <div className="wine-detail-image">
-                  <img
-                    src={wine.images.back.desktop}
-                    srcSet={`${wine.images.back.mobile} 600w, ${wine.images.back.desktop} 1200w`}
-                    sizes="(max-width: 600px) 100vw, 1200px"
-                    alt={`${wine.name} back image`}
-                    className="wine-detail-image"
-                  />
-                  <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={false} /> 
-                </div>
-              </SwiperSlide>
-            )}
-        
-          </Swiper>
-          </div>
-          )}
-          <div className="wine-detail-info">
-            <p><strong>Grape:</strong> {wine.grape}</p>
-            <p><strong>Vintage:</strong> {wine.vintage}</p>
-            <p><strong>Region:</strong> {wine.region}</p>
-            <p><strong>Producer:</strong> {wine.producer}</p>
-            <p><strong>Alcohol Content:</strong> {wine.alcohol}</p>
-            <p><strong>Quality Classification:</strong> {wine.classification}</p>
-            <p><strong>Colour:</strong> {wine.colour}</p>
-            <p><strong>Nose:</strong> {wine.nose}</p>
-            <p><strong>Palate:</strong> {wine.palate}</p>
-            <p><strong>Pairing:</strong> {wine.pairing}</p>
-            <p><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</p>
-            {/* Map of Wine Region */}
-            <WineMap region={wine.region} />
-          </div>
-        </div>
-      ) : (
-        <p>Wine data not found</p>
-      )}
-    </div>
-  );
-};
+            {/* Wine Details Card */}
+                     <Box sx={{ 
+                      padding: 2,
+                      margin: 1,
+                      }}>
+                       <Typography sx={{ mb: spacingValue }}><strong>Grape:</strong> {wine.grape}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Vintage:</strong> {wine.vintage}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Region:</strong> {wine.region}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Producer:</strong> {wine.producer}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Alcohol Content:</strong> {wine.alcohol}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Quality Classification:</strong> {wine.classification}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Nose:</strong> {wine.nose}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Palate:</strong> {wine.palate}</Typography>
+                       <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
+                       <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
+                       <Typography sx={{ mb: spacingValue }}>{wine.description ? (<><strong>Description:</strong> {wine.description} </>) : null}</Typography>
+                     </Box>
+                    <Box sx={{ alignItems: "center", margin: 2, padding: 1 }}>
+                    <WineMap region={wine.region} />
+                    </Box>
+              </CardContent>
+              </Card>
+          </Box>
+        ) : (
+          <Typography color="error">Wine data not found</Typography>
+        )}
+      </Box>
+    );
+  };
 
 export default SharedWineDetail;

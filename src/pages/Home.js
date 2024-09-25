@@ -25,12 +25,13 @@ const HomePage = () => {
     <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>
       <HeroBanner />
       <Grid item xs={12} sx={{ textAlign: 'left', marginBottom: 2, marginTop: 2 }}>
+        {!isLoggedIn && (
         <Typography variant="body2">
           Already have an account?{' '}
           <Link to="/sign-in" style={{ color: 'primary.main', textDecoration: 'underline' }}>
             Sign In
           </Link>
-        </Typography>
+        </Typography>)}
       </Grid>
       <Grid container spacing={2} justifyContent="center">
         {!isLoggedIn && (

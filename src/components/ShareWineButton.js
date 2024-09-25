@@ -45,12 +45,12 @@ const ShareWineButton = ({ wineName, wineId }) => {
   const handleShare = async () => {
     setIsLoading(true); // Show loading state
     setErrorMessage(null); // Reset any previous error message
-    
+
     const token = await generateUniqueToken(); // Get the token
 
     if (token) {
-      const message = `Heeeey, let's drink this wine together!: *${wineName}* ! https://my-wine-cellar.com/#/shared/${token}`;
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      const message = `Heeeey, let's drink this wine together! 🍷 *${wineName}* ! Check it out: https://my-wine-cellar.com/#/shared/${token}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
       setSnackbarMessage('Wine shared successfully!'); // Set success message
       setSnackbarOpen(true); // Open snackbar

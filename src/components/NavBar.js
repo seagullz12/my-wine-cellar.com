@@ -69,11 +69,11 @@ const NavBar = () => {
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           {getTitle()}
         </Typography>
-        <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleMenu}>
+        <IconButton  edge="start" color="inherit" aria-label="menu" onClick={toggleMenu}>
           <MenuIcon />
         </IconButton>
         {user ? (
-          <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+          <Button exact="true" color="inherit" onClick={handleSignOut}>Sign Out</Button>
         ) : (
           <IconButton color="inherit" component={Link} to="/sign-in" aria-label="login">
             <LoginIcon />
@@ -89,7 +89,7 @@ const NavBar = () => {
             {menuItems.map((item) => {
               if (item.authRequired === undefined || (item.authRequired && user) || (!item.authRequired && !user)) {
                 return (
-                  <ListItem button key={item.title} component={Link} to={item.path} onClick={() => setMenuOpen(false)}>
+                  <ListItem button={true} key={item.title} component={Link} to={item.path} onClick={() => setMenuOpen(false)}>
                     <ListItemText primary={item.title} />
                   </ListItem>
                 );

@@ -15,9 +15,6 @@ import { Navigation, Pagination } from 'swiper/modules';
 // ga4 (analytics)
 import ReactGA from 'react-ga4';
 
-//import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
-//import '../styles/WineDetail.css'; // Import your custom styles
-
 import {
   Box,
   Button,
@@ -287,8 +284,9 @@ const WineDetail = () => {
                      <Typography sx={{ mb: spacingValue }}><strong>Nose:</strong> {wine.nose}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Palate:</strong> {wine.palate}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
-                     <Typography sx={{ mb: 0 }}><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</Typography>
-                   </Box>
+                     <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
+                     <Typography sx={{ mb: spacingValue }}>{wine.description ? (<><strong>Description:</strong> {wine.description} </>) : null}</Typography>
+                     </Box>
                   )}
                      
                   <CardActions>

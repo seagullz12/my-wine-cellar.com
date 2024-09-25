@@ -1,6 +1,6 @@
 // firebase-config.js
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged,sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -21,4 +21,4 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app, "wine-scanner");
 
-export { auth, db, signInWithEmailAndPassword, onAuthStateChanged };
+export { auth, db, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail };

@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation} from 'react-router-dom';
 import WineDetailEditForm from '../components/WineDetailEditForm';
 import WineMap from '../components/WineMap';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import ShareWineButton from '../components/ShareWineButton';
 import TastingNotesForm from '../components/TastingNotesForm';
 import { getWineIdFromToken } from '../components/utils';
+
+// swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+
+// ga4 (analytics)
+import ReactGA from 'react-ga4';
 
 //import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
 //import '../styles/WineDetail.css'; // Import your custom styles
@@ -38,6 +43,7 @@ const WineDetail = () => {
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const location = useLocation(); // ga4 tracking
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
   useEffect(() => {
@@ -47,6 +53,17 @@ const WineDetail = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (wine) {
+      // Use wine's name and other details to provide more context
+      ReactGA.send({
+        hitType: 'pageview',
+        page: `/cellar/wine-detail`,  // You can replace this with a slug or wine-specific identifier
+        title: `Wine Detail - ${wine.name} (${wine.vintage})`,
+      });
+    }
+  }, [wine, location]);
 
   useEffect(() => {
     const fetchWineData = async () => {

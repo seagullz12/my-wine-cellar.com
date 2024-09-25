@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import WineMap from '../components/WineMap'; 
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 
 //swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
 
+// ga4 (analytics)
+import ReactGA from 'react-ga4';
+
+import 'swiper/swiper-bundle.css'; // Correct Swiper styles import
 import '../styles/WineDetail.css'; // Import your custom styles
 
 const SharedWineDetail = () => {
@@ -15,12 +18,24 @@ const SharedWineDetail = () => {
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation(); // ga4 tracking
 
     const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
   // const backendURL = 'http://192.168.2.9:8080';
+  
+  useEffect(() => {
+    if (wine) {
+      // Use wine's name and other details to provide more context
+      ReactGA.send({
+        hitType: 'pageview',
+        page: `/cellar/shared-wine-detail`,  // You can replace this with a slug or wine-specific identifier
+        title: `Shared Wine Detail - ${wine.name} (${wine.vintage})`,
+      });
+    }
+  }, [wine, location]);
+
 
   useEffect(() => {
-    
     const fetchWineByToken = async () => {
       try {
         const response = await fetch(`${backendURL}/get-wine-by-token?token=${token}`);

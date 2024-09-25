@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ClearIcon from '@mui/icons-material/Clear';
+import ReactGA from 'react-ga4'; // Import GA4
 
 const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
   const [selectedFilters, setSelectedFilters] = useState({
@@ -40,6 +41,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
           ...prevFilters,
           [filterType]: value,
         };
+
+        // Log the filter engagement event for dropdown
+        ReactGA.event({
+          category: 'Filter Engagement',
+          action: 'Grape Filter Selected',
+          label: value.join(', ') || 'All',
+        });
+
         onFilterChange(newFilters);
         return newFilters;
       } else {
@@ -54,6 +63,13 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
           ...prevFilters,
           [filterType]: Array.from(filterSet),
         };
+
+        // Log the filter engagement event for checkboxes
+        ReactGA.event({
+          category: 'Filter Engagement',
+          action: 'Checkbox Filter Selected',
+          label: `${filterType} - ${value}`,
+        });
 
         onFilterChange(newFilters); // Notify parent of filter change
         return newFilters;
@@ -71,6 +87,14 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
       };
 
       onFilterChange(newFilters); // Notify parent with updated filters
+
+      // Log the filter removal event
+      ReactGA.event({
+        category: 'Filter Engagement',
+        action: 'Filter Removed',
+        label: `${filterType} - ${value}`,
+      });
+
       return newFilters;
     });
   };
@@ -85,6 +109,13 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
     };
     setSelectedFilters(resetFilters);
     onResetFilters(); // Notify parent to reset filters
+
+    // Log the reset filters event
+    ReactGA.event({
+      category: 'Filter Engagement',
+      action: 'Filters Reset',
+      label: 'All filters reset',
+    });
   };
 
   const handleClearFilterSection = (filterType) => {

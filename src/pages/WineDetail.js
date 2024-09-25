@@ -275,7 +275,7 @@ const WineDetail = () => {
                   {!tastingStarted && (
                    <Box sx={{ 
                     padding: 2,
-                    margin: 1
+                    margin: 1,
                     }}>
                      <Typography sx={{ mb: spacingValue }}><strong>Grape:</strong> {wine.grape}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Vintage:</strong> {wine.vintage}</Typography>

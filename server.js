@@ -106,7 +106,7 @@ const getWineDataFromText = async (text) => {
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a helpful sommelier with expert knowledge about wines.' },
-        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol: [alcohol content]; Classification: [quality classification]; Colour: [colour]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; description. If information is missing then complete it using your knowledge.` }
+        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol: [alcohol content]; Classification: [quality classification]; Colour: [pick one from: (Red|White|Orange|Green|Rosé)]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; Description: [description]. If information is missing then complete it using your knowledge.` }
       ],
       temperature: settings.temperature,
       max_tokens: settings.max_tokens
@@ -160,53 +160,68 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
     const { wineData, frontImageUrl, backImageUrl, id } = req.body;
 
-    if (!wineData || !frontImageUrl || !backImageUrl || !id) {
-      return res.status(400).json({ message: 'Missing wineData, frontImageUrl, backImageUrl, or id in request body' });
+    if (!wineData || !id) {
+      return res.status(400).json({ message: 'Missing wineData, or id in request body' });
     }
 
-    // Extract base64 part from both image URLs
-    const frontImageUrlBase64 = frontImageUrl.split(',')[1];
-    const backImageUrlBase64 = backImageUrl.split(',')[1];
     const wineName = wineData.name.replace(/\s+/g, '_');
+    let uploadedFrontDesktopImageUrl = null;
+    let uploadedBackDesktopImageUrl = null;
+    let uploadedFrontMobileImageUrl = null;
+    let uploadedBackMobileImageUrl = null;
 
-    // Upload front desktop image to GCS
-    const frontDesktopFileName = `wine-labels/${wineName}-front-desktop.webp`;
-    const uploadedFrontDesktopImageUrl = await uploadImageToGCS(frontImageUrlBase64, frontDesktopFileName);
+    // Process front image if available
+    if (frontImageUrl) {
+      const frontImageUrlBase64 = frontImageUrl.split(',')[1];  // Ensure frontImageUrl exists before splitting
 
-    // Upload back desktop image to GCS
-    const backDesktopFileName = `wine-labels/${wineName}-back-desktop.webp`;
-    const uploadedBackDesktopImageUrl = await uploadImageToGCS(backImageUrlBase64, backDesktopFileName);
+      if (frontImageUrlBase64) {
+        // Upload front desktop image to GCS
+        const frontDesktopFileName = `wine-labels/${wineName}-front-desktop.webp`;
+        uploadedFrontDesktopImageUrl = await uploadImageToGCS(frontImageUrlBase64, frontDesktopFileName);
 
-    // Create mobile-optimized front image using sharp
-    const frontMobileImageBuffer = await sharp(Buffer.from(frontImageUrlBase64, 'base64'))
-      .resize(300) // Resize to 300px width (adjust as necessary)
-      .toFormat('png') // Specify format
-      .toBuffer();
+        // Create mobile-optimized front image using sharp
+        const frontMobileImageBuffer = await sharp(Buffer.from(frontImageUrlBase64, 'base64'))
+          .resize(300) // Resize to 300px width (adjust as necessary)
+          .toFormat('png') // Specify format
+          .toBuffer();
 
-    // Upload front mobile image to GCS
-    const frontMobileFileName = `wine-labels/${wineName}-front-mobile.webp`;
-    const uploadedFrontMobileImageUrl = await uploadImageToGCS(frontMobileImageBuffer.toString('base64'), frontMobileFileName);
+        // Upload front mobile image to GCS
+        const frontMobileFileName = `wine-labels/${wineName}-front-mobile.webp`;
+        uploadedFrontMobileImageUrl = await uploadImageToGCS(frontMobileImageBuffer.toString('base64'), frontMobileFileName);
+      }
+    }
 
-    // Create mobile-optimized back image using sharp
-    const backMobileImageBuffer = await sharp(Buffer.from(backImageUrlBase64, 'base64'))
-      .resize(300) // Resize to 300px width (adjust as necessary)
-      .toFormat('png') // Specify format
-      .toBuffer();
+    // Process back image if available
+    if (backImageUrl) {
+      const backImageUrlBase64 = backImageUrl.split(',')[1];  // Ensure backImageUrl exists before splitting
 
-    // Upload back mobile image to GCS
-    const backMobileFileName = `wine-labels/${wineName}-back-mobile.webp`;
-    const uploadedBackMobileImageUrl = await uploadImageToGCS(backMobileImageBuffer.toString('base64'), backMobileFileName);
+      if (backImageUrlBase64) {
+        // Upload back desktop image to GCS
+        const backDesktopFileName = `wine-labels/${wineName}-back-desktop.webp`;
+        uploadedBackDesktopImageUrl = await uploadImageToGCS(backImageUrlBase64, backDesktopFileName);
 
-    // Add the image URLs to the wineData object
+        // Create mobile-optimized back image using sharp
+        const backMobileImageBuffer = await sharp(Buffer.from(backImageUrlBase64, 'base64'))
+          .resize(300) // Resize to 300px width (adjust as necessary)
+          .toFormat('webp') // Specify format
+          .toBuffer();
+
+        // Upload back mobile image to GCS
+        const backMobileFileName = `wine-labels/${wineName}-back-mobile.webp`;
+        uploadedBackMobileImageUrl = await uploadImageToGCS(backMobileImageBuffer.toString('base64'), backMobileFileName);
+      }
+    }
+
+    // Add the image URLs to the wineData object if they exist
     wineData.images = {
-      front: {
+      front: uploadedFrontDesktopImageUrl ? {
         desktop: uploadedFrontDesktopImageUrl,
         mobile: uploadedFrontMobileImageUrl
-      },
-      back: {
+      } : null,
+      back: uploadedBackDesktopImageUrl ? {
         desktop: uploadedBackDesktopImageUrl,
         mobile: uploadedBackMobileImageUrl
-      }
+      } : null
     };
 
     // Add wine data to Firestore

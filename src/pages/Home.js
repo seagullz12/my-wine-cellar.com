@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Box, Grid, Card, CardMedia, CardContent, Button, Typography } from '@mui/material';
-import Header from '../components/Header'; // Import the new Header component
+// import Header from '../components/Header'; // Import the new Header component
 import personalSommelier from '../assets/images/personalSommelier.webp';
 import manageWineCollection from '../assets/images/manageWineCollection.webp';
 import joinUs from '../assets/images/joinUs.webp';

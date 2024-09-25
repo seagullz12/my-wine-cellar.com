@@ -3,8 +3,15 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import WineDetailEditForm from '../components/WineDetailEditForm';
 import '../styles/AddWineDoubleOptional.css';
+import {
+  Box,
+  Typography,
+  Card,
+  Button
+} from '@mui/material';
 
-const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; 
+
+const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 //const backendURL = 'http://192.168.2.9:8080';
 
 const AddWine = () => {
@@ -21,6 +28,7 @@ const AddWine = () => {
     nose: 'unknown',
     palate: 'unknown',
     pairing: 'unknown',
+    description: 'uknown',
   });
 
   const [loading, setLoading] = useState(false);
@@ -169,6 +177,7 @@ const AddWine = () => {
       nose: 'unknown',
       palate: 'unknown',
       pairing: 'unknown',
+      description: 'uknown',
     };
 
     const regex = /([^:;]+):\s*([^;]+)/g;
@@ -241,7 +250,6 @@ const AddWine = () => {
     }
 
     const id = uuidv4();
-
     try {
       const response = await fetch(backendURL + '/append-wine-data', {
         method: 'POST',
@@ -263,7 +271,6 @@ const AddWine = () => {
         // Construct the wine URL based on the response
         const wineUrl = `${backendURL}/cellar/${id}`;
         setWineURL(wineUrl);
-
         setOcrResult(`Wine data appended to Firestore successfully. Response: ${JSON.stringify(result.response)}`);
 
         // Set notification message
@@ -305,112 +312,141 @@ const AddWine = () => {
     }
   };
 
-
+  const spacingValue = 1.5;
   return (
     <div className="add-wine-container">
       <div className="file-upload-container">
-        <button
-          className="upload-button"
-          onClick={() => document.getElementById('front-label-upload').click()}
-        >
-          Scan Front Label
-        </button>
-        <input
-          type="file"
-          accept="image/*"
-          id="front-label-upload"
-          style={{ display: 'none' }}
-          onChange={(e) => handleFileChange(e, 'front')}
-        />
+        <Box display="flex" justifyContent="space-between">
+          <Button
+            variant="contained"
+            onClick={() => document.getElementById('front-label-upload').click()}
+            sx={{ margin: 2 }}
+          >
+            Scan Front Label
+          </Button>
+          <input
+            type="file"
+            accept="image/*"
+            id="front-label-upload"
+            style={{ display: 'none' }}
+            onChange={(e) => handleFileChange(e, 'front')}
+          />
 
-        <button
-          className="upload-button"
-          onClick={() => document.getElementById('back-label-upload').click()}
-        >
-          Scan Back Label
-        </button>
-        <input
-          type="file"
-          accept="image/*"
-          id="back-label-upload"
-          style={{ display: 'none' }}
-          onChange={(e) => handleFileChange(e, 'back')}
-        />
-
+          <Button
+            variant="contained"
+            onClick={() => document.getElementById('back-label-upload').click()}
+            sx={{ margin: 2 }}
+          >
+            Scan Back Label
+          </Button>
+          <input
+            type="file"
+            accept="image/*"
+            id="back-label-upload"
+            style={{ display: 'none' }}
+            onChange={(e) => handleFileChange(e, 'back')}
+          />
+        </Box>
         <div className="wine-details">
           {showNotification && (
             <div className="notification" dangerouslySetInnerHTML={{ __html: notification }} />
           )}
-          <div className="img-container">
+          <Box className="img-container" position="relative">
             {frontImageURL && (
               <div>
-                <img src={frontImageURL} alt="Front Label" />
+                <img src={frontImageURL} alt="Front Label" style={{ width: '100%', height: 'auto' }} />
                 {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-                  <button className="skip-button" onClick={handleSkipBackLabel}>Proceed with only the Front Label</button>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSkipBackLabel()}
+                    sx={{
+                      position: 'absolute',
+                      bottom: 15,  // Adjust this value to position the button vertically
+                      right: 15,   // Adjust this value to position the button horizontally
+                    }}
+                  >
+                    Proceed with only the Front Label
+                  </Button>
                 ) : null}
               </div>
             )}
             {backImageURL && (
               <div>
-                <img src={backImageURL} alt="Back Label" />
+                <img src={backImageURL} alt="Back Label" style={{ width: '100%', height: 'auto' }} />
                 {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-                  <button className="skip-button" onClick={handleSkipFrontLabel}>Proceed with only the Back Label</button>
+                  <Button
+                    variant="contained"
+                    onClick={handleSkipFrontLabel}
+                    sx={{
+                      position: 'absolute',
+                      bottom: 15,  // Adjust this value to position the button vertically
+                      right: 15,   // Adjust this value to position the button horizontally
+                    }}
+                  >
+                    Proceed with only Back Label
+                  </Button>
                 ) : null}
               </div>
             )}
-          </div>
+          </Box>
         </div>
-        {/* {!isEditing && wineData.name !== 'unknown' && !loading && (
-                  <button
-                    onClick={handleFormSubmit}
-                    className="add-button"
-                  >
-                    Add to Cellar
-                  </button>
-                )} */}
-        <div className="data-container">
-          <h3>About this bottle:</h3>
+
+        <Card sx={{ backgroundColor: '#F5F5F5' }}>
+          {!isEditing && (
+            <h3>About this bottle:</h3>
+          )}
           {loading ? (
             <p>Loading...</p>
           ) : (
             wineData.name !== 'unknown' && !isEditing ? (
               <ul>
-                <li><strong>Name:</strong> {wineData.name}</li>
-                <li><strong>Grape:</strong> {wineData.grape}</li>
-                <li><strong>Vintage:</strong> {wineData.vintage}</li>
-                <li><strong>Region:</strong> {wineData.region}</li>
-                <li><strong>Producer:</strong> {wineData.producer}</li>
-                <li><strong>Alcohol Content:</strong> {wineData.alcohol}</li>
-                <li><strong>Quality Classification:</strong> {wineData.classification}</li>
-                <li><strong>Colour:</strong> {wineData.colour}</li>
-                <li><strong>Nose:</strong> {wineData.nose}</li>
-                <li><strong>Palate:</strong> {wineData.palate}</li>
-                <li><strong>Pairing:</strong> {wineData.pairing}</li>
-                <button className="edit-button" onClick={toggleEditForm}>Edit Details</button>
-                {!isEditing && wineData.name !== 'unknown' && !loading && (
-                  <button
-                    onClick={handleFormSubmit}
-                    className="add-button"
-                  >
-                    Add to Cellar
-                  </button>
-                )}
+                <Box sx={{
+                  padding: 2,
+                  margin: 1,
+                }}>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Grape:</strong> {wineData.grape}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Vintage:</strong> {wineData.vintage}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Region:</strong> {wineData.region}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Producer:</strong> {wineData.producer}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Alcohol Content:</strong> {wineData.alcohol}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Quality Classification:</strong> {wineData.classification}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Colour:</strong> {wineData.colour}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Nose:</strong> {wineData.nose}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Palate:</strong> {wineData.palate}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Pairing:</strong> {wineData.pairing}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Description:</strong> {wineData.description}</Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>{wineData.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wineData.peakMaturity} years after harvest`}</>) : ''}</Typography>
+                </Box>
+                <Box display="flex" justifyContent="space-between">
+                  <Button variant="outlined" onClick={toggleEditForm} sx={{ margin: 2 }}>
+                    Edit Details
+                  </Button>
+
+                  {!isEditing && wineData.name !== 'unknown' && !loading && (
+                    <Button
+                      variant="contained"
+                      onClick={handleFormSubmit}
+                      sx={{ margin: 2 }}
+                    >
+                      Add to Cellar
+                    </Button>
+                  )}</Box>
               </ul>
             ) : (
-              <p align='center'>Please scan a bottle label first.</p>
+              !isEditing && <p align='center'>Please scan a bottle label first.</p>
             )
           )}
-        </div>
-
-        {isEditing && (
-          <WineDetailEditForm
-            formData={wineData}
-            handleChange={handleFormChange}
-            handleSubmit={handleFormSubmit}
-            handleEditToggle={toggleEditForm}
-          />
-        )}
+        </Card>
       </div>
+
+      {isEditing && (
+        <WineDetailEditForm
+          formData={wineData}
+          handleChange={handleFormChange}
+          handleSubmit={handleFormSubmit}
+          handleEditToggle={toggleEditForm}
+        />
+      )}
     </div>
   );
 };

@@ -109,7 +109,7 @@ const AddWine = () => {
       return;
     }
 
-    addLogMessage(`File selected: ${file.name}`);
+    addLogMessage(File selected: ${file.name});
     const resizedImageBlob = await resizeImage(file);
 
     const reader = new FileReader();
@@ -122,7 +122,7 @@ const AddWine = () => {
         setBackImageURL(dataUrl);
       }
 
-      addLogMessage(`Image resized and loaded: ${imageType} image`);
+      addLogMessage(Image resized and loaded: ${imageType} image);
 
       // Trigger OCR processing after image is loaded
       await performOCR(resizedImageBlob, imageType);
@@ -148,7 +148,7 @@ const AddWine = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.accessToken}`
+          'Authorization': Bearer ${user.accessToken}
         },
         body: JSON.stringify({ text }),  // Send cleaned text to the backend
       });
@@ -158,10 +158,10 @@ const AddWine = () => {
         const parsedData = parseWineData(result.data);
         setWineData(parsedData);
       } else {
-        setOcrResult(`Error extracting wine data. Status: ${response.status}`);
+        setOcrResult(Error extracting wine data. Status: ${response.status});
       }
     } catch (error) {
-      setOcrResult(`Error: ${error.message}`);
+      setOcrResult(Error: ${error.message});
     }
     setLoading(false);
   };
@@ -201,7 +201,7 @@ const AddWine = () => {
       const response = await fetch(backendURL + '/process-image', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.accessToken}`, // Send the user's token for authentication
+          'Authorization': Bearer ${user.accessToken}, // Send the user's token for authentication
         },
         body: formData, // Send the image as FormData
       });
@@ -210,20 +210,20 @@ const AddWine = () => {
         const result = await response.json();
         const text = cleanText(result.text);  // Clean the extracted text
 
-        addLogMessage(`OCR result for ${imageType}: ${text}`);
+        addLogMessage(OCR result for ${imageType}: ${text});
 
         // Update the OCR result state by concatenating the OCR results from both sides
-        setOcrResult((prevResult) => `${prevResult} ${text}`);
+        setOcrResult((prevResult) => ${prevResult} ${text});
 
         // Once both images are processed, extract wine data
         if (imageType === 'back' && ocrResult) {
-          extractWineData(`${ocrResult} ${text}`);  // Combine front and back OCR results for wine data extraction
+          extractWineData(${ocrResult} ${text});  // Combine front and back OCR results for wine data extraction
         }
       } else {
-        setOcrResult(`Error performing OCR. Status: ${response.status}`);
+        setOcrResult(Error performing OCR. Status: ${response.status});
       }
     } catch (error) {
-      setOcrResult(`Error: ${error.message}`);
+      setOcrResult(Error: ${error.message});
     }
   };
 
@@ -258,7 +258,7 @@ const AddWine = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.accessToken}`
+          'Authorization': Bearer ${user.accessToken}
         },
         body: JSON.stringify({
           wineData,
@@ -272,23 +272,48 @@ const AddWine = () => {
 
       if (response.ok) {
         // Construct the wine URL based on the response
-        const wineUrl = `${backendURL}/cellar/${id}`;
+        const wineUrl = ${backendURL}/cellar/${id};
         setWineURL(wineUrl);
 
-        setOcrResult(result.message || 'Wine data added successfully!');
-        setShowNotification(true);
-        setFrontImageURL('');  // Clear the front image URL
-        setBackImageURL('');   // Clear the back image URL
+        setOcrResult(Wine data appended to Firestore successfully. Response: ${JSON.stringify(result.response)});
+
+        // Set notification message
+        setNotification("${wineData.name}" has been added to your cellar. View it <a href="https://my-wine-cellar.com/cellar/${id}" target="_blank">here</a>.);
+        setShowNotification(true);  // Show notification
+
+        // Hide notification after 5 seconds (increased time for visibility)
+        setTimeout(() => {
+          setShowNotification(false);
+          setNotification('');  // Clear notification message
+        }, 5000);  // Increased from 3000 to 5000 milliseconds
       } else {
-        setOcrResult(`Error: ${result.message}`);
+        setOcrResult(Error appending wine data. Status: ${response.status}. Message: ${result.message});
       }
     } catch (error) {
-      setOcrResult(`Error: ${error.message}`);
+      setOcrResult(Error: ${error.message});
     }
   };
 
-  const handleCloseNotification = () => {
-    setShowNotification(false);
+  // Function to handle skipping the front label
+  const handleSkipFrontLabel = () => {
+    addLogMessage('Skipped front label upload.');
+    // Trigger extraction for back label or other processing if needed
+    if (backImageURL) {
+      extractWineData(${ocrResult}); // Combine current OCR results for extraction
+    } else {
+      addLogMessage('No back label uploaded, unable to extract data.');
+    }
+  };
+
+  // Function to handle skipping the back label
+  const handleSkipBackLabel = () => {
+    addLogMessage('Skipped back label upload.');
+    // Trigger extraction for front label or other processing if needed
+    if (frontImageURL) {
+      extractWineData(${ocrResult}); // Combine current OCR results for extraction
+    } else {
+      addLogMessage('No front label uploaded, unable to extract data.');
+    }
   };
 
   return (

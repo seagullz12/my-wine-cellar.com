@@ -3,11 +3,11 @@ import ReactGA from 'react-ga4'; // Import GA4
 import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 
 const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderChange }) => {
-  
+
   // Handle sort change and log event
   const handleSortChange = (event) => {
     const newSortCriteria = event.target.value;
-    
+
     // Log the sort criteria change event
     ReactGA.event({
       category: 'Sort Engagement',
@@ -21,7 +21,7 @@ const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderCha
   // Handle sort order change and log event
   const handleSortOrderChange = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    
+
     // Log the sort order change event
     ReactGA.event({
       category: 'Sort Engagement',
@@ -34,13 +34,17 @@ const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderCha
 
   return (
     <Box display="flex" alignItems="center" marginBottom={2}>
-      <FormControl variant="outlined" sx={{ minWidth: 120, marginRight: '10px', boxShadow: 3 }}>
+      <FormControl
+        variant="outlined"
+        sx={{ minWidth: 120, marginRight: '10px', boxShadow: 3, height: '56px' }} // Set a fixed height
+      >
         <InputLabel id="sort-select-label">Sort by</InputLabel>
         <Select
           labelId="sort-select-label"
           value={sortCriteria}
-          onChange={handleSortChange} // Use the new handler
+          onChange={handleSortChange}
           label="Sort by"
+          sx={{ height: '56px' }} // Match the height of the FormControl
         >
           <MenuItem value="vintage">Vintage</MenuItem>
           <MenuItem value="addedDate">Date Added</MenuItem>
@@ -49,8 +53,15 @@ const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderCha
       <Button
         variant="contained"
         color="white"
-        onClick={handleSortOrderChange} // Use the new handler
-        sx={{ boxShadow: 3 }} // Match height of dropdown
+        onClick={handleSortOrderChange}
+        sx={{
+          boxShadow: 3,
+          height: '56px', // Match height of dropdown
+          minWidth: '120px', // Ensure minimum width for better alignment
+          display: 'flex', // Align text center
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
         {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
       </Button>

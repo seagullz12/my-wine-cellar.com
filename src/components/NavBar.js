@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Import the hamburger icons
-import '../styles/NavBar.css'; // Import the CSS for styling
+import { AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemText } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu'; 
+import CloseIcon from '@mui/icons-material/Close'; 
+import LoginIcon from '@mui/icons-material/Person'; 
 
 const NavBar = () => {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const location = useLocation(); // Get the current location
-
+  const location = useLocation();
   const auth = getAuth();
 
   // Toggle menu visibility for mobile
@@ -37,11 +38,11 @@ const NavBar = () => {
   const getTitle = () => {
     switch (location.pathname) {
       case '/':
-        return '';
-        case '/cellar':
-          return 'My Wine Cellar';
+        return 'Home';
+      case '/cellar':
+        return 'My Wine Cellar';
       case '/add-wine':
-        return 'Add new wines';
+        return 'Add New Wines';
       case '/personal-sommelier':
         return 'Personal Sommelier';
       case '/sign-in':
@@ -49,48 +50,56 @@ const NavBar = () => {
       case '/sign-up':
         return 'Sign Up';
       default:
-        return 'Wine Cellar'; // Default title
+        return 'Wine Cellar';
     }
   };
 
+  const menuItems = [
+    { title: 'Home', path: '/' },
+    { title: 'Add New Wines', path: '/add-wine' },
+    { title: 'My Wine Cellar', path: '/cellar' },
+    { title: 'Personal Sommelier', path: '/personal-sommelier' },
+    { title: 'Sign In', path: '/sign-in', authRequired: false },
+    { title: 'Sign Up', path: '/sign-up', authRequired: false },
+  ];
+
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        {/* <Link to="/" className="navbar-logo">Wine Scanner</Link> */}
-        <h1 className="navbar-title">{getTitle()}</h1> {/* Display the current page title */}
-        <div className="navbar-toggle" onClick={toggleMenu}>
-          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          {getTitle()}
+        </Typography>
+        <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleMenu}>
+          <MenuIcon />
+        </IconButton>
+        {user ? (
+          <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+        ) : (
+          <IconButton color="inherit" component={Link} to="/sign-in" aria-label="login">
+            <LoginIcon />
+          </IconButton>
+        )}
+      </Toolbar>
+      <Drawer anchor="right" open={isMenuOpen} onClose={toggleMenu}>
+        <div style={{ width: 250 }}>
+          <IconButton onClick={toggleMenu} color="inherit" aria-label="close">
+            <CloseIcon />
+          </IconButton>
+          <List>
+            {menuItems.map((item) => {
+              if (item.authRequired === undefined || (item.authRequired && user) || (!item.authRequired && !user)) {
+                return (
+                  <ListItem button key={item.title} component={Link} to={item.path} onClick={() => setMenuOpen(false)}>
+                    <ListItemText primary={item.title} />
+                  </ListItem>
+                );
+              }
+              return null;
+            })}
+          </List>
         </div>
-        <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
-          <li>
-            <Link to="/" className="navbar-item" onClick={() => setMenuOpen(false)}>Home</Link>
-          </li>
-          <li>
-            <Link to="/add-wine" className="navbar-item" onClick={() => setMenuOpen(false)}>Add New Wines</Link>
-          </li>
-          <li>
-            <Link to="/cellar" className="navbar-item" onClick={() => setMenuOpen(false)}>My Wine Cellar</Link>
-          </li>
-          <li>
-            <Link to="/personal-sommelier" className="navbar-item" onClick={() => setMenuOpen(false)}>Personal Sommelier</Link>
-          </li>
-          {!user ? (
-            <>
-              <li>
-                <Link to="/sign-in" className="navbar-item" onClick={() => setMenuOpen(false)}>Sign In</Link>
-              </li>
-              <li>
-                <Link to="/sign-up" className="navbar-item" onClick={() => setMenuOpen(false)}>Sign Up</Link>
-              </li>
-            </>
-          ) : (
-            <li>
-              <button className="navbar-item navbar-item-signout" onClick={handleSignOut}>Sign Out</button>
-            </li>
-          )}
-        </ul>
-      </div>
-    </nav>
+      </Drawer>
+    </AppBar>
   );
 };
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import '../styles/Home.css'; // Import the CSS file for styling
-import personalSommelier from '../assets/images/personalSommelier.webp'; // Import the image
-import manageWineCollection from '../assets/images/manageWineCollection.webp'; // Import the image
-import joinUs from '../assets/images/joinUs.webp'; // Import the image
-import addWines from '../assets/images/AddWines.webp'; // Import the image
+import { Box, Grid, Card, CardMedia, CardContent, Button, Typography } from '@mui/material';
+import Header from '../components/Header'; // Import the new Header component
+import personalSommelier from '../assets/images/personalSommelier.webp';
+import manageWineCollection from '../assets/images/manageWineCollection.webp';
+import joinUs from '../assets/images/joinUs.webp';
+import addWines from '../assets/images/AddWines.webp';
+import HeroBanner from '../components/HeroBanner';
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,92 +15,141 @@ const HomePage = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user); // Set to true if user is logged in, otherwise false
+      setIsLoggedIn(!!user);
     });
 
-    return () => unsubscribe(); // Clean up subscription on unmount
+    return () => unsubscribe();
   }, [auth]);
 
   return (
-    <div className="home-container">
-      <header className="home-header">
-        <h1 className="home-title">Welcome to Wine Cellar</h1>
-        <h2 className="home-subtitle">Manage your wine collection with ease!</h2>
-      </header>
-      {!isLoggedIn && (
-        <div className="sign-in">
-          <Link to="/sign-in">Sign In if you have an account</Link>
-        </div>
-      )}
-      <div className="home-grid">
+    <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>
+      <HeroBanner />
+      <Grid item xs={12} sx={{ textAlign: 'left', marginBottom: 2, marginTop: 2 }}>
+        <Typography variant="body2">
+          Already have an account?{' '}
+          <Link to="/sign-in" style={{ color: 'primary.main', textDecoration: 'underline' }}>
+            Sign In
+          </Link>
+        </Typography>
+      </Grid>
+      <Grid container spacing={2} justifyContent="center">
         {!isLoggedIn && (
-          <div className="home-card">
-            <img src={joinUs} alt="Join Us" className="home-card-media" />
-            <div className="home-card-content">
-              <h3>Join Us</h3>
-              <p>Sign up today and start your wine journey.</p>
-              <Link to="/sign-up" className="home-button">Sign Up</Link>
-            </div>
-          </div>
+          <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={joinUs}
+                alt="Join Us"
+              />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" align="center">Join Us</Typography>
+                <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
+                <Typography variant="body2" align="center">
+                  Sign up today and start your wine journey.
+                </Typography>
+                <Button
+                  component={Link}
+                  to="/sign-up"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ marginTop: 1 }}
+                >
+                  Sign Up
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         )}
 
         {isLoggedIn && (
-          <div className="home-card">
-            <img src={addWines} alt="Add Wine" className="home-card-media" />
-            <div className="home-card-content">
-              <h3>Add New Wines</h3>
-              <p>Expand your collection by adding new wines to your cellar.</p>
-              <Link to="/add-wine" className="home-button">Add Wine</Link>
-            </div>
-          </div>
+          <Grid item xs={12} sm={6} md={4}>
+            <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <CardMedia
+                component="img"
+                height="140"
+                image={addWines}
+                alt="Add Wine"
+              />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" align="center">Add New Wines</Typography>
+                <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
+                <Typography variant="body2" align="center">
+                  Expand your collection by adding new wines to your cellar.
+                </Typography>
+                <Button
+                  component={Link}
+                  to="/add-wine"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ marginTop: 1 }}
+                >
+                  Add Wine
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         )}
 
-        <div className="home-card">
-          <img src={manageWineCollection} alt="Manage your Wine Cellar" className="home-card-media" />
-          <div className="home-card-content">
-            <h3>Manage your Wine Cellar</h3>
-            <p>Simplify your wine collection management and enjoyment.</p>
-            <Link 
-              to={isLoggedIn ? "/cellar" : "/sign-up"} 
-              className="home-button"
-            >
-              {isLoggedIn ? "View Cellar" : "Sign Up"}
-            </Link>
-          </div>
-        </div>
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <CardMedia
+              component="img"
+              height="140"
+              image={manageWineCollection}
+              alt="Manage your Wine Cellar"
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" align="center">Manage your Wine Cellar</Typography>
+              <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
+              <Typography variant="body2" align="center">
+                Simplify your wine collection management and enjoyment.
+              </Typography>
+              <Button
+                component={Link}
+                to={isLoggedIn ? "/cellar" : "/sign-up"}
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ marginTop: 1 }}
+              >
+                {isLoggedIn ? "View Cellar" : "Sign Up"}
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div className="home-card">
-          <img src={personalSommelier} alt="Personal Sommelier" className="home-card-media" />
-          <div className="home-card-content">
-            <h3>Personal Sommelier</h3>
-            <p>Get personalized recommendations and enhance your wine-tasting experience with tailored suggestions.</p>
-            <Link 
-              to={isLoggedIn ? "/personal-sommelier" : "/sign-up"} 
-              className="home-button"
-            >
-              {isLoggedIn ? "Get wine advice" : "Sign Up"}
-            </Link>
-          </div>
-        </div>
-
-        {/* Affiliate Products */}
-        {/* <div className="home-card">
-          <img src={personalSommelier} alt="Buy Wine" className="home-card-media" />
-          <div className="home-card-content">
-            <h3>Buy Wine</h3>
-            <p>Discover our recommended wines available for purchase through our trusted partners.</p>
-            <a 
-              href="https://example.com/affiliate-link" 
-              className="home-button" 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              Shop Now
-            </a>
-          </div>
-        </div> */}
-      </div>
-    </div>
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <CardMedia
+              component="img"
+              height="140"
+              image={personalSommelier}
+              alt="Personal Sommelier"
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" align="center">Personal Sommelier</Typography>
+              <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
+              <Typography variant="body2" align="center">
+                Get personalized recommendations and enhance your wine-tasting experience with tailored suggestions.
+              </Typography>
+              <Button
+                component={Link}
+                to={isLoggedIn ? "/personal-sommelier" : "/sign-up"}
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ marginTop: 1 }}
+              >
+                {isLoggedIn ? "Get wine advice" : "Sign Up"}
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

@@ -1,5 +1,5 @@
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from './firebase-config'; // Ensure you import your Firestore instance
+import { db } from '../firebase-config';
   
  export const getWineIdFromToken = async (token) => {
     try {

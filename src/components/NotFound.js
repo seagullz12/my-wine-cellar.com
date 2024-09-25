@@ -9,7 +9,7 @@ const NotFound = () => {
   useEffect(() => {
     // Redirect to home page after 5 seconds
     const timer = setTimeout(() => {
-      navigate('/wine-scanner');
+      navigate('/');
     }, 10);
 
     // Cleanup timer if the component is unmounted before the timer finishes

@@ -15,7 +15,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/wine-scanner'); // Redirect to the main page after successful sign-up
+      navigate('/'); // Redirect to the main page after successful sign-up
     } catch (error) {
       setError('Failed to create an account. Please try again.');
       console.error('Sign Up Error:', error);

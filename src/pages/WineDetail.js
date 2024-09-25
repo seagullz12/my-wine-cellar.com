@@ -6,7 +6,7 @@ import WineMap from '../components/WineMap';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import ShareWineButton from '../components/ShareWineButton';
 import TastingNotesForm from '../components/TastingNotesForm';
-import { getWineIdFromToken } from '../components/utils';
+import { getWineIdFromToken } from '../components/utils/getWineIdFromToken';
 
 // swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';

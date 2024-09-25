@@ -6,9 +6,9 @@
       // Get the path of the current page
       var target = window.location.pathname;
 
-      // Ensure that the path always includes /wine-scanner/
-      if (!target.startsWith("/wine-scanner")) {
-        window.location.replace("/wine-scanner" + target);
+      // Ensure that the path always includes /
+      if (!target.startsWith("/")) {
+        window.location.replace("/" + target);
       }
     </script>
   </head>

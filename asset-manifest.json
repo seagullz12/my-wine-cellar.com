@@ -1,19 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.9a835ff3.css",
-    "main.js": "/static/js/main.7d22b2aa.js",
+    "main.css": "/static/css/main.3174946a.css",
+    "main.js": "/static/js/main.0ee3e890.js",
     "static/js/453.d3188f58.chunk.js": "/static/js/453.d3188f58.chunk.js",
+    "static/media/other.webp": "/static/media/other.89648f430f9c04b77c4e.webp",
     "static/media/manageWineCollection.webp": "/static/media/manageWineCollection.637b5da4da33b41fdeba.webp",
     "static/media/AddWines.webp": "/static/media/AddWines.5cc6a6cd4e241b4d7f75.webp",
     "static/media/joinUs.webp": "/static/media/joinUs.801a2bd07f329a31abb1.webp",
     "static/media/personalSommelier.webp": "/static/media/personalSommelier.261176150172008e0cbe.webp",
     "index.html": "/index.html",
-    "main.9a835ff3.css.map": "/static/css/main.9a835ff3.css.map",
-    "main.7d22b2aa.js.map": "/static/js/main.7d22b2aa.js.map",
+    "main.3174946a.css.map": "/static/css/main.3174946a.css.map",
+    "main.0ee3e890.js.map": "/static/js/main.0ee3e890.js.map",
     "453.d3188f58.chunk.js.map": "/static/js/453.d3188f58.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9a835ff3.css",
-    "static/js/main.7d22b2aa.js"
+    "static/css/main.3174946a.css",
+    "static/js/main.0ee3e890.js"
   ]
 }

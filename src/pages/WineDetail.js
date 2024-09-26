@@ -175,7 +175,7 @@ const WineDetail = () => {
           <Card sx={{ backgroundColor: '#F5F5F5'}}>
           {/* Header for Wine Name */}
         <Box sx={{backgroundColor:"#8b3a3a"}}>
-          <Typography variant="h4" component="h1" sx={{ padding: 2, textAlign: "center" }}>
+          <Typography variant="h4" component="h1" sx={{ padding: 0.2, textAlign: "center" }}>
           {wine.name}
         </Typography>
         </Box>

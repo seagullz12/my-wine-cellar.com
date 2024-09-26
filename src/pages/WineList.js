@@ -141,6 +141,10 @@ const WineList = () => {
 
   const handleDelete = async (id) => {
     if (!user) return;
+    
+    const confirmed = window.confirm("Are you sure you want to remove this wine from your cellar?");
+    if (!confirmed) return; // Exit if the user cancels
+
 
     try {
       const token = await user.getIdToken();
@@ -241,8 +245,19 @@ const spacingValue = 1.5;
       <Grid container spacing={2}>
         {filteredWines.length > 0 ? (
           filteredWines.map((wine) => (
-            <Grid item xs={12} sm={6} md={4} key={wine.id}>
-              <Box border={0} borderRadius={2} overflow="hidden" boxShadow={3} p={2}>
+            <Grid item xs={12} sm={6} md={3} key={wine.id}>
+              <Box 
+                border={0} 
+                borderRadius={2} 
+                overflow="hidden" 
+                boxShadow={3} 
+                p={2}
+                sx={{ 
+                  height: '100%', // Fixed height for consistency
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
                 <Link to={`/cellar/${wine.id}`}>
                   <CardMedia sx={{ position: 'relative' }}>
                     {/* The Wine Image */}
@@ -288,16 +303,29 @@ const spacingValue = 1.5;
                      <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
                      
                 </CardContent>
-                <Box display="flex" justifyContent="space-between">
-                  <Link to={`/cellar/${wine.id}`}>
-                    <Button variant="contained" color="primary">
-                      View Wine
-                    </Button>
-                  </Link>
-                  <Button variant="outlined" color="primary" onClick={() => handleDelete(wine.id)}>
-                    Remove
-                  </Button>
-                </Box>
+                <Box display="flex" justifyContent="space-between" mt="auto">
+  <Grid container spacing={2}>
+    <Grid item xs={6} sm={6}>
+      <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
+        <Button variant="contained" color="primary" fullWidth>
+          View Wine
+        </Button>
+      </Link>
+    </Grid>
+    <Grid item xs={6} sm={6}>
+      <Button 
+        variant="outlined" 
+        color="primary" 
+        onClick={() => handleDelete(wine.id)} 
+        fullWidth
+      >
+        Remove
+      </Button>
+    </Grid>
+  </Grid>
+</Box>
+
+
               </Box>
             </Grid>
           ))

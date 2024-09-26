@@ -48,6 +48,7 @@ const WineListSorting = ({ sortCriteria, sortOrder, onSortChange, onSortOrderCha
         >
           <MenuItem value="vintage">Vintage</MenuItem>
           <MenuItem value="addedDate">Date Added</MenuItem>
+          <MenuItem value="name">Name</MenuItem>
         </Select>
       </FormControl>
       <Button

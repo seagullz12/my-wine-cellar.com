@@ -26,7 +26,7 @@ const WineList = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [sortCriteria, setSortCriteria] = useState('vintage');
+  const [sortCriteria, setSortCriteria] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
 
   const [filters, setFilters] = useState({
@@ -72,6 +72,8 @@ const WineList = () => {
         "Cinsault"
     ],
     vintages: [],
+    names: [],
+    datesAdded: [], 
     statuses: ['in_cellar', 'consumed'],
   });
 
@@ -110,6 +112,19 @@ const WineList = () => {
             ...prevFilters,
             vintages: distinctVintages.sort(),
           }));
+
+          const distinctDateAdded = [...new Set(fetchedWines.map(wine => wine.dateAdded))];
+          setFilters(prevFilters => ({
+            ...prevFilters,
+            datesAdded: distinctDateAdded.sort(),
+          }));
+
+          const distinctName = [...new Set(fetchedWines.map(wine => wine.name))];
+          setFilters(prevFilters => ({
+            ...prevFilters,
+            names: distinctName.sort(),
+          }));
+
 
         } catch (error) {
           console.error('Error fetching wine data:', error);
@@ -156,6 +171,7 @@ const WineList = () => {
       (!newFilters.colour.length || newFilters.colour.some(colour => wine.colour.toLowerCase().includes(colour.toLowerCase()))) &&
       (!newFilters.grape.length || newFilters.grape.some(grape => wine.grape.toLowerCase().includes(grape.toLowerCase()))) &&
       (!newFilters.vintage.length || newFilters.vintage.includes(wine.vintage)) &&
+      (!newFilters.dateAdded.length || newFilters.dateAdded.includes(wine.dateAdded)) &&
       (!newFilters.status.length || newFilters.status.includes(wine.status))
     );
 
@@ -174,6 +190,8 @@ const WineList = () => {
         comparison = a.vintage.localeCompare(b.vintage);
       } else if (sortCriteria === 'addedDate') {
         comparison = new Date(a.addedDate) - new Date(b.addedDate);
+      } else if (sortCriteria === 'name') {
+        comparison = a.name.localeCompare(b.name);
       }
 
       return sortOrder === 'asc' ? comparison : comparison * -1;
@@ -200,6 +218,7 @@ const WineList = () => {
   if (!user) {
     return <Typography>Please log in to see your wine cellar.</Typography>;
   }
+
 const spacingValue = 1.5;
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -265,7 +284,9 @@ const spacingValue = 1.5;
                      <Typography sx={{ mb: spacingValue }}><strong>Region:</strong> {wine.region}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Producer:</strong> {wine.producer}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
-                     <Typography sx={{ mb: 0 }}><strong>Peak Maturity:</strong> {wine.peakMaturity} years after harvest</Typography>
+                     <Typography sx={{ mb: spacingValue }}>{wine.dateAdded ? (<><strong>Added to Cellar on: </strong> {wine.dateAdded} </>) : null}</Typography>
+                     <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
+                     
                 </CardContent>
                 <Box display="flex" justifyContent="space-between">
                   <Link to={`/cellar/${wine.id}`}>

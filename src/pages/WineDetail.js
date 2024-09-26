@@ -286,6 +286,7 @@ const WineDetail = () => {
                      <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
                      <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
                      <Typography sx={{ mb: spacingValue }}>{wine.description ? (<><strong>Description:</strong> {wine.description} </>) : null}</Typography>
+                     <Typography sx={{ mb: spacingValue }}><strong>Date added to Cellar: </strong> {wine.dateAdded}</Typography>
                      </Box>
                   )}
                      

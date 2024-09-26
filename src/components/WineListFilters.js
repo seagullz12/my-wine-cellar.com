@@ -28,6 +28,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
     grape: [],
     vintage: [],
     status: [],
+    dateAdded: [],
   });
 
   // Handle filter change when checkbox or dropdown is used
@@ -105,6 +106,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
       colour: [],
       grape: [],
       vintage: [],
+      dateAdded: [],
       status: [],
     };
     setSelectedFilters(resetFilters);
@@ -279,6 +281,40 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
                 ))}
               </Box>
             )}
+
+             {/* dateAdded Filters */}
+             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+              <Typography variant="subtitle1">Date Added</Typography>
+              <Tooltip title="Clear dateAdded Filters">
+                <IconButton size="small" onClick={() => handleClearFilterSection('dateAdded')}>
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            {filters.datesAdded.map(dateAdded => (
+              <FormControlLabel
+                key={dateAdded}
+                control={
+                  <Checkbox
+                    checked={selectedFilters.dateAdded.includes(dateAdded)}
+                    onChange={() => handleFilterChange('dateAdded', dateAdded)}
+                  />
+                }
+                label={dateAdded}
+              />
+            ))}
+
+            {/* Display selected dateAdded filters as Chips */}
+            {selectedFilters.dateAdded.length > 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginBottom: '10px' }}>
+                {selectedFilters.dateAdded.map(dateAdded => (
+                  <Chip
+                    key={dateAdded}
+                    label={dateAdded}
+                    onDelete={() => handleDeleteFilter('dateAdded', dateAdded)} // Remove dateAdded when "X" clicked
+                  />
+                ))}
+              </Box> )}
           </FormGroup>
 
           {/* Reset All Filters Button */}

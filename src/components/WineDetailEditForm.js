@@ -1,183 +1,235 @@
 import React, { useState } from 'react';
-import '../styles/WineDetailEditForm.css'; 
+import {
+  TextField,
+  Button,
+  Grid,
+  Typography,
+  Slider,
+  IconButton,
+} from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 
 const WineDetailEditForm = ({ formData, handleChange, handleSubmit, handleEditToggle }) => {
-  const [peakMaturityError, setPeakMaturityError] = useState(''); // State for peak maturity error message
+  const [peakMaturityError, setPeakMaturityError] = useState('');
 
-  const handlePeakMaturityChange = (e) => {
-    const { value } = e.target;
+  // Helper function to handle array changes
+  const handleArrayChange = (e, index, field) => {
+    const newArray = [...formData[field]];
+    newArray[index] = e.target.value;
+    handleChange({ target: { name: field, value: newArray } });
+  };
 
-    // Validate peakMaturity input
-    if (value && isNaN(value)) {
-      setPeakMaturityError('Please fill in years as a number');
-    } else {
-      setPeakMaturityError(''); // Clear error if valid
-    }
+  // Function to add a new entry to an array
+  const addArrayItem = (field) => {
+    handleChange({ target: { name: field, value: [...formData[field], ''] } });
+  };
 
-    handleChange(e); // Call the existing handleChange function to update formData
+  // Function to remove an entry from an array
+  const removeArrayItem = (field, index) => {
+    const newArray = formData[field].filter((_, i) => i !== index);
+    handleChange({ target: { name: field, value: newArray } });
+  };
+
+  const handlePeakMaturityChange = (event, newValue) => {
+    handleChange({ target: { name: 'peakMaturity', value: newValue } });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="wine-edit-form">
-      <label>
-        Name:
-        <input
-          type="text"
-          name="name"
-          value={formData.name || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Grape:
-        <input
-          type="text"
-          name="grape"
-          value={formData.grape || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Vintage:
-        <input
-          type="text"
-          name="vintage"
-          value={formData.vintage || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Terroir:
-        <input
-          type="text"
-          name="terroir"
-          value={formData.terroir || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Region:
-        <input
-          type="text"
-          name="region"
-          value={formData.region || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Country:
-        <input
-          type="text"
-          name="country"
-          value={formData.country || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Producer:
-        <input
-          type="text"
-          name="producer"
-          value={formData.producer || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Alcohol Content:
-        <input
-          type="text"
-          name="alcohol"
-          value={formData.alcohol || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Quality Classification:
-        <input
-          type="text"
-          name="classification"
-          value={formData.classification || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Colour:
-        <input
-          type="text"
-          name="colour"
-          value={formData.colour || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Nose:
-        <input
-          type="text"
-          name="nose"
-          value={formData.nose || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Palate:
-        <input
-          type="text"
-          name="palate"
-          value={formData.palate || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Pairing:
-        <input
-          type="text"
-          name="pairing"
-          value={formData.pairing || ''}
-          onChange={handleChange}
-        />
-      </label>
-      <label>
-        Peak Maturity: 
-        <span> {formData.peakMaturity || 0} years</span>
-        <input
-          type="range"
-          name="peakMaturity"
-          min="0" 
-          max="10"
-          value={formData.peakMaturity || 3 }
-          onChange={handlePeakMaturityChange}
-        /> 
-      </label>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        padding: '20px',
+        backgroundColor: '#f8f8f8',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
+        Edit Wine Details
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Name"
+            name="name"
+            value={formData.name || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Vintage"
+            name="vintage"
+            value={formData.vintage || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
 
-      <label>
-        Drinking Window:
-        <input
-          type="text"
-          name="drinkingWindowLower"
-          placeholder="Lower bound"
-          value={formData.drinkingWindow?.lower || ''}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="drinkingWindowUpper"
-          placeholder="Upper bound"
-          value={formData.drinkingWindow?.upper || ''}
-          onChange={handleChange}
-        />
-      </label>
+        {/* Grape Field as Array */}
+        <Grid item xs={12}>
+          <Typography variant="h6">Grape</Typography>
+          {formData.grape.map((grape, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+              <TextField
+                fullWidth
+                value={grape || ''}
+                onChange={(e) => handleArrayChange(e, index, 'grape')}
+                
+                style={{ marginRight: '8px' }}
+              />
+              <IconButton onClick={() => removeArrayItem('grape', index)} color="secondary">
+                <Remove />
+              </IconButton>
+            </div>
+          ))}
+          <Button sx={{marginTop:1}} variant="contained" color="primary" onClick={() => addArrayItem('grape')}>
+            Add Grape
+          </Button>
+        </Grid>
 
-      <label>
-        Description:
-        <textarea
-          name="description"
-          value={formData.description || ''}
-          onChange={handleChange}
-        />
-      </label>
+        {/* Region Field */}
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Region"
+            name="region"
+            value={formData.region || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Country"
+            name="country"
+            value={formData.country || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Producer"
+            name="producer"
+            value={formData.producer || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Alcohol Content"
+            name="alcohol"
+            value={formData.alcohol || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6">Quality Classification</Typography>
+          {formData.classification.map((classification, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+              <TextField
+                fullWidth
+                value={classification || ''}
+                onChange={(e) => handleArrayChange(e, index, 'classification')}
+                
+                style={{ marginRight: '8px' }}
+              />
+              <IconButton onClick={() => removeArrayItem('classification', index)} color="secondary">
+                <Remove />
+              </IconButton>
+            </div>
+          ))}
+          <Button sx={{marginTop:1}} variant="contained" color="primary" onClick={() => addArrayItem('classification')}>
+            Add Classification
+          </Button>
+        </Grid>
 
-      <button type="submit">Save</button>
-      <button type="button" onClick={handleEditToggle}>Cancel</button>
+        {/* Similar fields for Nose, Palate, and Pairing as arrays */}
+        {['nose', 'palate', 'pairing'].map((field) => (
+          <Grid item xs={12} key={field}>
+            <Typography variant="h6">{field.charAt(0).toUpperCase() + field.slice(1)}</Typography>
+            {formData[field].map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  fullWidth
+                  value={item || ''}
+                  onChange={(e) => handleArrayChange(e, index, field)}
+                  
+                  style={{ marginRight: '8px' }}
+                />
+                <IconButton onClick={() => removeArrayItem(field, index)} color="secondary">
+                  <Remove />
+                </IconButton>
+              </div>
+            ))}
+            <Button sx={{marginTop:1}} variant="contained" color="primary" onClick={() => addArrayItem(field)}>
+              Add {field.charAt(0).toUpperCase() + field.slice(1)}
+            </Button>
+          </Grid>
+        ))}
+
+        <Grid item xs={12}>
+          <Typography gutterBottom>Peak Maturity: {formData.peakMaturity || 0} years</Typography>
+          <Slider
+            value={formData.peakMaturity || 3}
+            onChange={handlePeakMaturityChange}
+            aria-labelledby="peak-maturity-slider"
+            min={0}
+            max={10}
+            valueLabelDisplay="auto"
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Drinking Window Lower Bound"
+            name="drinkingWindowLower"
+            value={formData.drinkingWindow?.lower || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Drinking Window Upper Bound"
+            name="drinkingWindowUpper"
+            value={formData.drinkingWindow?.upper || ''}
+            onChange={handleChange}
+            
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Description"
+            name="description"
+            value={formData.description || ''}
+            onChange={handleChange}
+            multiline
+            rows={4}
+            
+          />
+        </Grid>
+      </Grid>
+      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="contained" color="primary" type="submit" style={{ marginRight: '10px' }}>
+          Save changes
+        </Button>
+        <Button variant="outlined" color="grey" onClick={handleEditToggle}>
+          Cancel
+        </Button>
+      </div>
     </form>
   );
 };

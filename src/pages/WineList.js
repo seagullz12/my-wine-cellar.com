@@ -294,7 +294,10 @@ const WineList = () => {
                   margin: 1
                 }}>
                   <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Grape:</strong> {wine.grape}
+                  <strong>Name:</strong> {wine.name}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Grape:</strong> {wine.grape.join(', ')}
                   </Typography>
                   <Typography sx={{ textAlign: "left", mb: spacingValue }}>
                     <strong>Vintage:</strong> {wine.vintage}

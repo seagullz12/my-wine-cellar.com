@@ -12,6 +12,9 @@ const sharp = require('sharp');
 const multer = require('multer');
 const { generateSitemap } = require('./sitemap');
 
+const { z } = require('zod');
+const { zodResponseFormat } = require('openai/helpers/zod');
+
 const app = express();
 const port = 8080;
 
@@ -96,26 +99,47 @@ const openai = new OpenAI({
 
 // Function to get wine data from text using OpenAI
 const getWineDataFromText = async (text) => {
+  const WineDataExtraction = z.object({
+    name: z.string(),
+    grape: z.array(z.string()),
+    vintage: z.string(),
+    region:  z.string(),
+    country:  z.string(),
+    producer: z.string(),
+    alcohol: z.string(),
+    classification: z.array(z.string()),
+    colour: z.string(),
+    nose: z.array(z.string()),
+    palate: z.array(z.string()),
+    pairing: z.array(z.string()),
+    terroir: z.array(z.string()),
+    description: z.string(),
+    optimal_drinking_window: z.object({lower: z.string(), upper: z.string()})
+  });
+
   const settings = {
     model: "gpt-4o-mini",
     temperature: 0.5,
     max_tokens: 300
   };
   try {
-    const response = await openai.chat.completions.create({
+    const completion = await openai.beta.chat.completions.parse({
       model: settings.model,
       messages: [
         { role: 'system', content: 'You are a helpful sommelier with expert knowledge about wines.' },
-        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respond in the following structured format without using newlines: "Name: [wine name]; Grape: [grape]; Vintage: [vintage]; Region: [region]; Producer: [producer]; Alcohol: [alcohol content]; Classification: [quality classification]; Colour: [pick one from: (Red|White|Orange|Green|Rosé)]; Nose: [nose]; Palate: [palate]; Pairing: [pairing]; Description: [description]. If information is missing then complete it using your knowledge.` }
+        { role: 'user', content: `Extract wine details from the following text from a wine label: "${text}". Respons JSON format. If information is missing then complete it using your knowledge.` }
       ],
       temperature: settings.temperature,
-      max_tokens: settings.max_tokens
+      max_tokens: settings.max_tokens,
+      response_format: zodResponseFormat(WineDataExtraction, "wine_data_extraction"),
     });
     // Log the entire response object
     console.log('OpenAI Settings:', settings);
-    console.log('API Response:', response);
+    console.log('API Response:', completion);
 
-    return response.choices[0].message.content;
+    const extracted_wine_date = completion.choices[0].message.parsed;
+    console.log('open ai response: ',extracted_wine_date);
+    return extracted_wine_date;
   } catch (error) {
     console.error('Error fetching wine data:', error);
     throw error;

@@ -28,6 +28,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
     grape: [],
     vintage: [],
     status: [],
+    maturityStatus: [],
     dateAdded: [],
   });
 
@@ -107,6 +108,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
       grape: [],
       vintage: [],
       dateAdded: [],
+      maturityStatus: [],
       status: [],
     };
     setSelectedFilters(resetFilters);
@@ -315,6 +317,9 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
                   />
                 ))}
               </Box> )}
+
+         
+
           </FormGroup>
 
           {/* Reset All Filters Button */}

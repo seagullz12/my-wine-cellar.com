@@ -43,7 +43,9 @@ const WineDetail = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const location = useLocation(); // ga4 tracking
+
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+  //const backendURL = 'http://192.168.2.9:8080';
 
   useEffect(() => {
     const auth = getAuth();
@@ -285,20 +287,47 @@ const WineDetail = () => {
                       padding: 2,
                       margin: 1,
                     }}>
-                      <Typography sx={{ mb: spacingValue }}><strong>Grape:</strong> {wine.grape}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Vintage:</strong> {wine.vintage}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Region:</strong> {wine.region}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Producer:</strong> {wine.producer}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Alcohol Content:</strong> {wine.alcohol}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Quality Classification:</strong> {wine.classification}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Nose:</strong> {wine.nose}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Palate:</strong> {wine.palate}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Grape:</strong> {wine.grape.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Vintage:</strong> {wine.vintage}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Terroir:</strong> {wine.terroir.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Region:</strong> {wine.region}, {wine.country}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Producer:</strong> {wine.producer}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Alcohol Content:</strong> {wine.alcohol}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Quality Classification:</strong> {wine.classification.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Colour:</strong> {wine.colour}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Nose:</strong> {wine.nose.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Palate:</strong> {wine.palate.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Pairing:</strong> {wine.pairing.join(', ')}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
+                      </Typography>
+                      <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                        <strong>Description:</strong> {wine.description}
+                      </Typography>
                       <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
-                      <Typography sx={{ mb: spacingValue }}>{wine.description ? (<><strong>Description:</strong> {wine.description} </>) : null}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><strong>Date added to Cellar: </strong> {wine.dateAdded}</Typography>
-                      {wine.drinkingWindow && <Typography sx={{ mb: spacingValue }}><strong>Optimal Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}</Typography>}
+                      <Typography sx={{ mb: spacingValue }}><i>Date added to Cellar: </i> {wine.dateAdded}</Typography>
                       {/* {wine.drinkingWindow && <DrinkingWindowDisplay name={wine.name} vintage={wine.vintage} drinkingWindow={wine.drinkingWindow}/>} */}
                     </Box>
                   )}

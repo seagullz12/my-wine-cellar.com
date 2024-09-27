@@ -1,9 +1,9 @@
-// src/utils/MaturityUtils.js
-export const calculateMaturityStatus = (vintage, drinkingWindow) => {
+// src/components/utils/MaturityUtils.js
+export const calculateMaturityStatus = (drinkingWindow) => {
   // Check if drinkingWindow is undefined or doesn't have the required properties
   if (!drinkingWindow || typeof drinkingWindow.lower === 'undefined' || typeof drinkingWindow.upper === 'undefined') {
       return {
-          badgeText: '',
+          maturityStatus: '',
           backgroundColor: 'transparent',
           tooltipText: '',
       };
@@ -12,7 +12,6 @@ export const calculateMaturityStatus = (vintage, drinkingWindow) => {
   const currentYear = new Date().getFullYear();
   const lowerBoundary = parseInt(drinkingWindow.lower, 10);
   const upperBoundary = parseInt(drinkingWindow.upper, 10);
-  const vintageYear = parseInt(vintage, 10);
 
 
   const yearsUntilOptimalStart = lowerBoundary - currentYear;
@@ -32,32 +31,32 @@ export const calculateMaturityStatus = (vintage, drinkingWindow) => {
   if (isInDrinkingWindow) {
     if (isEarlyMaturity) {
       return {
-        badgeText: 'Early Maturity',
+        maturityStatus: 'Early Maturity',
         backgroundColor: '#ffc107', // Yellow for early maturity
         tooltipText: 'This wine is in the early stages of its optimal drinking window.',
       };
     } else if (isLateMaturity) {
       return {
-        badgeText: 'Late Maturity',
+        maturityStatus: 'Late Maturity',
         backgroundColor: '#ff8c00', // Orange for late maturity
         tooltipText: 'This wine is nearing the end of its optimal drinking window.',
       };
     } else if (isAtPeakMaturity) {
       return {
-        badgeText: 'At Peak Maturity',
+        maturityStatus: 'At Peak Maturity',
         backgroundColor: '#28a745', // Green for peak maturity
         tooltipText: 'This wine is at its peak maturity and ideal for drinking.',
       };
     }
   } else if (approachingPeak) {
     return {
-      badgeText: `${yearsUntilOptimalStart} year${yearsUntilOptimalStart > 1 ? 's' : ''} until peak`,
+      maturityStatus: `${yearsUntilOptimalStart} year${yearsUntilOptimalStart > 1 ? 's' : ''} until it's mature.`,
       backgroundColor: 'grey', // Grey for approaching peak
       tooltipText: `This wine will reach its optimal drinking window in ${yearsUntilOptimalStart} year${yearsUntilOptimalStart > 1 ? 's' : ''}.`,
     };
   } else if (hasAlreadyPeaked) {
     return {
-      badgeText: 'Already Peaked',
+      maturityStatus: 'Already Peaked',
       backgroundColor: '#dc3545', // Red for already peaked
       tooltipText: 'This wine has already peaked and may no longer be at its best.',
     };

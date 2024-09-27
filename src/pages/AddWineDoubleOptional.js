@@ -14,22 +14,37 @@ import {
 const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 //const backendURL = 'http://192.168.2.9:8080';
 
+const formatDateToUS = (date) => {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
+// Function to parse extracted wine data
+const today = new Date();
+const formattedToday = formatDateToUS(today); // Format the date in MM/DD/YYYY format
+
 const AddWine = () => {
   const [ocrResult, setOcrResult] = useState('');  // Combined OCR result from front and back images
   const [wineData, setWineData] = useState({
     name: 'unknown',
-    grape: 'unknown',
+    grape: ['unknown'],
     vintage: 'unknown',
     region: 'unknown',
+    country: 'unknown',
     producer: 'unknown',
     alcohol: 'unknown',
-    classification: 'unknown',
+    classification: ['unknown'],  // Changed to an array
     colour: 'unknown',
-    nose: 'unknown',
-    palate: 'unknown',
-    pairing: 'unknown',
-    description: 'uknown',
+    nose: ['unknown'],  // Changed to an array
+    palate: ['unknown'],  // Changed to an array
+    pairing: ['unknown'],  // Changed to an array
+    terroir: ['unknown'],  // Added terroir field as an array
+    description: 'unknown',
+    dateAdded: formattedToday
   });
+
 
   const [loading, setLoading] = useState(false);
   const [frontImageURL, setFrontImageURL] = useState('');  // For front image preview
@@ -152,8 +167,29 @@ const AddWine = () => {
 
       if (response.ok) {
         const result = await response.json();
-        const parsedData = parseWineData(result.data);
-        setWineData(parsedData);
+        const extractedData = result.data; // Accessing the wine data from the JSON response
+
+        setWineData({
+          name: extractedData.name || 'unknown',
+          grape: extractedData.grape.join(', ') || 'unknown',
+          terroir: extractedData.terroir.join(', ') || 'unknown',
+          vintage: extractedData.vintage || 'unknown',
+          region: extractedData.region || 'unknown',
+          country: extractedData.country || 'unknown',
+          producer: extractedData.producer || 'unknown',
+          alcohol: extractedData.alcohol || 'unknown',
+          classification: extractedData.classification.join(', ') || 'unknown',
+          colour: extractedData.colour || 'unknown',
+          nose: extractedData.nose.join(', ') || 'unknown',
+          palate: extractedData.palate.join(', ') || 'unknown',
+          pairing: extractedData.pairing.join(', ') || 'unknown',
+          description: extractedData.description || 'unknown',
+          dateAdded: formattedToday,
+          drinkingWindow: {
+            lower: extractedData.optimal_drinking_window?.lower || 'unknown',
+            upper: extractedData.optimal_drinking_window?.upper || 'unknown',
+          },
+        });
       } else {
         setOcrResult(`Error extracting wine data. Status: ${response.status}`);
       }
@@ -161,33 +197,6 @@ const AddWine = () => {
       setOcrResult(`Error: ${error.message}`);
     }
     setLoading(false);
-  };
-
-  // Function to parse extracted wine data
-  const parseWineData = (data) => {
-    const result = {
-      name: 'unknown',
-      grape: 'unknown',
-      vintage: 'unknown',
-      region: 'unknown',
-      producer: 'unknown',
-      alcohol: 'unknown',
-      classification: 'unknown',
-      colour: 'unknown',
-      nose: 'unknown',
-      palate: 'unknown',
-      pairing: 'unknown',
-      description: 'uknown',
-    };
-
-    const regex = /([^:;]+):\s*([^;]+)/g;
-    let match;
-    while ((match = regex.exec(data)) !== null) {
-      const field = match[1].toLowerCase().trim();
-      const value = match[2].trim();
-      if (result.hasOwnProperty(field)) result[field] = value;
-    }
-    return result;
   };
 
   // Function to perform OCR on the image and update the OCR result
@@ -212,6 +221,7 @@ const AddWine = () => {
 
         // Update the OCR result state by concatenating the OCR results from both sides
         setOcrResult((prevResult) => `${prevResult} ${text}`);
+        console.log(text)
 
         // Once both images are processed, extract wine data
         if (imageType === 'back' && ocrResult) {
@@ -400,22 +410,46 @@ const AddWine = () => {
           ) : (
             wineData.name !== 'unknown' && !isEditing ? (
               <ul>
-                <Box sx={{
-                  padding: 2,
-                  margin: 1,
-                }}>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Grape:</strong> {wineData.grape}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Vintage:</strong> {wineData.vintage}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Region:</strong> {wineData.region}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Producer:</strong> {wineData.producer}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Alcohol Content:</strong> {wineData.alcohol}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Quality Classification:</strong> {wineData.classification}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Colour:</strong> {wineData.colour}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Nose:</strong> {wineData.nose}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Palate:</strong> {wineData.palate}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Pairing:</strong> {wineData.pairing}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}><strong>Description:</strong> {wineData.description}</Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>{wineData.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wineData.peakMaturity} years after harvest`}</>) : ''}</Typography>
+                <Box sx={{ padding: 2, margin: 1 }}>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Grape:</strong> {wineData.grape}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Vintage:</strong> {wineData.vintage}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Terroir:</strong> {wineData.terroir}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Region:</strong> {wineData.region}, {wineData.country}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Producer:</strong> {wineData.producer}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Alcohol Content:</strong> {wineData.alcohol}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Quality Classification:</strong> {wineData.classification}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Colour:</strong> {wineData.colour}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Nose:</strong> {wineData.nose}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Palate:</strong> {wineData.palate}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Pairing:</strong> {wineData.pairing}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Drinking Window:</strong> {wineData.drinkingWindow.lower} - {wineData.drinkingWindow.upper}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Description:</strong> {wineData.description}
+                  </Typography>
                 </Box>
                 <Box display="flex" justifyContent="space-between">
                   <Button variant="outlined" onClick={toggleEditForm} sx={{ margin: 2 }}>

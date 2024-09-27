@@ -32,48 +32,48 @@ const WineList = () => {
   const [filters, setFilters] = useState({
     colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
     grapes: [
-        "Cabernet Sauvignon",
-        "Merlot",
-        "Pinot Noir",
-        "Syrah (Shiraz)",
-        "Zinfandel",
-        "Chardonnay",
-        "Sauvignon Blanc",
-        "Riesling",
-        "Malbec",
-        "Tempranillo",
-        "Grenache",
-        "Cabernet Franc",
-        "Sangiovese",
-        "Mourvèdre",
-        "Viognier",
-        "Pinot Grigio (Pinot Gris)",
-        "Semillon",
-        "Nebbiolo",
-        "Barbera",
-        "Touriga Nacional",
-        "Petit Verdot",
-        "Chenin Blanc",
-        "Garganega",
-        "Grüner Veltliner",
-        "Fiano",
-        "Albariño",
-        "Vermentino",
-        "Nero d'Avola",
-        "Carignan",
-        "Dolcetto",
-        "Aglianico",
-        "Carmenère",
-        "Primitivo",
-        "Moscato",
-        "Torrontés",
-        "Saint Laurent",
-        "Tannat",
-        "Cinsault"
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Pinot Noir",
+      "Syrah (Shiraz)",
+      "Zinfandel",
+      "Chardonnay",
+      "Sauvignon Blanc",
+      "Riesling",
+      "Malbec",
+      "Tempranillo",
+      "Grenache",
+      "Cabernet Franc",
+      "Sangiovese",
+      "Mourvèdre",
+      "Viognier",
+      "Pinot Grigio (Pinot Gris)",
+      "Semillon",
+      "Nebbiolo",
+      "Barbera",
+      "Touriga Nacional",
+      "Petit Verdot",
+      "Chenin Blanc",
+      "Garganega",
+      "Grüner Veltliner",
+      "Fiano",
+      "Albariño",
+      "Vermentino",
+      "Nero d'Avola",
+      "Carignan",
+      "Dolcetto",
+      "Aglianico",
+      "Carmenère",
+      "Primitivo",
+      "Moscato",
+      "Torrontés",
+      "Saint Laurent",
+      "Tannat",
+      "Cinsault"
     ],
     vintages: [],
     names: [],
-    datesAdded: [], 
+    datesAdded: [],
     statuses: ['in_cellar', 'consumed'],
   });
 
@@ -223,7 +223,7 @@ const WineList = () => {
     return <Typography>Please log in to see your wine cellar.</Typography>;
   }
 
-const spacingValue = 1;
+  const spacingValue = 1;
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <CellarStatistics wines={filteredWines.length > 0 ? filteredWines : wines} />
@@ -246,13 +246,13 @@ const spacingValue = 1;
         {filteredWines.length > 0 ? (
           filteredWines.map((wine) => (
             <Grid item xs={12} sm={6} md={3} key={wine.id}>
-              <Box 
-                border={0} 
-                borderRadius={2} 
-                overflow="hidden" 
-                boxShadow={3} 
+              <Box
+                border={0}
+                borderRadius={2}
+                overflow="hidden"
+                boxShadow={3}
                 p={2}
-                sx={{ 
+                sx={{
                   height: '100%', // Fixed height for consistency
                   display: 'flex',
                   flexDirection: 'column'
@@ -289,42 +289,56 @@ const spacingValue = 1;
                   </CardMedia>
 
                 </Link>
-                <CardContent sx={{ 
-                    padding: 0,
-                    margin: 1
-                    }}>
-                     <Typography sx={{ mb: spacingValue }}><strong>Name:</strong> {wine.name}</Typography>
-                     <Typography sx={{ mb: spacingValue }}><strong>Grape:</strong> {wine.grape}</Typography>
-                     <Typography sx={{ mb: spacingValue }}><strong>Vintage:</strong> {wine.vintage}</Typography>
-                     <Typography sx={{ mb: spacingValue }}><strong>Region:</strong> {wine.region}</Typography>
-                     <Typography sx={{ mb: spacingValue }}><strong>Producer:</strong> {wine.producer}</Typography>
-                     <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
-                     <Typography sx={{ mb: spacingValue }}>{wine.dateAdded ? (<><strong>Added to Cellar on: </strong> {wine.dateAdded} </>) : null}</Typography>
-                     <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
-                      {wine.drinkingWindow && <Typography sx={{ mb: spacingValue }}><strong>Optimal Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}</Typography>}
-                      <Typography sx={{ mb: spacingValue }}>{wine.dateAdded ? (<><i>Added on: </i> {wine.dateAdded} </>) : null}</Typography>
+                <CardContent sx={{
+                  padding: 0,
+                  margin: 1
+                }}>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Grape:</strong> {wine.grape}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Vintage:</strong> {wine.vintage}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Region:</strong> {wine.region}, {wine.country}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Producer:</strong> {wine.producer}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Alcohol Content:</strong> {wine.alcohol}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Quality Classification:</strong> {wine.classification.join(', ')}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Colour:</strong> {wine.colour}
+                  </Typography>
+                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
+                    <strong>Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
+                  </Typography>
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
-  <Grid container spacing={2}>
-    <Grid item xs={6} sm={6}>
-      <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
-        <Button variant="contained" color="primary" fullWidth>
-          View Wine
-        </Button>
-      </Link>
-    </Grid>
-    <Grid item xs={6} sm={6}>
-      <Button 
-        variant="outlined" 
-        color="primary" 
-        onClick={() => handleDelete(wine.id)} 
-        fullWidth
-      >
-        Remove
-      </Button>
-    </Grid>
-  </Grid>
-</Box>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6} sm={6}>
+                      <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
+                        <Button variant="contained" color="primary" fullWidth>
+                          View Wine
+                        </Button>
+                      </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={6}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleDelete(wine.id)}
+                        fullWidth
+                      >
+                        Remove
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Box>
 
 
               </Box>

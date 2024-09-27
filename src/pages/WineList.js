@@ -141,7 +141,7 @@ const WineList = () => {
 
   const handleDelete = async (id) => {
     if (!user) return;
-    
+
     const confirmed = window.confirm("Are you sure you want to remove this wine from your cellar?");
     if (!confirmed) return; // Exit if the user cancels
 
@@ -223,7 +223,7 @@ const WineList = () => {
     return <Typography>Please log in to see your wine cellar.</Typography>;
   }
 
-const spacingValue = 1.5;
+const spacingValue = 1;
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <CellarStatistics wines={filteredWines.length > 0 ? filteredWines : wines} />
@@ -264,7 +264,7 @@ const spacingValue = 1.5;
                     <img
                       src={wine.images?.front?.desktop || wine.images?.back?.desktop}
                       srcSet={`${wine.images?.front?.mobile || wine.images?.back?.mobile} 600w,
-            ${wine.images?.front?.desktop || wine.images?.back?.desktop} 1200w`}
+                      ${wine.images?.front?.desktop || wine.images?.back?.desktop} 1200w`}
                       sizes="(max-width: 600px) 100vw, 1200px"
                       alt={wine.name}
                       className="wine-image"
@@ -280,17 +280,17 @@ const spacingValue = 1.5;
                         borderRadius: '8%', // Make it rounded
                       }}
                     >
-                      {!wine.peakMaturity ? (
+                      {!wine.drinkingWindow ? (
                         <AgeBadge vintage={wine.vintage} round={true} />
                       ) : (
-                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} round={true} />
+                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} drinkingWindow={wine.drinkingWindow} round={true} />
                       )}
                     </Box>
                   </CardMedia>
 
                 </Link>
                 <CardContent sx={{ 
-                    padding: 2,
+                    padding: 0,
                     margin: 1
                     }}>
                      <Typography sx={{ mb: spacingValue }}><strong>Name:</strong> {wine.name}</Typography>
@@ -301,7 +301,8 @@ const spacingValue = 1.5;
                      <Typography sx={{ mb: spacingValue }}><strong>Colour:</strong> {wine.colour}</Typography>
                      <Typography sx={{ mb: spacingValue }}>{wine.dateAdded ? (<><strong>Added to Cellar on: </strong> {wine.dateAdded} </>) : null}</Typography>
                      <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
-                     
+                      {wine.drinkingWindow && <Typography sx={{ mb: spacingValue }}><strong>Optimal Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}</Typography>}
+                      <Typography sx={{ mb: spacingValue }}>{wine.dateAdded ? (<><i>Added on: </i> {wine.dateAdded} </>) : null}</Typography>
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
   <Grid container spacing={2}>

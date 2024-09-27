@@ -28,6 +28,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DrinkingWindowDisplay from '../components/DrinkingWindowDisplay';
 
 const WineDetail = () => {
   const { id: wineId, token } = useParams(); // Directly use the wineId from params
@@ -142,7 +143,7 @@ const WineDetail = () => {
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
   
-  const spacingValue = 1.5; // You can adjust this value to control spacing
+  const spacingValue = 1; // You can adjust this value to control spacing
   return (
     <Box sx={{ padding: 0, maxWidth: 800, margin: '0 auto' }}>
 <Box display="flex" justifyContent="flex-start" alignItems="center" sx={{ mt: 2 }}>
@@ -284,9 +285,11 @@ const WineDetail = () => {
                      <Typography sx={{ mb: spacingValue }}><strong>Nose:</strong> {wine.nose}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Palate:</strong> {wine.palate}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Pairing:</strong> {wine.pairing}</Typography>
-                     <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
+                      <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
                      <Typography sx={{ mb: spacingValue }}>{wine.description ? (<><strong>Description:</strong> {wine.description} </>) : null}</Typography>
                      <Typography sx={{ mb: spacingValue }}><strong>Date added to Cellar: </strong> {wine.dateAdded}</Typography>
+                     {wine.drinkingWindow && <Typography sx={{ mb: spacingValue }}><strong>Optimal Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}</Typography>}
+                     {/* {wine.drinkingWindow && <DrinkingWindowDisplay name={wine.name} vintage={wine.vintage} drinkingWindow={wine.drinkingWindow}/>} */}
                      </Box>
                   )}
                      

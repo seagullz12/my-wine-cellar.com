@@ -94,7 +94,7 @@ const WineData = ({ wine, wineListPage }) => {
       </Grid>
       
       {/* Nose, Palate, Paring */}
-      {wineListPage === "true" && (
+      {wineListPage !== "true" && (
       <>
       <Grid item xs={12}>
         <Box display="flex" alignItems="top">
@@ -125,7 +125,7 @@ const WineData = ({ wine, wineListPage }) => {
       </Grid>
       </>
 )}
-      
+
       {/* Drinking Window */}
       <Grid item xs={12}>
         <Box display="flex" alignItems="top">
@@ -136,9 +136,8 @@ const WineData = ({ wine, wineListPage }) => {
         </Box>
       </Grid>
 
-      {wineListPage === "true" && (
+      {wineListPage !== "true" && (
       <>
-
       {/* Description */}
       <Grid item xs={12}>
         <Box display="flex" alignItems="top">
@@ -170,7 +169,17 @@ const WineData = ({ wine, wineListPage }) => {
           </Typography>
         </Box>
       </Grid>
-      </>)}
+      </>
+    )}
+    {wine.status==="for_sale" && (
+    <Grid item xs={12}>
+        <Box display="flex" alignItems="top">
+         <Typography textAlign="left">
+            <b>For sale: </b> {wine.price} €
+          </Typography>
+        </Box>
+      </Grid>
+)}
     </Grid>
   );
 };

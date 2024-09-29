@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import {
   CardContent,
   CardMedia,
@@ -20,6 +21,7 @@ import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import CellarStatistics from '../components/CellarStatistics';
 import WineData from '../components/WineData';
+import ForSaleLabel from '../components/ForSaleLabel';
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -27,8 +29,11 @@ const WineList = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [sortCriteria, setSortCriteria] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
+  const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
     colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
@@ -75,7 +80,7 @@ const WineList = () => {
     vintages: [],
     names: [],
     datesAdded: [],
-    statuses: ['in_cellar', 'consumed'],
+    statuses: ['in_cellar', 'consumed', "for_sale"],
     countries: [],
   });
 
@@ -168,9 +173,14 @@ const WineList = () => {
       }
 
       setWines(wines.filter((wine) => wine.id !== id));
+      setSnackbarMessage('Wine removed successfully!');
+      setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Error deleting wine:', error);
+      setSnackbarMessage('Error deleting wine. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -224,6 +234,46 @@ const WineList = () => {
     setFilteredWines(sortedWines);
   };
 
+  const handleSellWine = async (wineId) => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`${backendURL}/update-wine-data`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: wineId,
+          wineData: { status: 'for_sale' }, // Set status to 'for_sale'
+        }),
+      });
+
+      if (response.ok) {
+        const updatedWine = await response.json();
+        // Update local state to reflect the updated wine data
+        setWines(prevWines => prevWines.map(wine =>
+          wine.id === wineId ? updatedWine.data : wine
+        ));
+        setFilteredWines(prevFilteredWines => prevFilteredWines.map(wine =>
+          wine.id === wineId ? updatedWine.data : wine
+        ));
+        setSnackbarMessage('Wine marked for sale successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      } else {
+        throw new Error('Error updating wine data');
+      }
+    } catch (error) {
+      console.error('Error updating wine status:', error);
+      setSnackbarMessage('Error marking wine for sale. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   if (loading) {
     return <CircularProgress />;
   }
@@ -232,7 +282,6 @@ const WineList = () => {
     return <Typography>Please log in to see your wine cellar.</Typography>;
   }
 
-  const spacingValue = 1;
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <CellarStatistics wines={filteredWines.length > 0 ? filteredWines : wines} />
@@ -295,6 +344,14 @@ const WineList = () => {
                         <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} drinkingWindow={wine.drinkingWindow} round={true} />
                       )}
                     </Box>
+                    <Box
+                      position="absolute"
+                      bottom={20} // Adjust this value to position the badge vertically
+                      right={10} // Adjust this value to position the badge horizontally
+                      zIndex={1} // Ensure the badge appears above the image
+                      sx={{ padding: 0 }}>
+                      {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
+                    </Box>
                   </CardMedia>
 
                 </Link>
@@ -302,7 +359,7 @@ const WineList = () => {
                   padding: 0,
                   margin: 1
                 }}>
-                  <WineData wine={wine} wineListPage="false" />
+                  <WineData wine={wine} wineListPage="true" />
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
                   <Grid container spacing={2}>
@@ -323,6 +380,17 @@ const WineList = () => {
                         Remove
                       </Button>
                     </Grid>
+                    {/* Add Sell This Bottle Button */}
+                    <Grid item xs={12} sm={12}>
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        onClick={() => navigate(`/for-sale/${wine.id}`)}  // Change this line to use navigate
+                        fullWidth
+                      >
+                        Sell This Bottle
+                      </Button>
+                    </Grid>
                   </Grid>
                 </Box>
 
@@ -331,7 +399,10 @@ const WineList = () => {
             </Grid>
           ))
         ) : (
-          <Typography>No wines found.</Typography>
+          <Typography>
+            No wines found or loading...
+            <CircularProgress />
+          </Typography>
         )}
       </Grid>
 
@@ -341,8 +412,8 @@ const WineList = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
-          Deleted from Cellar. Hope you enjoyed the wine!
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Container>

@@ -14,7 +14,7 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp'; 
 import SharedWineDetail from './pages/SharedWineDetail';
 // import TastingPage from './pages/TastingPage';
-// import WineDetailOrig from './pages/WineDetailOrig';
+import ForSale from './pages/ForSale';
 import './styles/global.css';
 import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
 import 'slick-carousel/slick/slick.css';
@@ -33,6 +33,8 @@ import PageTitle from './components/utils/PageTitle.js'; // Import the utility f
 
 // GA4 (analytics)
 import ReactGA from 'react-ga4';
+import PasswordReset from './pages/PasswordReset.js';
+import SellWine from './components/SellWine.js';
 
 const TRACKING_ID = 'G-HZJRPGMJVT'; 
 
@@ -72,6 +74,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="/shared/:token" element={<SharedWineDetail />} /> 
 
             {/* Protected Routes */}
@@ -82,8 +85,7 @@ const App = () => {
                 <Route path="/cellar" element={<WineList />} />
                 <Route path="/personal-sommelier" element={<WineRecommendations />} />
                 <Route path="/cellar/:id" element={<WineDetail />} />
-                {/* <Route path="/cellar_orig/:id" element={<WineDetailOrig />} /> */}
-                {/* <Route path="/tasting/:id" element={<TastingPage />} /> */}
+                <Route path="/for-sale/:id" element={<ForSale />} />
                 <Route path="*" element={<Navigate to="" />} />
               </>
             ) : (

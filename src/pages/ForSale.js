@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import ForSaleLabel from '../components/ForSaleLabel'; // Import the ForSaleLabel component
 
+
 import SellWine from '../components/SellWine';
 import ReactGA from 'react-ga4';
 import {
@@ -32,7 +33,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WineMap from '../components/WineMap';
 
-const WineDetail = () => {
+const ForSale = () => {
     const { id: wineId, token } = useParams();
     const [user, setUser] = useState(null);
     const [wine, setWine] = useState(null);
@@ -518,4 +519,4 @@ const WineDetail = () => {
     );
 };
 
-export default WineDetail;
+export default ForSale;

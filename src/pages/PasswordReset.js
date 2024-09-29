@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, signInWithEmailAndPassword, sendPasswordResetEmail } from '../components/firebase-config';
+import { auth, sendPasswordResetEmail } from '../components/firebase-config';
 import {
   Box,
   Button,
@@ -11,28 +11,16 @@ import {
   Alert
 } from '@mui/material';
 
-const SignIn = () => {
+const PasswordReset = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const navigate = useNavigate();
 
-  // Handle sign-in logic
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/'); // Redirect to Home page after successful sign-in
-    } catch (error) {
-      setError('Failed to sign in. Please check your email and password.');
-      console.error('Sign In Error:', error);
-    }
-  };
-
   // Handle password reset
-  const handlePasswordReset = async () => {
+  const handlePasswordReset = async (e) => {
+    e.preventDefault(); // Prevent default form submission
     if (!email) {
       setError('Please enter your email to reset your password.');
       return;
@@ -57,9 +45,9 @@ const SignIn = () => {
     <Container maxWidth="xs">
       <Box sx={{ mt: 4, textAlign: 'center' }}>
         <Typography variant="h5" gutterBottom>
-          Sign In
+          Reset Password
         </Typography>
-        <form onSubmit={handleSignIn}>
+        <form onSubmit={handlePasswordReset}>
           <TextField
             variant="outlined"
             label="Email"
@@ -70,18 +58,8 @@ const SignIn = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <TextField
-            variant="outlined"
-            label="Password"
-            type="password"
-            fullWidth
-            required
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
           <Button type="submit" variant="contained" color="primary" fullWidth>
-            Sign In
+            Send Reset Email
           </Button>
           {error && (
             <Typography variant="body2" color="error" sx={{ mt: 2 }}>
@@ -94,16 +72,15 @@ const SignIn = () => {
             </Typography>
           )}
         </form>
-
-        {/* Reset Password Link */}
-        <Typography variant="body2" sx={{ mt: 2 }}>
-          Forgot your password?{' '}
-          <Button variant="text" onClick={handlePasswordReset}>
-            Reset Password
-          </Button>
-        </Typography>
+        <Button
+          variant="text"
+          onClick={() => navigate('/#/signin')}
+          sx={{ mt: 2 }}
+        >
+          Remembered your password? Sign In
+        </Button>
       </Box>
-
+      
       {/* Snackbar for success message */}
       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
@@ -114,4 +91,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default PasswordReset;

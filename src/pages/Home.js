@@ -64,7 +64,9 @@ const HomePage = () => {
     <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>
       <HeroBanner />
       <Grid item xs={12} sx={{ textAlign: 'left', marginBottom: 2, marginTop: 2 }}>
-        <Box><UserWineCarousel wines={displayedWines}/></Box>
+      {isLoggedIn && (
+        <Box><UserWineCarousel wines={displayedWines}/></Box>)}
+
         {!isLoggedIn && (
         <Typography variant="body2">
           Already have an account?{' '}

@@ -30,6 +30,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
     status: [],
     maturityStatus: [],
     dateAdded: [],
+    country: [],
   });
 
   // Handle filter change when checkbox or dropdown is used
@@ -108,6 +109,7 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
       grape: [],
       vintage: [],
       dateAdded: [],
+      country: [],
       maturityStatus: [],
       status: [],
     };
@@ -249,6 +251,41 @@ const WineListFilters = ({ filters, onFilterChange, onResetFilters }) => {
               </Box>
             )}
 
+   {/* country Filters */}
+   {/* Country Filters */}
+<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
+  <Typography variant="subtitle1">Country</Typography>
+  <Tooltip title="Clear Country Filters">
+    <IconButton size="small" onClick={() => handleClearFilterSection('country')}>
+      <ClearIcon />
+    </IconButton>
+  </Tooltip>
+</Box>
+{filters.countries.map((country) => (
+  <FormControlLabel
+    key={country}
+    control={
+      <Checkbox
+        checked={selectedFilters.country.includes(country)}
+        onChange={() => handleFilterChange('country', country)}
+      />
+    }
+    label={country}
+  />
+))}
+
+{/* Display selected country filters as Chips */}
+{selectedFilters.country.length > 0 && (
+  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginBottom: '10px' }}>
+    {selectedFilters.country.map((country) => (
+      <Chip
+        key={country}
+        label={country}
+        onDelete={() => handleDeleteFilter('country', country)} // Remove country when "X" clicked
+      />
+    ))}
+  </Box>
+)}
             {/* Status Filters */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px' }}>
               <Typography variant="subtitle1">Status</Typography>

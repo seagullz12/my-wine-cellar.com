@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import WineMap from '../components/WineMap'; 
+import WineMap from '../components/WineMap';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -10,9 +10,10 @@ import ReactGA from 'react-ga4';
 import {
   Box,
   Typography,
-  Card, 
-  CardContent, 
+  Card,
+  CardContent,
 } from '@mui/material';
+import WineData from '../components/WineData';
 
 const SharedWineDetail = () => {
   const { token } = useParams();
@@ -22,14 +23,14 @@ const SharedWineDetail = () => {
   const location = useLocation();
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-  
+
   useEffect(() => {
     if (wine) {
       ReactGA.send({
         hitType: 'pageview',
         page: `/cellar/shared-wine-detail`,
         title: `Shared Wine Detail - ${wine.name} (${wine.vintage})`,
-      }); 
+      });
     }
   }, [wine, location]);
 
@@ -38,7 +39,7 @@ const SharedWineDetail = () => {
       try {
         const response = await fetch(`${backendURL}/get-wine-by-token?token=${token}`);
         if (!response.ok) throw new Error('Failed to fetch wine');
-    
+
         const result = await response.json();
         setWine(result.wine);
       } catch (error) {
@@ -47,7 +48,7 @@ const SharedWineDetail = () => {
       } finally {
         setLoading(false);
       }
-    };    
+    };
 
     fetchWineByToken();
   }, [token]);
@@ -128,47 +129,7 @@ const SharedWineDetail = () => {
                 </Box>
               )}
               <Box sx={{ padding: 2, margin: 1 }}>
-              <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Grape:</strong> {wine.grape.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Vintage:</strong> {wine.vintage}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Terroir:</strong> {wine.terroir.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Region:</strong> {wine.region}, {wine.country}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Producer:</strong> {wine.producer}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Alcohol Content:</strong> {wine.alcohol}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Quality Classification:</strong> {wine.classification.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Colour:</strong> {wine.colour}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Nose:</strong> {wine.nose.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Palate:</strong> {wine.palate.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Pairing:</strong> {wine.pairing.join(', ')}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
-                    </Typography>
-                    <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                      <strong>Description:</strong> {wine.description}
-                    </Typography>
-                      <Typography sx={{ mb: spacingValue }}>{wine.peakMaturity ? (<><strong>Peak Maturity:</strong> {`${wine.peakMaturity} years after harvest`}</>) : null}</Typography>
-                      <Typography sx={{ mb: spacingValue }}><i>Date added to Cellar: </i> {wine.dateAdded}</Typography>
+              <WineData wine={wine} wineListPage="true" />
               </Box>
               <Box sx={{ alignItems: "center", margin: 2, padding: 1 }}>
                 <WineMap region={wine.region} />

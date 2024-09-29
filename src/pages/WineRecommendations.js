@@ -77,7 +77,7 @@ const WineRecommendation = () => {
       {/* Recommendations */}
       {recommendations && (
         <div className="recommendations-list">
-          {['best', 'second_best', 'third_best'].map((rank) => (
+          {['Best', 'Second_best', 'Third_best'].map((rank) => (
             <div key={rank} className="recommendation-item">
               <h3>{rank.replace('_', ' ')} Pairing</h3>
               <p>

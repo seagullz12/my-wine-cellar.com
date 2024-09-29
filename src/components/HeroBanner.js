@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import headerBackground from '../assets/images/other.webp'; // Your background image
+import headerBackground from '../assets/images/hero_banner.jpg'; // Your background image
 
 const HeroBanner = () => {
   return (

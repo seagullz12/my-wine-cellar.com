@@ -19,6 +19,7 @@ import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import CellarStatistics from '../components/CellarStatistics';
+import WineData from '../components/WineData';
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -75,6 +76,7 @@ const WineList = () => {
     names: [],
     datesAdded: [],
     statuses: ['in_cellar', 'consumed'],
+    countries: [],
   });
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
@@ -117,6 +119,12 @@ const WineList = () => {
           setFilters(prevFilters => ({
             ...prevFilters,
             datesAdded: distinctDateAdded.sort(),
+          }));
+
+          const distinctCountry = [...new Set(fetchedWines.map(wine => wine.country))];
+          setFilters(prevFilters => ({
+            ...prevFilters,
+            countries: distinctCountry.sort(),
           }));
 
           const distinctName = [...new Set(fetchedWines.map(wine => wine.name))];
@@ -176,6 +184,7 @@ const WineList = () => {
       (!newFilters.grape.length || newFilters.grape.some(grape => wine.grape.toLowerCase().includes(grape.toLowerCase()))) &&
       (!newFilters.vintage.length || newFilters.vintage.includes(wine.vintage)) &&
       (!newFilters.dateAdded.length || newFilters.dateAdded.includes(wine.dateAdded)) &&
+      (!newFilters.country.length || newFilters.country.includes(wine.country)) &&
       (!newFilters.status.length || newFilters.status.includes(wine.status))
     );
 
@@ -293,33 +302,7 @@ const WineList = () => {
                   padding: 0,
                   margin: 1
                 }}>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                  <strong>Name:</strong> {wine.name}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Grape:</strong> {wine.grape.join(', ')}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Vintage:</strong> {wine.vintage}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Region:</strong> {wine.region}, {wine.country}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Producer:</strong> {wine.producer}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Alcohol Content:</strong> {wine.alcohol}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Quality Classification:</strong> {wine.classification.join(', ')}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Colour:</strong> {wine.colour}
-                  </Typography>
-                  <Typography sx={{ textAlign: "left", mb: spacingValue }}>
-                    <strong>Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
-                  </Typography>
+                  <WineData wine={wine} wineListPage="false" />
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
                   <Grid container spacing={2}>

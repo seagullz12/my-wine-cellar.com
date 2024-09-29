@@ -17,6 +17,8 @@ import SharedWineDetail from './pages/SharedWineDetail';
 // import WineDetailOrig from './pages/WineDetailOrig';
 import './styles/global.css';
 import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 // MUI styles
 import { ThemeProvider, CssBaseline } from '@mui/material';

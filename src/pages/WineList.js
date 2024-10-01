@@ -315,7 +315,8 @@ const WineList = () => {
                   display: 'flex',
                   flexDirection: 'column'
                 }}
-              >
+              > 
+             
                 <Link to={`/cellar/${wine.id}`}>
                   <CardMedia sx={{ position: 'relative' }}>
                     {/* The Wine Image */}
@@ -353,11 +354,12 @@ const WineList = () => {
                       {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                     </Box>
                   </CardMedia>
-
+                  <Typography variant="body1" sx={{m: 2, mb:1}}><strong>{wine.name}</strong></Typography>
                 </Link>
                 <CardContent sx={{
                   padding: 0,
-                  margin: 1
+                  margin: 1,
+                  marginBottom:2
                 }}>
                   <WineData wine={wine} wineDetailPage={false}/>
                 </CardContent>

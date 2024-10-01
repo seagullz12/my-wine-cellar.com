@@ -56,9 +56,6 @@ const HomePage = () => {
     fetchWines();
   }, [user]);
   const displayedWines = wines.slice(0, 5)
-  // if (!user) {
-  //   return <div>Please log in to view your wine cellar.</div>;
-  // }
   
   return (
     <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>

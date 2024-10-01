@@ -14,9 +14,8 @@ const UserWineCarousel = ({ wines }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (wines.length > 0) {
-      setLoading(false);
-    }
+    // Check if wines are present
+    setLoading(false); // Stop loading when the component mounts
   }, [wines]);
 
   const settings = {
@@ -43,8 +42,26 @@ const UserWineCarousel = ({ wines }) => {
     ],
   };
 
+  // If loading, show a spinner
   if (loading) {
     return <CircularProgress />;
+  }
+
+  // If no wines are present, show a message to add wines
+  if (wines.length === 0) {
+    return (
+      <Box sx={{ mt: 2, textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          No wines found in your collection.
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          It looks like you haven't added any wines yet.
+        </Typography>
+        <Button variant="contained" color="primary" component={Link} to="/add-wine">
+          Add Wine
+        </Button>
+      </Box>
+    );
   }
 
   return (

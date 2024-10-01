@@ -12,11 +12,13 @@ import {
   Alert,
   Grid,
   Box,
-  Link, // Import Link for navigation
+  Link, 
 } from '@mui/material';
 import WineDataRecommendations from '../components/WineDataRecommendations';
 
-const backendURL = 'http://192.168.2.9:8080'; // Update to actual backend URL
+//const backendURL = 'http://192.168.2.9:8080';
+const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
+
 
 const WineRecommendation = () => {
   const [food, setFood] = useState('');

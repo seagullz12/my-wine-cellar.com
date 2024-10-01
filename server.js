@@ -204,15 +204,15 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
         const frontDesktopFileName = `wine-labels/${wineName}-front-desktop.webp`;
         uploadedFrontDesktopImageUrl = await uploadImageToGCS(frontImageUrlBase64, frontDesktopFileName);
 
-        // Create mobile-optimized front image using sharp
-        const frontMobileImageBuffer = await sharp(Buffer.from(frontImageUrlBase64, 'base64'))
-          .resize(300) // Resize to 300px width (adjust as necessary)
-          .toFormat('png') // Specify format
-          .toBuffer();
+        // Create mobile-optimized front image using sharp -- already done before processing.
+        // const frontMobileImageBuffer = await sharp(Buffer.from(frontImageUrlBase64, 'base64'))
+        //   .resize(300) // Resize to 300px width (adjust as necessary)
+        //   .toFormat('webp') // Specify format
+        //   .toBuffer();
 
-        // Upload front mobile image to GCS
+        // Upload front mobile image to GCS 
         const frontMobileFileName = `wine-labels/${wineName}-front-mobile.webp`;
-        uploadedFrontMobileImageUrl = await uploadImageToGCS(frontMobileImageBuffer.toString('base64'), frontMobileFileName);
+        uploadedFrontMobileImageUrl = await uploadImageToGCS(frontImageUrlBase64.toString('base64'), frontMobileFileName);
       }
     }
 
@@ -225,15 +225,15 @@ app.post('/append-wine-data', authenticateToken, async (req, res) => {
         const backDesktopFileName = `wine-labels/${wineName}-back-desktop.webp`;
         uploadedBackDesktopImageUrl = await uploadImageToGCS(backImageUrlBase64, backDesktopFileName);
 
-        // Create mobile-optimized back image using sharp
-        const backMobileImageBuffer = await sharp(Buffer.from(backImageUrlBase64, 'base64'))
-          .resize(300) // Resize to 300px width (adjust as necessary)
-          .toFormat('webp') // Specify format
-          .toBuffer();
+        // Create mobile-optimized back image using sharp -- already done before processing.
+        // const backMobileImageBuffer = await sharp(Buffer.from(backImageUrlBase64, 'base64'))
+        //   .resize(300) // Resize to 300px width (adjust as necessary)
+        //   .toFormat('webp') // Specify format
+        //   .toBuffer();
 
         // Upload back mobile image to GCS
         const backMobileFileName = `wine-labels/${wineName}-back-mobile.webp`;
-        uploadedBackMobileImageUrl = await uploadImageToGCS(backMobileImageBuffer.toString('base64'), backMobileFileName);
+        uploadedBackMobileImageUrl = await uploadImageToGCS(backImageUrlBase64.toString('base64'), backMobileFileName);
       }
     }
 

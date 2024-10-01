@@ -1,13 +1,16 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import WineDetailEditForm from '../components/WineDetailEditForm';
-import '../styles/AddWineDoubleOptional.css';
+import AddWineNotification from '../components/AddWineNotification'
+
 import {
   Box,
-  Typography,
   Card,
-  Button
+  Button,
+  Snackbar,
+  SnackbarContent,
+  Alert
 } from '@mui/material';
 import WineData from '../components/WineData';
 
@@ -52,8 +55,8 @@ const AddWine = () => {
   const [backImageURL, setBackImageURL] = useState('');   // For back image preview
   const [isMobile, setIsMobile] = useState(false);
   const [logMessages, setLogMessages] = useState([]);
-  const [notification, setNotification] = useState('');
-  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false);
   const [user, setUser] = useState(null);
   const [wineURL, setWineURL] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -249,6 +252,9 @@ const AddWine = () => {
     event.preventDefault();
     appendWineDataToFirestore();
     setIsEditing(false);
+   
+    // Scroll to the top of the page where the notification is at.  
+   window.scrollTo(0, 0);
   };
 
   const toggleEditForm = () => {
@@ -281,19 +287,35 @@ const AddWine = () => {
 
       if (response.ok) {
         // Construct the wine URL based on the response
-        const wineUrl = `${backendURL}/cellar/${id}`;
+        const wineUrl = `/#/cellar/${id}`;
         setWineURL(wineUrl);
         setOcrResult(`Wine data appended to Firestore successfully. Response: ${JSON.stringify(result.response)}`);
 
         // Set notification message
-        setNotification(`"${wineData.name}" has been added to your cellar. View it <a href="https://my-wine-cellar.com/cellar/${id}" target="_blank">here</a>.`);
-        setShowNotification(true);  // Show notification
+        setNotificationMessage(`"${wineData.name}" has been added to your cellar.`);
+        setShowSnackbar(true); // Show Snackbar
 
-        // Hide notification after 5 seconds (increased time for visibility)
-        setTimeout(() => {
-          setShowNotification(false);
-          setNotification('');  // Clear notification message
-        }, 5000);  // Increased from 3000 to 5000 milliseconds
+        // clear form for new entries
+        setFrontImageURL('')
+        setFrontImageURL('')
+        setWineData({
+          name: 'unknown',
+          grape: ['unknown'],
+          vintage: 'unknown',
+          region: 'unknown',
+          country: 'unknown',
+          producer: 'unknown',
+          alcohol: 'unknown',
+          classification: ['unknown'],
+          colour: 'unknown',
+          nose: ['unknown'],
+          palate: ['unknown'],
+          pairing: ['unknown'],
+          terroir: ['unknown'],
+          description: 'unknown',
+          dateAdded: formattedToday
+        });
+
       } else {
         setOcrResult(`Error appending wine data. Status: ${response.status}. Message: ${result.message}`);
       }
@@ -324,7 +346,6 @@ const AddWine = () => {
     }
   };
 
-  const spacingValue = 1.5;
   return (
     <div className="add-wine-container">
       <div className="file-upload-container">
@@ -360,9 +381,13 @@ const AddWine = () => {
           />
         </Box>
         <div className="wine-details">
-          {showNotification && (
-            <div className="notification" dangerouslySetInnerHTML={{ __html: notification }} />
-          )}
+
+        <AddWineNotification
+          open={showSnackbar}
+          message={notificationMessage}
+          onClose={() => setShowSnackbar(false)}
+          wineUrl={wineURL} // Pass the wine URL to the Snackbar
+        />
           <Box className="img-container" position="relative">
             {frontImageURL && (
               <div>

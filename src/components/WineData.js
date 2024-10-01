@@ -78,7 +78,7 @@ const WineData = ({ wine, wineDetailPage }) => {
         <Box display="flex" alignItems="top">
           <LocalDrinkIcon color="primary" sx={{ mr: 2 }} />
          <Typography textAlign="left">
-            <strong>Alcohol Content:</strong> {wine.alcohol}
+            <strong>Alcohol:</strong> {wine.alcohol}
           </Typography>
         </Box>
       </Grid>
@@ -131,7 +131,7 @@ const WineData = ({ wine, wineDetailPage }) => {
         <Box display="flex" alignItems="top">
           <AccessTimeIcon color="primary" sx={{ mr: 2 }} />
          <Typography textAlign="left">
-            <strong>Drinking Window:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
+            <strong>Mature:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
           </Typography>
         </Box>
       </Grid>
@@ -160,7 +160,8 @@ const WineData = ({ wine, wineDetailPage }) => {
         </Grid>
       )}
 
-      {/* Date Added */}
+      {/* Date Added (don't show on add wine page)*/}
+      {window.document.location.hash !=="#/add-wine" && (
       <Grid item xs={12}>
         <Box display="flex" alignItems="top">
           <AccessTimeIcon color="primary" sx={{ mr: 2 }} />
@@ -169,6 +170,7 @@ const WineData = ({ wine, wineDetailPage }) => {
           </Typography>
         </Box>
       </Grid>
+      )}
       </>
     )}
     {/* {wine.status==="for_sale" && (

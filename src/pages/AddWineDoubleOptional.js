@@ -413,7 +413,7 @@ const AddWine = () => {
             wineData.name !== 'unknown' && !isEditing ? (
               <>
                 <Box sx={{ padding: 0, margin: 1 }}>
-                <WineData wine={wineData} wineListPage="true" />
+                <WineData wine={wineData} wineDetailPage={true} />
                 </Box>
                 <Box display="flex" justifyContent="space-between">
                   <Button variant="outlined" onClick={toggleEditForm} sx={{ margin: 2 }}>

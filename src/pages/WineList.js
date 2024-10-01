@@ -359,7 +359,7 @@ const WineList = () => {
                   padding: 0,
                   margin: 1
                 }}>
-                  <WineData wine={wine} wineListPage="true" />
+                  <WineData wine={wine} wineDetailPage={false}/>
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
                   <Grid container spacing={2}>

@@ -45,10 +45,9 @@ const ForSale = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const location = useLocation();
-    const [showSellWine, setShowSellWine] = useState(false);
-
+    const [showSellWine, setShowSellWine] = useState(true);
     const [isTasting, setIsTasting] = useState(false);
-
+    
     const handleTastingToggle = () => {
         setIsTasting(!isTasting);
     };
@@ -296,7 +295,7 @@ const ForSale = () => {
                                     ) : (
                                         <Card>
                                             <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} wineListPage="true" />
+                                                {showSellWine && (<WineData wine={wine} wineDetailPage={true} />)}
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <Button
@@ -446,7 +445,7 @@ const ForSale = () => {
                                     ) : (
                                         <Card>
                                             <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} spacingValue={1.5} />
+                                            {!showSellWine && (<WineData wine={wine} wineDetailPage={true} />)}
                                                 {showSellWine && <Card sx={{mt:1}}><SellWine wine={wine} wineId={wineId} onSuccess={handleSellSuccess}/></Card>}
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, padding: 1 }}>

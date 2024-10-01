@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import '../styles/WineRecommendations.css'; // Ensure CSS is in the same folder
 import { getAuth } from 'firebase/auth'; // Firebase authentication
+import { 
+  Button, 
+  TextField, 
+  CircularProgress, 
+  Typography, 
+  Container, 
+  Card, 
+  CardContent, 
+  Link, 
+  Snackbar, 
+  Alert, 
+  Grid 
+} from '@mui/material';
 
 const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
 
@@ -50,48 +62,85 @@ const WineRecommendation = () => {
   };
 
   return (
-    <div className="wine-recommendation-container">
-      <form onSubmit={handleSubmit} className="recommendation-form">
-        <label className="form-label">
-          <h3>Hi! I am your personal sommelier.</h3>
-          <p>Enter your food, and I'll find the best wine pairing from your cellar:</p>
-          <input
-            type="text"
-            value={food}
-            onChange={(e) => setFood(e.target.value)}
-            required
-            className="form-input"
-          />
-        </label>
-        <button type="submit" className="form-button" disabled={loading}>
-          {loading ? 'Loading...' : 'Get Recommendations'}
-        </button>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" align="center" gutterBottom>
+        Hi! I am your personal sommelier.
+      </Typography>
+      <Typography variant="body1" align="center" gutterBottom>
+        Enter your food, and I'll find the best wine pairing from your cellar:
+      </Typography>
+
+      <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
+        <Grid container spacing={2} justifyContent="center">
+          <Grid item xs={12} sm={8}>
+            <TextField
+              fullWidth
+              label="Enter your dish"
+              value={food}
+              onChange={(e) => setFood(e.target.value)}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={loading}
+              sx={{ height: '100%' }}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Get Recommendations'}
+            </Button>
+          </Grid>
+        </Grid>
       </form>
 
       {/* Loading State */}
-      {loading && <p>Loading recommendations...</p>}
+      {loading && (
+        <Typography align="center" sx={{ mt: 2 }}>
+          Loading recommendations...
+        </Typography>
+      )}
 
       {/* Error State */}
-      {error && <p className="error-message">{error}</p>}
+      {error && (
+        <Snackbar open={true} autoHideDuration={6000}>
+          <Alert severity="error">{error}</Alert>
+        </Snackbar>
+      )}
 
       {/* Recommendations */}
       {recommendations && (
-        <div className="recommendations-list">
-          {['Best', 'Second_best', 'Third_best'].map((rank) => (
-            <div key={rank} className="recommendation-item">
-              <h3>{rank.replace('_', ' ')} Pairing</h3>
-              <p>
-                <strong>Name:</strong>{' '}
-                <a href={"https://www.my-wine-cellar.com/#" + recommendations[`${rank}_pairing_link`]} target="_blank" rel="noreferrer">
-                  {recommendations[`${rank}_pairing_name`]}
-                </a>
-              </p>
-              <p><strong>Explanation:</strong> {recommendations[`${rank}_pairing_explanation`]}</p>
-            </div>
+        <Grid container spacing={2} sx={{ mt: 3 }}>
+          {['best', 'second_best', 'third_best'].map((rank) => (
+            <Grid item xs={12} sm={4} key={rank}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {rank.replace('_', ' ')} Pairing
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Name:</strong>{' '}
+                    <Link
+                      href={"https://www.my-wine-cellar.com/#" + recommendations[`${rank}_pairing_link`]}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {recommendations[`${rank}_pairing_name`]}
+                    </Link>
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Explanation:</strong> {recommendations[`${rank}_pairing_explanation`]}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
-    </div>
+    </Container>
   );
 };
 

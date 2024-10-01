@@ -10,7 +10,7 @@ import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
 
-const WineData = ({ wine, wineListPage }) => {
+const WineData = ({ wine, wineDetailPage }) => {
   return (
     <Grid container spacing={1}>
       {/* Colour */}
@@ -94,7 +94,7 @@ const WineData = ({ wine, wineListPage }) => {
       </Grid>
       
       {/* Nose, Palate, Paring */}
-      {wineListPage !== "true" && (
+      {wineDetailPage === true && (
       <>
       <Grid item xs={12}>
         <Box display="flex" alignItems="top">
@@ -136,7 +136,7 @@ const WineData = ({ wine, wineListPage }) => {
         </Box>
       </Grid>
 
-      {wineListPage !== "true" && (
+      {wineDetailPage === true && (
       <>
       {/* Description */}
       <Grid item xs={12}>
@@ -171,7 +171,7 @@ const WineData = ({ wine, wineListPage }) => {
       </Grid>
       </>
     )}
-    {wine.status==="for_sale" && (
+    {/* {wine.status==="for_sale" && (
     <Grid item xs={12}>
         <Box display="flex" alignItems="top">
          <Typography textAlign="left">
@@ -179,7 +179,7 @@ const WineData = ({ wine, wineListPage }) => {
           </Typography>
         </Box>
       </Grid>
-)}
+)} */}
     </Grid>
   );
 };

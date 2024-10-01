@@ -11,6 +11,7 @@ import { getWineIdFromToken } from '../components/utils/getWineIdFromToken';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import ForSaleLabel from '../components/ForSaleLabel'; // Import the ForSaleLabel component
+import 'swiper/swiper-bundle.css'; // Ensure to import Swiper styles
 
 import SellWine from '../components/SellWine';
 import ReactGA from 'react-ga4';
@@ -295,7 +296,7 @@ const WineDetail = () => {
                                     ) : (
                                         <Card>
                                             <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} wineListPage="true" />
+                                                <WineData wine={wine} wineDetailPage={true}/>
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <Button
@@ -445,7 +446,7 @@ const WineDetail = () => {
                                     ) : (
                                         <Card>
                                             <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} spacingValue={1.5} />
+                                                <WineData wine={wine} wineDetailPage={true} />
                                                 {showSellWine && <Card sx={{mt:1}}><SellWine wine={wine} wineId={wineId} onSuccess={handleSellSuccess}/></Card>}
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, padding: 1 }}>

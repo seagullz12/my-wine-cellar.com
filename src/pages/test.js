@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useParams, useLocation } from 'react-router-dom';
-import WineData from '../components/WineData'; 
+import { useParams, Link, useLocation } from 'react-router-dom';
+import WineData from '../components/WineData'; // Importing your WineData component
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import AgeBadge from '../components/AgeBadge';
 import { getWineIdFromToken } from '../components/utils/getWineIdFromToken';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import ForSaleLabel from '../components/ForSaleLabel'; 
-import 'swiper/swiper-bundle.css'; 
+import ForSaleLabel from '../components/ForSaleLabel'; // Import the ForSaleLabel component
+
+import ReactGA from 'react-ga4';
 import {
     Box,
     Typography,
@@ -20,7 +21,6 @@ import {
     useTheme
 } from '@mui/material';
 import WineMap from '../components/WineMap';
-import ReactGA from 'react-ga4';
 
 const SharedWineDetail = () => {
   const { id: wineId, token } = useParams();
@@ -28,7 +28,25 @@ const SharedWineDetail = () => {
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [tastingStarted, setTastingStarted] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const location = useLocation();
+  const [showSellWine, setShowSellWine] = useState(false);
+
+  const [isTasting, setIsTasting] = useState(false);
+
+  const handleTastingToggle = () => {
+      setIsTasting(!isTasting);
+  };
+
+  const handleTastingStarted = (updatedWine) => {
+      setWine(updatedWine);
+      setTastingStarted(true);
+  };
+
 
   const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
   const theme = useTheme();
@@ -46,8 +64,8 @@ const SharedWineDetail = () => {
       if (wine) {
           ReactGA.send({
               hitType: 'pageview',
-              page: `/cellar/shared-wine-detail`,
-              title: `Shared Wine Detail - ${wine.name} (${wine.vintage})`,
+              page: `/cellar/wine-detail`,
+              title: `Wine Detail - ${wine.name} (${wine.vintage})`,
           });
       }
   }, [wine, location]);
@@ -68,6 +86,7 @@ const SharedWineDetail = () => {
                   if (response.ok) {
                       const result = await response.json();
                       setWine(result.wine);
+                      setFormData(result.wine);
                   } else {
                       setError('Error fetching wine data');
                   }
@@ -83,6 +102,49 @@ const SharedWineDetail = () => {
 
       fetchWineData();
   }, [wineId, user, token]);
+
+  const handleEditToggle = () => {
+      setIsEditing(!isEditing);
+  };
+
+  const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+          const token = await user.getIdToken();
+          const response = await fetch(`${backendURL}/update-wine-data`, {
+              method: 'PUT',
+              headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ id: wineId, wineData: formData }),
+          });
+
+          if (response.ok) {
+              const updatedWine = await response.json();
+              setWine(updatedWine.data);
+              setIsEditing(false);
+              setSuccessMessage('Wine details saved successfully!');
+              setSnackbarOpen(true);
+          } else {
+              setError('Error updating wine data');
+          }
+      } catch (error) {
+          setError('An error occurred while updating wine data');
+      }
+  };
+
+  const handleSnackbarClose = () => {
+      setSnackbarOpen(false);
+  };
+  const handleSellSuccess = () => {
+      setShowSellWine(false); // Hide the SellWine component after successful selling
+      window.location.reload(); // Refresh the page to fetch updated data
+  };
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;

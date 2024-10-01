@@ -78,7 +78,7 @@ const WineData = ({ wine, wineDetailPage }) => {
         <Box display="flex" alignItems="top">
           <LocalDrinkIcon color="primary" sx={{ mr: 2 }} />
          <Typography textAlign="left">
-            <strong>Alcohol Content:</strong> {wine.alcohol}%
+            <strong>Alcohol Content:</strong> {wine.alcohol}
           </Typography>
         </Box>
       </Grid>

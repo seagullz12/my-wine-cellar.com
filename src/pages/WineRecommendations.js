@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { getAuth } from 'firebase/auth'; // Firebase authentication
-import { 
-  Button, 
-  TextField, 
-  CircularProgress, 
-  Typography, 
-  Container, 
-  Card, 
-  CardContent, 
-  Link, 
-  Snackbar, 
-  Alert, 
-  Grid 
+import { getAuth } from 'firebase/auth';
+import {
+  Button,
+  TextField,
+  CircularProgress,
+  Typography,
+  Container,
+  Card,
+  CardContent,
+  Snackbar,
+  Alert,
+  Grid,
+  Box,
+  Link, // Import Link for navigation
 } from '@mui/material';
+import WineDataRecommendations from '../components/WineDataRecommendations';
 
-const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app'; // prod
+const backendURL = 'http://192.168.2.9:8080'; // Update to actual backend URL
 
 const WineRecommendation = () => {
   const [food, setFood] = useState('');
@@ -29,7 +31,7 @@ const WineRecommendation = () => {
     return user ? user.getIdToken() : null;
   };
 
-  // Fetch wine recommendations from backend
+  // Fetch wine recommendations from the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -53,7 +55,8 @@ const WineRecommendation = () => {
       }
 
       const data = await response.json();
-      setRecommendations(data.recommendations);
+      setRecommendations(data.recommendations); // Store recommendations in state
+      console.log(data.recommendations);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,7 +65,7 @@ const WineRecommendation = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4, px: 2 }}>
       <Typography variant="h4" align="center" gutterBottom>
         Hi! I am your personal sommelier.
       </Typography>
@@ -80,6 +83,7 @@ const WineRecommendation = () => {
               onChange={(e) => setFood(e.target.value)}
               required
               variant="outlined"
+              sx={{ backgroundColor: '#fff' }} // White background for input
             />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -91,7 +95,7 @@ const WineRecommendation = () => {
               disabled={loading}
               sx={{ height: '100%' }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Get Recommendations'}
+              {loading ? <CircularProgress size={24} /> : 'Find Best Pairings'}
             </Button>
           </Grid>
         </Grid>
@@ -113,31 +117,80 @@ const WineRecommendation = () => {
 
       {/* Recommendations */}
       {recommendations && (
-        <Grid container spacing={2} sx={{ mt: 3 }}>
-          {['best', 'second_best', 'third_best'].map((rank) => (
-            <Grid item xs={12} sm={4} key={rank}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {rank.replace('_', ' ')} Pairing
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Name:</strong>{' '}
-                    <Link
-                      href={"https://www.my-wine-cellar.com/#" + recommendations[`${rank}_pairing_link`]}
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          {recommendations.map((recommendation) => {
+            const { id, recommendation_rank, explanation, wineDetails } = recommendation;
+
+            return (
+              <Grid item xs={12} sm={6} key={id}>
+                <Card 
+                  sx={{ 
+                    boxShadow: 3, 
+                    mb: 0, 
+                    display: 'flex', // Use flexbox
+                    flexDirection: 'column', // Ensure vertical stacking
+                    height: '100%', // Make sure the card stretches
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1 }}> {/* Allow content to grow */}
+                    <Box sx={{ p: 2 }}>
+                    <Typography variant="h6" align="left" gutterBottom>
+                        #{recommendation_rank}: {wineDetails.name}
+                      </Typography>
+
+                      {/* Top Half: Two Columns */}
+                      <Grid container spacing={2}>
+                        {/* Left Column: Wine Image */}
+                        <Grid item xs={6} sm={4}>
+                        <Link 
+                            href={`/#/cellar/${id}`} // Link to the wine cellar details page
+                            target="_blank"
+                            rel="noreferrer"
+                            sx={{ display: 'block', textDecoration: 'none' }} // Make the link block-level
+                          >
+                          <Box
+                            component="img"
+                            src={wineDetails.images.front.desktop}
+                            alt={wineDetails.name}
+                            
+                            sx={{
+                              width: '100%',
+                              height: 'auto',
+                              borderRadius: '8px',
+                              transition: 'transform 0.2s', // Animation effect on hover
+                              '&:hover': {
+                                transform: 'scale(1.05)', // Scale effect on hover
+                              },
+                            }}
+                          />
+                          </Link>
+                        </Grid>
+
+                        {/* Right Column: Wine Details */}
+                        <Grid item xs={6} sm={8}>
+                          <WineDataRecommendations wine={wineDetails} />
+                          <Link 
+                      href={`/#/cellar/${id}`} // Link to the wine details page
                       target="_blank"
                       rel="noreferrer"
+                      sx={{ mt:1, ml: 4, display: 'block', textDecoration: 'none', color: 'primary.main' }} // Styles for the link
                     >
-                      {recommendations[`${rank}_pairing_name`]}
+                      View wine details
                     </Link>
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Explanation:</strong> {recommendations[`${rank}_pairing_explanation`]}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </CardContent>
+                  {/* Bottom Half: Explanation and Link */}
+                  <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
+                    <Typography variant="body1">
+                      <strong>Why it pairs so well:</strong> {explanation}
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       )}
     </Container>

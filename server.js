@@ -137,9 +137,10 @@ const getWineDataFromText = async (text) => {
     console.log('OpenAI Settings:', settings);
     console.log('API Response:', completion);
 
-    const extracted_wine_date = completion.choices[0].message.parsed;
-    console.log('open ai response: ',extracted_wine_date);
-    return extracted_wine_date;
+    const extracted_wine_data = completion.choices[0].message.parsed;
+
+    console.log('open ai response: ',extracted_wine_data);
+    return extracted_wine_data;
   } catch (error) {
     console.error('Error fetching wine data:', error);
     throw error;
@@ -383,9 +384,6 @@ app.delete('/delete-wine/:id', authenticateToken, async (req, res) => {
 });
 
 // Route to update wine data
-// Add this endpoint to your server.js file
-
-// Route to update wine data
 app.put('/update-wine-data', authenticateToken, async (req, res) => {
   try {
     const { id, wineData } = req.body;
@@ -412,91 +410,106 @@ app.put('/update-wine-data', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to get wine recommendations based on food input
+// Function to get wine pairing recommendations
+const getWinePairingRecoFromFood = async (food, wines) => {
+  const WineRecommendationExtraction = z.object({
+    "1": z.object({
+      recommendation_rank: z.number(),
+      id: z.string(),
+      explanation: z.string(),
+    }),
+    "2": z.object({
+      recommendation_rank: z.number(),
+      id: z.string(),
+      explanation: z.string(),
+    }),
+    "3": z.object({
+      recommendation_rank: z.number(),
+      id: z.string(),
+      explanation: z.string(),
+    })
+  });
+  
+  console.log('wines:', wines)
+  // Prepare wine descriptions for OpenAI prompt
+  const wineDescriptions = wines.map(wine => {
+    return `id: ${wine.id}, wine features: [grapes: ${wine.grape}, vintage: ${wine.vintage}, palate: ${wine.palate}, nose: ${wine.nose}, alcohol: ${wine.alcohol}, drinking window: ${wine.drinkingWindow.lower} until ${wine.drinkingWindow.upper}].`;
+  }).join('\n');
+  console.log('prompt: ',wineDescriptions)
+//  console.log('Wines in the request: ', wines);
+
+  const settings = {
+    model: "gpt-4o-mini",
+    temperature: 0.3,
+    max_tokens: 500,
+  };
+
+  console.log('OpenAI Settings:', settings);
+
+  // Call OpenAI for wine pairing recommendations
+  const completion = await openai.beta.chat.completions.parse({
+    model: settings.model,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are an expert sommelier. Provide wine recommendations based on available wines and food, returning only valid JSON.'
+      },
+      {
+        role: 'user',
+        content: `Available wines:\n${wineDescriptions}\nRecommend the top 3 wines to pair with "${food}" and explain why. Return 3 json objects.`
+      }
+    ],
+    temperature: settings.temperature,
+    max_tokens: settings.max_tokens,
+    response_format: zodResponseFormat(WineRecommendationExtraction, "wine_recommendation_extraction"),
+  });
+
+  const recommended_wine_data = completion.choices[0].message.parsed;
+  console.log('OpenAI response:', recommended_wine_data);
+  return recommended_wine_data;
+};
+
+// Route to recommend wines based on food
 app.post('/recommend-wine', authenticateToken, async (req, res) => {
   try {
     const { food } = req.body;
 
-    // Fetch wines from Firestore
-    const userId = req.user.uid;
-    const winesRef = db.collection('users').doc(userId).collection('wines');
-    const querySnapshot = await winesRef.get();
+ // Fetch wines from Firestore
+const userId = req.user.uid;
+const winesRef = db.collection('users').doc(userId).collection('wines');
+const querySnapshot = await winesRef.get();
 
-    // Format wine data for OpenAI prompt
-    const wines = querySnapshot.docs.map(doc => {
-      const wineData = doc.data();
-      return {
-        id: wineData.id,
-        name: wineData.name,
-        grape: wineData.grape,
-        vintage: wineData.vintage,
-        pairing: wineData.pairing,
-        peakMaturity: wineData.peakMaturity || null, // Include peakMaturity if not null
-        link: `/#/cellar/${wineData.id}`
-      };
-    });
+// Format wine data for OpenAI prompt and create a map for lookup
+const wines = querySnapshot.docs.map(doc => {
+  const wineData = doc.data(); // Get the wine data
+  return { ...wineData, id: doc.id }; // Return the data along with the document ID
+});
 
-    console.log('Wines in the request:', wines);
+// Create a map of wine ID to wine data for easy access
+const wineDataMap = wines.reduce((acc, wine) => {
+  acc[wine.id] = wine; // Use document ID as the key
+  return acc;
+}, {});
 
-    // Prepare wine descriptions including peakMaturity if available
-    const wineDescriptions = wines.map(wine => {
-      let description = `${wine.name} (${wine.grape}, ${wine.vintage})`;//- ${wine.pairing}`;
-      if (wine.peakMaturity) {
-        description += `. Peak maturity: ${wine.peakMaturity}`;
-      }
-      description += `. Wine ID: ${wine.id}`;
-      return description;
-    }).join('\n');
-    
-    // Define OpenAI API request settings
-    const settings = {
-      model: "gpt-4o-mini", // Using the gpt-4 model for more structured output
-      temperature: 0.3, // Lower temperature to keep responses focused
-      max_tokens: 500,  // Adjust token limit as needed
-    };
+// Get wine recommendations based on food
+const recommendations = await getWinePairingRecoFromFood(food, wines);
 
-    // Log the settings used
-    console.log('OpenAI Settings:', settings);
+// Match recommendations with wine data
+const detailedRecommendations = Object.keys(recommendations).map(key => {
+  const { id, recommendation_rank, explanation } = recommendations[key];
+  const wineDetails = wineDataMap[id]; // Lookup the wine details from the map
 
-    // Query OpenAI for recommendations based on the food and available wines
-    const recommendationResponse = await openai.chat.completions.create({
-      model: settings.model,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a knowledgeable sommelier who provides wine recommendations based on food and available wines. Always return a structured JSON response.'
-        },
-        {
-          role: 'user',
-          content: `Here are the wines available: \n${wineDescriptions}\n\nGiven the above wines, recommend your top 3 wines to pair with "${food}". Only return valid JSON in this format: {"best_pairing_name": "[Wine name]", "best_pairing_link": "/cellar/[Wine ID]", "best_pairing_explanation": "[Explanation]", "second_best_pairing_name": "[Wine name]", "second_best_pairing_link": "/cellar/[Wine ID]", "second_best_pairing_explanation": "[Explanation]", "third_best_pairing_name": "[Wine name]", "third_best_pairing_link": "/cellar/[Wine ID]", "third_best_pairing_explanation": "[Explanation]"}`
-        }
-      ],
-      temperature: settings.temperature,
-      max_tokens: settings.max_tokens
-    });
+  // Ensure that the ID from recommendations matches the wine document ID
+  return {
+    recommendation_rank,
+    id, // This should correspond to wineData.id
+    explanation,
+    wineDetails, // Include the matched wine details
+  };
+});
 
-    // Log the full OpenAI response
-    console.log('Full OpenAI response:', JSON.stringify(recommendationResponse, null, 2));
-    
-    // Extract the response content
-    let recommendationsString = recommendationResponse.choices[0].message.content;
-
-    // Remove markdown formatting (```json and ```)
-    recommendationsString = recommendationsString.replace(/```json|```/g, '').trim();
-
-    // Log the full OpenAI response
-    console.log('Full cleaned OpenAI response:', JSON.stringify(recommendationsString, null, 2));   
-
-    // Attempt to parse the JSON response
-    try {
-      const recommendations = JSON.parse(recommendationsString);
-      res.json({ recommendations });
-    } catch (parseError) {
-      console.error('Error parsing recommendations:', parseError);
-      
-      // Retry or fallback logic (optional)
-      res.status(400).json({ error: 'Failed to parse recommendations. Please try again.' });
-    }
+    console.log('returned matches: ',detailedRecommendations)
+    return res.json({ recommendations: detailedRecommendations });
 
   } catch (error) {
     console.error('Error recommending wine:', error);
@@ -504,6 +517,7 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
   }
 });
 
+// Start your server (add appropriate port)
 app.listen(port, () => {
   console.log(`Server running at ${port}`);
 });

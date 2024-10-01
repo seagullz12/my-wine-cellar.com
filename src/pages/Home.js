@@ -14,6 +14,7 @@ const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [wines, setWines] = useState([]);
+  const [error, setError] = useState(null);
   const [profileData, setProfileData] = useState({ displayName: '', userName: '' });
 
   const auth = getAuth();
@@ -30,15 +31,27 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (user) {
+        try {
         const token = await user.getIdToken();
         const data = await fetchUserProfile(token);
-        setProfileData({
-          displayName: data.displayName || '',
-          userName: data.userName || '',
-        });
-      }
-    };
-
+// Set profile data or handle cases where no data exists
+if (data) {
+  setProfileData({
+    displayName: data.displayName || '',
+    userName: data.userName || '',
+  });
+} else {
+  setError('No user data found.');
+}
+} catch (error) {
+// Handle specific error scenarios
+console.error('Error fetching profile data:', error);
+setError('Failed to load user profile. Please try again later.');
+}
+} else {
+setError('User not authenticated.');
+}
+};
     fetchProfileData();
   }, [user]);
 
@@ -73,7 +86,7 @@ const HomePage = () => {
         {isLoggedIn && (
           <>
             <Typography variant="h5" sx={{ textAlign: "center" }}>
-              Welcome back, <strong style={{ color: '#800020' }}>{profileData.userName || profileData.userName || null}</strong>!
+              Welcome back, <strong style={{ color: '#800020' }}>{profileData.userName || profileData.userName || "my friend!"}</strong>!
             </Typography>
 
             <Box>

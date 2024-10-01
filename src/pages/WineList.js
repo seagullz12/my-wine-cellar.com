@@ -402,10 +402,15 @@ const WineList = () => {
             </Grid>
           ))
         ) : (
-          <Typography>
-            No wines found or loading...
-            <CircularProgress />
-          </Typography>
+          <>
+          {loading ? (
+            <>
+              Loading...
+              <CircularProgress size={24} sx={{ ml: 2 }} />
+            </>
+          ) : (
+            'No wines found...'
+          )}</>
         )}
       </Grid>
 

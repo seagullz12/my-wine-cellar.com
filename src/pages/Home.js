@@ -7,31 +7,40 @@ import manageWineCollection from '../assets/images/wine_lover_woman2.jpg';
 import joinUs from '../assets/images/wine_lover_man2.jpg';
 import addWines from '../assets/images/add_wine_woman.jpg';
 import HeroBanner from '../components/HeroBanner';
-import UserWineCarousel from '../components/UserWineCarrousel';
+import UserWineCarousel from '../components/UserWineCarousel';
+import { fetchUserProfile } from '../components/user'; // Assume this is the path to your user fetching function
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [wines, setWines] = useState([]);
+  const [profileData, setProfileData] = useState({ displayName: '', userName: '' });
 
   const auth = getAuth();
-  
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
-    });
-    
-    return () => unsubscribe();
-  }, [auth]);
-  
-  useEffect(() => {
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setIsLoggedIn(!!currentUser);
       setUser(currentUser);
     });
+
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (user) {
+        const token = await user.getIdToken();
+        const data = await fetchUserProfile(token);
+        setProfileData({
+          displayName: data.displayName || '',
+          userName: data.userName || '',
+        });
+      }
+    };
+
+    fetchProfileData();
+  }, [user]);
 
   useEffect(() => {
     const fetchWines = async () => {
@@ -42,11 +51,10 @@ const HomePage = () => {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
-          }); 
+          });
 
           const data = await response.json();
-          const wines = data.wines || [];
-          setWines(wines);
+          setWines(data.wines || []);
         } catch (error) {
           console.error('Error fetching wine data:', error);
         }
@@ -55,33 +63,38 @@ const HomePage = () => {
 
     fetchWines();
   }, [user]);
-  const displayedWines = wines.slice(0, 5)
-  
+
+  const displayedWines = wines.slice(0, 5);
+
   return (
     <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>
-      <HeroBanner />
+      <HeroBanner isLoggedIn={isLoggedIn} />
       <Grid item xs={12} sx={{ textAlign: 'left', marginBottom: 2, marginTop: 2 }}>
-      {isLoggedIn && (
-        <Box><UserWineCarousel wines={displayedWines}/></Box>)}
+        {isLoggedIn && (
+          <>
+            <Typography variant="h5" sx={{ textAlign: "center" }}>
+              Welcome back, <strong style={{ color: '#800020' }}>{profileData.userName || profileData.userName || null}</strong>!
+            </Typography>
 
+            <Box>
+              <UserWineCarousel wines={displayedWines} />
+            </Box>
+          </>
+        )}
         {!isLoggedIn && (
-        <Typography variant="body2">
-          Already have an account?{' '}
-          <Link to="/sign-in" style={{ color: 'primary.main', textDecoration: 'underline' }}>
-            Sign In
-          </Link>
-        </Typography>)}
+          <Typography variant="body2">
+            Already have an account?{' '}
+            <Link to="/sign-in" style={{ color: 'primary.main', textDecoration: 'underline' }}>
+              Sign In
+            </Link>
+          </Typography>
+        )}
       </Grid>
       <Grid container spacing={2} justifyContent="center">
         {!isLoggedIn && (
           <Grid item xs={12} sm={6} md={4}>
             <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <CardMedia
-                component="img"
-                height="250"
-                image={joinUs}
-                alt="Join Us"
-              />
+              <CardMedia component="img" height="250" image={joinUs} alt="Join Us" />
               <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6" align="center">Join Us</Typography>
                 <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
@@ -94,7 +107,7 @@ const HomePage = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
-                  sx={{ marginTop: 'auto' }} 
+                  sx={{ marginTop: 2 }}
                 >
                   Sign Up
                 </Button>
@@ -102,16 +115,10 @@ const HomePage = () => {
             </Card>
           </Grid>
         )}
-
         {isLoggedIn && (
           <Grid item xs={12} sm={6} md={4}>
             <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <CardMedia
-                component="img"
-                height="250"
-                image={addWines}
-                alt="Add Wine"
-              />
+              <CardMedia component="img" height="250" image={addWines} alt="Add Wine" />
               <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6" align="center">Add New Wines</Typography>
                 <Box sx={{ borderBottom: '2px solid', marginBottom: 1 }} />
@@ -124,7 +131,7 @@ const HomePage = () => {
                   variant="contained"
                   color="primary"
                   fullWidth
-                  sx={{ marginTop: 'auto' }}  
+                  sx={{ marginTop: 2 }}
                 >
                   Add Wine
                 </Button>
@@ -132,7 +139,6 @@ const HomePage = () => {
             </Card>
           </Grid>
         )}
-
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <CardMedia
@@ -153,14 +159,13 @@ const HomePage = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
-                sx={{ marginTop: 'auto' }} 
+                sx={{ marginTop: 2 }}
               >
                 {isLoggedIn ? "View Cellar" : "Sign Up"}
               </Button>
             </CardContent>
           </Card>
         </Grid>
-
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <CardMedia
@@ -181,7 +186,7 @@ const HomePage = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
-                sx={{ marginTop: 'auto' }} 
+                sx={{ marginTop: 2 }}
               >
                 {isLoggedIn ? "Get wine advice" : "Sign Up"}
               </Button>

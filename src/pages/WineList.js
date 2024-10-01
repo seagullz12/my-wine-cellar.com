@@ -175,6 +175,7 @@ const WineList = () => {
       setWines(wines.filter((wine) => wine.id !== id));
       setSnackbarMessage('Wine removed successfully!');
       setSnackbarSeverity('success');
+      window.location.reload()
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Error deleting wine:', error);

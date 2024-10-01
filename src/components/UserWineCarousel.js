@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
-import { CardMedia, Typography, Box, Button, CircularProgress, Grid } from '@mui/material';
-import AgeBadge from '../components/AgeBadge';
-import PeakMaturityBadge from '../components/PeakMaturityBadge';
-import WineData from '../components/WineData';
+import { CardMedia, Typography, Box, Button, CircularProgress, Grid, Card } from '@mui/material';
+import AgeBadge from './AgeBadge';
+import PeakMaturityBadge from './PeakMaturityBadge';
+import WineData from './WineData';
 import WineBarIcon from '@mui/icons-material/WineBar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import 'slick-carousel/slick/slick.css';
@@ -67,12 +67,13 @@ const UserWineCarousel = ({ wines }) => {
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
-        Your Wine Collection
+        Your Wine Collection:
       </Typography>
 
       <Slider {...settings}>
         {wines.map((wine) => (
-          <Box key={wine.id} sx={{ padding: 1, textAlign: 'center', height: '400px', width: '250px' }}> {/* Set fixed height and width */}
+          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '500px'}}>
+    
             <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
               <CardMedia
                 sx={{
@@ -102,9 +103,8 @@ const UserWineCarousel = ({ wines }) => {
                 {/* Name */}
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center">
-                    <WineBarIcon color="primary" sx={{ mr: 2 }} />
-                    <Typography textAlign="left">
-                      <strong>Name:</strong> {wine.name}
+                    <Typography textAlign="center">
+                      <strong>{wine.name}</strong> 
                     </Typography>
                   </Box>
                 </Grid>
@@ -115,16 +115,6 @@ const UserWineCarousel = ({ wines }) => {
                     <WineBarIcon color="primary" sx={{ mr: 2 }} />
                     <Typography textAlign="left">
                       <strong>Colour:</strong> {wine.colour}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                {/* Grape */}
-                <Grid item xs={12}>
-                  <Box display="flex" alignItems="center">
-                    <WineBarIcon color="primary" sx={{ mr: 2 }} />
-                    <Typography textAlign="left">
-                      <strong>Grape:</strong> {wine.grape.join(', ')}
                     </Typography>
                   </Box>
                 </Grid>
@@ -141,13 +131,13 @@ const UserWineCarousel = ({ wines }) => {
               </Grid>
 
               {/* View Button */}
-              <Box sx={{ mt: 0.5 }}>
+              <Box sx={{ m: 1}}>
                 <Button variant="contained" color="primary" size="small" component={Link} to={`/cellar/${wine.id}`}>
                   View
                 </Button>
               </Box>
             </Link>
-          </Box>
+            </Card>
         ))}
       </Slider>
     </Box>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import headerBackground from '../assets/images/hero_banner.jpg'; // Your background image
 
-const HeroBanner = () => {
+const HeroBanner = ({ isLoggedIn }) => {
   return (
     <Box
       sx={{
@@ -30,15 +30,26 @@ const HeroBanner = () => {
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent black overlay
-          borderRadius: 1
+          borderRadius: 1,
         }}
       />
-      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', fontSize: '2rem', fontWeight: '300', zIndex: 1 }}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{ textAlign: 'center', fontSize: '2rem', fontWeight: '300', zIndex: 1 }}
+      >
         Treasure your favorite wines with ease
       </Typography>
-      <Button href="/#/sign-up" variant="outlined" color="inherit" sx={{ marginTop: 2 }}>
-        Get Started
-      </Button>
+
+      {!isLoggedIn ? (
+        <Button href="/#/sign-up" variant="outlined" color="inherit" sx={{ marginTop: 2 }}>
+          Get Started
+        </Button>
+      ) : (
+        <Button href="/#/cellar" variant="outlined" color="inherit" sx={{ marginTop: 2 }}>
+          Go to Cellar
+        </Button>
+      )}
     </Box>
   );
 };

@@ -8,10 +8,9 @@ const { Storage } = require('@google-cloud/storage');
 const { getFirestore, collection, doc, getDocs} = require('firebase-admin/firestore');
 const { initializeApp, cert } = require("firebase-admin/app");
 const path = require('path');
-const sharp = require('sharp');
+// const sharp = require('sharp');
 const multer = require('multer');
 const { generateSitemap } = require('./sitemap');
-
 const { z } = require('zod');
 const { zodResponseFormat } = require('openai/helpers/zod');
 
@@ -514,6 +513,41 @@ const detailedRecommendations = Object.keys(recommendations).map(key => {
   } catch (error) {
     console.error('Error recommending wine:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Secure route to fetch user profile data
+app.get('/get-user-profile', authenticateToken, async (req, res) => {
+  try {
+    const uid = req.user.uid; // Get the user ID from the decoded token
+
+    // Fetch user data from the 'users/{uid}/profile' collection
+    const userDoc = await db.collection('users').doc(uid).collection('user').doc('profileInfo').get();
+    if (!userDoc.exists) {
+      return res.status(404).send('User profile not found');
+    }
+
+    const userData = userDoc.data();
+    res.status(200).json(userData); // Return user data as JSON
+  } catch (error) {
+    console.error('Error fetching user profile data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Route to update user profile
+app.post('/update-user-profile', authenticateToken, async (req, res) => {
+  try {
+    const uid = req.user.uid; // Get the user ID from the decoded token
+    const userData = req.body; // Expect user data in the request body
+
+    // Update user data in the 'users/{uid}/profile' collection
+    await db.collection('users').doc(uid).collection('user').doc('profileInfo').set(userData, { merge: true }); // Use set with merge to update
+    res.status(200).json({ message: 'Profile updated successfully' }); // Send JSON response
+    
+  } catch (error) {
+    console.error('Error updating user profile data:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 

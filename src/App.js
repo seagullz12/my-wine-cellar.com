@@ -34,7 +34,7 @@ import PageTitle from './components/utils/PageTitle.js'; // Import the utility f
 // GA4 (analytics)
 import ReactGA from 'react-ga4';
 import PasswordReset from './pages/PasswordReset.js';
-import SellWine from './components/SellWine.js';
+import Profile from './pages/Profile.js';
 
 const TRACKING_ID = 'G-HZJRPGMJVT'; 
 
@@ -86,6 +86,7 @@ const App = () => {
                 <Route path="/personal-sommelier" element={<WineRecommendations />} />
                 <Route path="/cellar/:id" element={<WineDetail />} />
                 <Route path="/for-sale/:id" element={<ForSale />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="" />} />
               </>
             ) : (

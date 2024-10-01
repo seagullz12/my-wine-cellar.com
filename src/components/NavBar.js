@@ -59,6 +59,7 @@ const NavBar = () => {
     { title: 'Add New Wines', path: '/add-wine' },
     { title: 'My Wine Cellar', path: '/cellar' },
     { title: 'Personal Sommelier', path: '/personal-sommelier' },
+    { title: 'Profile', path: '/profile' },
     { title: 'Sign In', path: '/sign-in', authRequired: false },
     { title: 'Sign Up', path: '/sign-up', authRequired: false },
   ];

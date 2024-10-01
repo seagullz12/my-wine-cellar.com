@@ -7,10 +7,7 @@ import AddWineNotification from '../components/AddWineNotification'
 import {
   Box,
   Card,
-  Button,
-  Snackbar,
-  SnackbarContent,
-  Alert
+  Button
 } from '@mui/material';
 import WineData from '../components/WineData';
 

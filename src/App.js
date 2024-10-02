@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Import pages
 import Home from './pages/Home';
-import AddWineBatch from './pages/AddWineBatch';
+// import AddWineBatch from './pages/AddWineBatch';
 import WineList from './pages/WineList.js';
 import WineRecommendations from './pages/WineRecommendations';
 import WineDetail from './pages/WineDetail';
@@ -35,6 +35,7 @@ import PageTitle from './components/utils/PageTitle.js'; // Import the utility f
 import ReactGA from 'react-ga4';
 import PasswordReset from './pages/PasswordReset.js';
 import Profile from './pages/Profile.js';
+import Marketplace from './pages/Marketplace.js';
 
 const TRACKING_ID = 'G-HZJRPGMJVT'; 
 
@@ -87,6 +88,7 @@ const App = () => {
                 <Route path="/cellar/:id" element={<WineDetail />} />
                 <Route path="/for-sale/:id" element={<ForSale />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="*" element={<Navigate to="" />} />
               </>
             ) : (

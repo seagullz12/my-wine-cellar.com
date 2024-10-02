@@ -178,8 +178,7 @@ app.post('/extract-wine-data', authenticateToken, async (req, res) => {
   }
 });
 
-// Route to append wine data to Firestore
-// Route to append wine data with both front and back images
+// Route to append wine data to Firestores
 app.post('/append-wine-data', authenticateToken, async (req, res) => {
   try {
     const { wineData, frontImageUrl, backImageUrl, id } = req.body;
@@ -552,65 +551,99 @@ app.post('/update-user-profile', authenticateToken, async (req, res) => {
 });
 
 // Route to add a wine for sale
-app.post('/add-wine-for-sale', authenticateToken, async (req, res) => {
+app.post('/add-listing', authenticateToken, async (req, res) => {
   try {
-      const { wineId, price, quantity, condition } = req.body;
-      const userId = req.user.uid;
+    const { wineId, price, quantity, condition, additionalInfo } = req.body;
+    const userId = req.user.uid;
 
-      // Log the incoming request data
-      console.log('Received request to add wine for sale:', { wineId, price, quantity, condition, userId });
+    // Validate required fields
+    if (!wineId || !price || !quantity || !condition) {
+      return res.status(400).json({ message: 'Missing required fields: wineId, price, quantity, or condition.' });
+    }
 
-      // Check for missing fields
-      if (!price || !quantity || !condition) {
-          console.warn('Missing required fields:', { price, quantity, condition });
-          return res.status(400).json({ message: 'Missing required fields: price, quantity, or condition.' });
-      }
+    // Create listing data
+    const listingData = {
+      sellerId: userId,
+      wineId,
+      price,
+      quantity,
+      condition,
+      additionalInfo: additionalInfo || '',
+      status: 'active',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
 
-      const wineData = {
-          price,
-          quantity,
-          condition,
-          status: 'for_sale',
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
+    // Create or update the listing directly in the 'listings' collection
+    const listingRef = db.collection('listings').doc(); // Auto-generate ID for the listing
+    await listingRef.set(listingData);
 
-      // Reference to the winesForSale collection
-      const wineRef = db.collection('users').doc(userId).collection('winesForSale');
-      console.log('Reference to winesForSale collection established for user:', userId);
+    console.log('New listing created successfully:', listingData);
 
-      if (wineId) {
-          // Update existing wine
-          const existingWineRef = wineRef.doc(wineId);
-          const wineDoc = await existingWineRef.get();
-
-          console.log('Checking if wine exists for update:', wineId);
-
-          if (wineDoc.exists) {
-              // If the wine exists, update it
-              await existingWineRef.update(wineData);
-              const updatedWine = await existingWineRef.get();
-              console.log('Wine updated successfully:', updatedWine.data());
-              return res.status(200).json({ data: updatedWine.data() });
-          } else {
-              // If the wine does not exist, create a new entry
-              console.warn('Wine not found for update, creating a new entry:', wineId);
-              await existingWineRef.set(wineData);
-              const newWine = await existingWineRef.get();
-              console.log('New wine entry created successfully:', newWine.data());
-              return res.status(201).json({ data: newWine.data() });
-          }
-      } else {
-          // Create new wine if wineId is not provided
-          const newWineRef = wineRef.doc(); // Automatically generate a new document ID
-          console.log('Creating a new wine entry as wineId was not provided.');
-          await newWineRef.set(wineData);
-          const newWine = await newWineRef.get();
-          console.log('New wine entry created successfully:', newWine.data());
-          return res.status(201).json({ data: newWine.data() });
-      }
+    // Return the created listing
+    return res.status(201).json({ message: 'Wine listed for sale successfully!', data: listingData });
   } catch (error) {
-      console.error('Error processing wine data:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error processing listing creation:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+app.get('/marketplace', authenticateToken, async (req, res) => {
+  try {
+    const listingsSnapshot = await db.collection('listings').get();
+
+    if (listingsSnapshot.empty) {
+      console.log('No listings found.');
+      return res.status(200).json({ wines: [] });
+    }
+
+    let winesForSale = [];
+
+    for (const listingDoc of listingsSnapshot.docs) {
+      const listingData = listingDoc.data();
+      console.log('Listing data:', listingData);
+
+      // Fetch the correct user's wines collection based on the sellerId
+      const wineDoc = await db.collection('users')
+                                .doc(listingData.sellerId)
+                                .collection('wines')
+                                .doc(listingData.wineId)
+                                .get();
+
+      console.log(`Fetching wine document from user ID: ${listingData.sellerId} with wine ID: ${listingData.wineId}`);
+
+      if (wineDoc.exists) {
+        const wineData = wineDoc.data();
+
+        // Fetch the seller's profile info to get the username
+        const sellerProfileDoc = await db.collection('users')
+                                           .doc(listingData.sellerId)
+                                           .collection('user')
+                                           .doc('profileInfo')
+                                           .get();
+
+        let sellerUsername = null;
+        if (sellerProfileDoc.exists) {
+          sellerUsername = sellerProfileDoc.data().userName; // Adjust this based on your data structure
+        } else {
+          console.warn(`Seller profile not found for ID: ${listingData.sellerId}`);
+        }
+
+        const wineForSale = {
+          ...listingData,
+          wineDetails: wineData,
+          sellerUsername: sellerUsername, // Include the seller's username
+        };
+
+        winesForSale.push(wineForSale);
+      } else {
+        console.warn(`Wine document not found for ID: ${listingData.wineId} from user ID: ${listingData.sellerId}`);
+      }
+    }
+
+    res.status(200).json({ wines: winesForSale });
+  } catch (error) {
+    console.error('Error fetching marketplace data:', error);
+    res.status(500).json({ error: 'Failed to retrieve marketplace data.' });
   }
 });
 

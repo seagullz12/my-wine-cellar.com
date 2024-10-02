@@ -13,8 +13,6 @@ const TastingPage = () => {
   const [formData, setFormData] = useState({});
   const [user, setUser] = useState(null);
 
-  const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-
   const fetchWineDetails = async () => {
     const auth = getAuth();
     const user = auth.currentUser;

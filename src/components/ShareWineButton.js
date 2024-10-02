@@ -3,8 +3,9 @@ import { v4 as uuid } from 'uuid';
 import { db } from './firebase-config'; // Adjust the path as needed
 import { doc, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { Button, Snackbar, IconButton, Typography, Box } from '@mui/material';
+import { Snackbar, IconButton, Typography, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'; // Import WhatsApp icon
 
 const ShareWineButton = ({ wineName, wineId }) => {
   const [isLoading, setIsLoading] = useState(false); // For button loading state
@@ -67,14 +68,15 @@ const ShareWineButton = ({ wineName, wineId }) => {
 
   return (
     <Box>
-      <Button 
-        variant="contained" 
+      <IconButton 
         color="success" 
         onClick={handleShare} 
         disabled={isLoading} 
+        aria-label="Share on WhatsApp"
       >
-        {isLoading ? 'Sharing...' : 'Share on WhatsApp'}
-      </Button>
+        <WhatsAppIcon fontSize='medium'/>
+        <Typography variant="button" color="success" sx={{pl:0.5}}>Share This Bottle</Typography> 
+      </IconButton>
       {errorMessage && (
         <Typography color="error" variant="body2" gutterBottom>
           {errorMessage}

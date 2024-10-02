@@ -1,0 +1,344 @@
+import React, { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Link, useNavigate } from 'react-router-dom';
+
+import {
+    CardContent,
+    CardMedia,
+    Typography,
+    Snackbar,
+    Alert,
+    Grid,
+    Button,
+    Box,
+    CircularProgress,
+    Container,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+} from '@mui/material';
+import '../styles/WineList.css'; // Ensure any custom styles are still applied
+import AgeBadge from '../components/AgeBadge';
+import PeakMaturityBadge from '../components/PeakMaturityBadge';
+import WineListFilters from '../components/WineListFilters';
+import WineListSorting from '../components/WineListSorting';
+import WineData from '../components/WineData';
+import ForSaleLabel from '../components/ForSaleLabel';
+import SellWineForm from '../components/SellWineForm';
+
+const Marketplace = () => {
+    const [wines, setWines] = useState([]);
+    const [filteredWines, setFilteredWines] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [sortCriteria, setSortCriteria] = useState('name');
+    const [sortOrder, setSortOrder] = useState('asc');
+    const navigate = useNavigate();
+    const [selectedWine, setSelectedWine] = useState(null);
+    const [open, setOpen] = useState(false);
+    const [filters, setFilters] = useState({
+        colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
+        grapes: [
+          "Cabernet Sauvignon",
+          "Merlot",
+          "Pinot Noir",
+          "Syrah (Shiraz)",
+          "Zinfandel",
+          "Chardonnay",
+          "Sauvignon Blanc",
+          "Riesling",
+          "Malbec",
+          "Tempranillo",
+          "Grenache",
+          "Cabernet Franc",
+          "Sangiovese",
+          "Mourvèdre",
+          "Viognier",
+          "Pinot Grigio (Pinot Gris)",
+          "Semillon",
+          "Nebbiolo",
+          "Barbera",
+          "Touriga Nacional",
+          "Petit Verdot",
+          "Chenin Blanc",
+          "Garganega",
+          "Grüner Veltliner",
+          "Fiano",
+          "Albariño",
+          "Vermentino",
+          "Nero d'Avola",
+          "Carignan",
+          "Dolcetto",
+          "Aglianico",
+          "Carmenère",
+          "Primitivo",
+          "Moscato",
+          "Torrontés",
+          "Saint Laurent",
+          "Tannat",
+          "Cinsault"
+        ],
+        vintages: [],
+        names: [],
+        datesAdded: [],
+        statuses: ['in_cellar', 'consumed', "for_sale"],
+        countries: [],
+      })
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const fetchWines = async () => {
+            if (user) {
+                try {
+                    const token = await user.getIdToken();
+                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/marketplace`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch marketplace data');
+                    }
+
+                    const data = await response.json();
+                    const fetchedWines = data.wines || [];
+                    setWines(fetchedWines);
+                    setFilteredWines(fetchedWines);
+
+                    const distinctVintages = [...new Set(fetchedWines.map(wine => wine.wineDetails.vintage))];
+                    setFilters(prevFilters => ({
+                      ...prevFilters,
+                      vintages: distinctVintages.sort(),
+                    }));
+          
+                    const distinctDateAdded = [...new Set(fetchedWines.map(wine => wine.wineDetails.dateAdded))];
+                    setFilters(prevFilters => ({
+                      ...prevFilters,
+                      datesAdded: distinctDateAdded.sort(),
+                    }));
+          
+                    const distinctCountry = [...new Set(fetchedWines.map(wine => wine.wineDetails.country))];
+                    setFilters(prevFilters => ({
+                      ...prevFilters,
+                      countries: distinctCountry.sort(),
+                    }));
+          
+                    const distinctName = [...new Set(fetchedWines.map(wine => wine.wineDetails.name))];
+                    setFilters(prevFilters => ({
+                      ...prevFilters,
+                      names: distinctName.sort(),
+                    }));
+
+                } catch (error) {
+                    console.error('Error fetching marketplace data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
+
+        fetchWines();
+    }, [user]);
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+        const filtered = wines.filter(wine =>
+            (!newFilters.colours.length || newFilters.colours.some(colour => wine.wineDetails.colour.toLowerCase().includes(colour.toLowerCase()))) &&
+            (!newFilters.grapes.length || newFilters.grapes.some(grape => wine.wineDetails.grape.toLowerCase().includes(grape.toLowerCase()))) &&
+            (!newFilters.vintages.length || newFilters.vintages.includes(wine.wineDetails.vintage)) &&
+            (!newFilters.countries.length || newFilters.countries.includes(wine.wineDetails.country)) &&
+            (!newFilters.statuses.length || newFilters.statuses.includes(wine.wineDetails.status))
+        );
+
+        const sortedFilteredWines = sortWines(filtered);
+        setFilteredWines(sortedFilteredWines);
+    };
+
+    const handleResetFilters = () => {
+        setFilteredWines(wines);
+    };
+
+    const sortWines = (winesArray) => {
+        return winesArray.sort((a, b) => {
+            let comparison = 0;
+            if (sortCriteria === 'vintage') {
+                comparison = a.wineDetails.vintage.localeCompare(b.wineDetails.vintage);
+            } else if (sortCriteria === 'name') {
+                comparison = a.wineDetails.name.localeCompare(b.wineDetails.name);
+            }
+
+            return sortOrder === 'asc' ? comparison : comparison * -1;
+        });
+    };
+
+    const handleSortChange = (event) => {
+        const { value } = event.target;
+        setSortCriteria(value);
+        const sortedWines = sortWines(filteredWines);
+        setFilteredWines(sortedWines);
+    };
+
+    const handleSortOrderChange = () => {
+        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+        const sortedWines = sortWines(filteredWines);
+        setFilteredWines(sortedWines);
+    };
+
+    const handleOpen = (wine) => {
+        setSelectedWine(wine);
+        setOpen(true); // Open modal
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedWine(null);
+    };
+
+    const initializeFilters = (wineData) => {
+        const colours = [...new Set(wineData.map(wine => wine.wineDetails.colour))];
+        const grapes = [...new Set(wineData.flatMap(wine => wine.wineDetails.grape))];
+        const vintages = [...new Set(wineData.map(wine => wine.wineDetails.vintage))];
+        const countries = [...new Set(wineData.map(wine => wine.wineDetails.country))];
+
+        setFilters(prev => ({
+            ...prev,
+            colours,
+            grapes,
+            vintages,
+            countries,
+        }));
+    };
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (!user) {
+        return <Typography>Please log in to see the marketplace.</Typography>;
+    }
+
+    return (
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+            <Box my={2}>
+                {/* <WineListFilters filters={filters} onFilterChange={setFilters} onResetFilters={() => setFilters({ ...filters })} />
+
+                <WineListFilters
+          filters={{}} // You can define filters here similar to your WineList page
+          onFilterChange={handleFilterChange}
+          onResetFilters={handleResetFilters}
+        /> */}
+        <WineListSorting
+          sortCriteria={sortCriteria}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+          onSortOrderChange={handleSortOrderChange}
+        />
+            </Box>
+
+            <Grid container spacing={2}>
+                {filteredWines.length > 0 ? (
+                    filteredWines.map((wine) => (
+                        <Grid item xs={12} sm={6} md={3} key={wine.wineId}>
+                            <Box
+                                border={0}
+                                borderRadius={2}
+                                overflow="hidden"
+                                boxShadow={3}
+                                p={2}
+                                sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}
+                            >
+
+                                <Link to={`/cellar/${wine.wineId}`}>
+                                    <CardMedia sx={{ position: 'relative' }}>
+                                        <img
+                                            src={wine.wineDetails.images?.front?.desktop || wine.wineDetails.images?.back?.desktop}
+                                            srcSet={`${wine.wineDetails.images?.front?.mobile || wine.wineDetails.images?.back?.mobile} 600w,
+                      ${wine.wineDetails.images?.front?.desktop || wine.wineDetails.images?.back?.desktop} 1200w`}
+                                            sizes="(max-width: 600px) 100vw, 1200px"
+                                            alt={wine.wineDetails.name}
+                                            className="wine-image"
+                                            style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                                        />
+
+                                        <Box
+                                            position="absolute"
+                                            bottom={20}
+                                            right={10}
+                                            zIndex={1}
+                                            sx={{ padding: 0 }}
+                                        >
+                                            {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
+                                        </Box>
+                                    </CardMedia>
+                                    <Typography variant="body1" sx={{ m: 2, mb: 1 }}><strong>{wine.wineDetails.name}</strong></Typography>
+                                    <Typography variant="body1" sx={{ m: 2, mb: 1 }} color="primary">
+                                        {wine.sellerUsername} is selling {wine.quantity > 1 ? (
+                                            <><strong>{wine.quantity} </strong> bottles for <strong>€{wine.price}</strong> each</>
+                                        ) : (
+                                            <><strong>{wine.quantity} </strong> bottle for <strong>€{wine.price}</strong></>
+                                        )}
+                                    </Typography>
+
+                                </Link>
+                                <CardContent sx={{
+                                    padding: 0,
+                                    margin: 1,
+                                    marginBottom: 2
+                                }}>
+                                    <WineData wine={wine.wineDetails} wineDetailPage={false} />
+                                </CardContent>
+                                <Box display="flex" justifyContent="space-between" mt="auto">
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12}>
+                                            <Button
+                                                variant="outlined"
+                                                color="success"
+                                                onClick={() => handleOpen(wine)}
+                                                fullWidth
+                                            >
+                                                Buy This Bottle
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </Box>
+                        </Grid>
+                    ))
+                ) : (
+                    <>
+                        {loading ? (
+                            <>
+                                Loading...
+                                <CircularProgress size={24} sx={{ ml: 2 }} />
+                            </>
+                        ) : (
+                            'No wines found...'
+                        )}</>
+                )}
+            </Grid>
+        </Container>
+    );
+};
+
+export default Marketplace;

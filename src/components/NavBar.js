@@ -43,6 +43,8 @@ const NavBar = () => {
         return 'My Wine Cellar';
       case '/add-wine':
         return 'Add New Wines';
+        case '/marketplace':
+          return 'Marketplace';
       case '/personal-sommelier':
         return 'Personal Sommelier';
       case '/sign-in':
@@ -58,6 +60,7 @@ const NavBar = () => {
     { title: 'Home', path: '/' },
     { title: 'Add New Wines', path: '/add-wine' },
     { title: 'My Wine Cellar', path: '/cellar' },
+    { title: 'Marketplace', path: '/marketplace' },
     { title: 'Personal Sommelier', path: '/personal-sommelier' },
     { title: 'Profile', path: '/profile' },
     { title: 'Sign In', path: '/sign-in', authRequired: false },

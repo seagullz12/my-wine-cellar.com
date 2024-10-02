@@ -51,7 +51,6 @@ const WineDetail = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const location = useLocation();
-    const [showSellWine, setShowSellWine] = useState(false);
     const [selectedWine, setSelectedWine] = useState(null);
     const [open, setOpen] = useState(false);
 
@@ -66,8 +65,6 @@ const WineDetail = () => {
         setTastingStarted(true);
     };
 
-
-    const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -466,7 +463,10 @@ const WineDetail = () => {
                                             handleEditToggle={handleEditToggle}
                                         />
                                     ) : (
-                                        <Card>
+                                            <Card>
+                                              <CardContent sx={{ p: 2 }}>
+                                                <WineData wine={wine} wineDetailPage={true} />
+                                            </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, padding: 1 }}>
                                                 <Button
                                                     variant="contained"
@@ -477,19 +477,21 @@ const WineDetail = () => {
                                                     Edit Wine Details
                                                 </Button>
                                                 <Button
-                                                    variant="contained"
+                                                   variant="contained"
                                                     color="primary"
-                                                    onClick={handleTastingToggle}
+                                                    onClick={() => handleOpen(wine)}
                                                     sx={{ mt: 0 }}
+
                                                 >
-                                                    Start Tasting
+                                                    Sell This Bottle
                                                 </Button>
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    onClick={() => setShowSellWine(!showSellWine)}
+                                                    onClick={handleTastingStarted}
+                                                    sx={{ mt: 0 }}
                                                 >
-                                                    {showSellWine ? 'Cancel Selling' : 'Sell This Wine'}
+                                                    Start Tasting
                                                 </Button>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
                                             </CardActions>

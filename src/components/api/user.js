@@ -3,7 +3,7 @@ const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
 
 export const fetchUserProfile = async (token) => {
     try {
-        const response = await fetch(`${backendURL}/get-user-profile`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-user-profile`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -32,7 +32,7 @@ export const fetchUserProfile = async (token) => {
 
 export const updateUserProfile = async (token, userData) => {
     try {
-        const response = await fetch(`${backendURL}/update-user-profile`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-user-profile`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

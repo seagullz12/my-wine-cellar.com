@@ -551,6 +551,70 @@ app.post('/update-user-profile', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to add a wine for sale
+app.post('/add-wine-for-sale', authenticateToken, async (req, res) => {
+  try {
+      const { wineId, price, quantity, condition } = req.body;
+      const userId = req.user.uid;
+
+      // Log the incoming request data
+      console.log('Received request to add wine for sale:', { wineId, price, quantity, condition, userId });
+
+      // Check for missing fields
+      if (!price || !quantity || !condition) {
+          console.warn('Missing required fields:', { price, quantity, condition });
+          return res.status(400).json({ message: 'Missing required fields: price, quantity, or condition.' });
+      }
+
+      const wineData = {
+          price,
+          quantity,
+          condition,
+          status: 'for_sale',
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      // Reference to the winesForSale collection
+      const wineRef = db.collection('users').doc(userId).collection('winesForSale');
+      console.log('Reference to winesForSale collection established for user:', userId);
+
+      if (wineId) {
+          // Update existing wine
+          const existingWineRef = wineRef.doc(wineId);
+          const wineDoc = await existingWineRef.get();
+
+          console.log('Checking if wine exists for update:', wineId);
+
+          if (wineDoc.exists) {
+              // If the wine exists, update it
+              await existingWineRef.update(wineData);
+              const updatedWine = await existingWineRef.get();
+              console.log('Wine updated successfully:', updatedWine.data());
+              return res.status(200).json({ data: updatedWine.data() });
+          } else {
+              // If the wine does not exist, create a new entry
+              console.warn('Wine not found for update, creating a new entry:', wineId);
+              await existingWineRef.set(wineData);
+              const newWine = await existingWineRef.get();
+              console.log('New wine entry created successfully:', newWine.data());
+              return res.status(201).json({ data: newWine.data() });
+          }
+      } else {
+          // Create new wine if wineId is not provided
+          const newWineRef = wineRef.doc(); // Automatically generate a new document ID
+          console.log('Creating a new wine entry as wineId was not provided.');
+          await newWineRef.set(wineData);
+          const newWine = await newWineRef.get();
+          console.log('New wine entry created successfully:', newWine.data());
+          return res.status(201).json({ data: newWine.data() });
+      }
+  } catch (error) {
+      console.error('Error processing wine data:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // Start your server (add appropriate port)
 app.listen(port, () => {
   console.log(`Server running at ${port}`);

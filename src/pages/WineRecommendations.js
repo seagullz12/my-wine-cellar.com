@@ -43,7 +43,7 @@ const WineRecommendation = () => {
       const token = await getToken();
       if (!token) throw new Error('User not authenticated.');
 
-      const response = await fetch(`${backendURL}/recommend-wine`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/recommend-wine`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

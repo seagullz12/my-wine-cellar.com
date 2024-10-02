@@ -83,7 +83,7 @@ const WineList = () => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          const response = await fetch(`${backendURL}/get-wine-data`, {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -129,7 +129,7 @@ const WineList = () => {
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`${backendURL}/delete-wine/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/delete-wine/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

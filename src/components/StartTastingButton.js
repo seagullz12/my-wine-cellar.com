@@ -16,7 +16,7 @@ const StartTastingButton = ({ wineId, backendURL, user, onTastingStarted }) => {
       };
 
       // Make the PUT request to update the wine data
-      const response = await fetch(`${backendURL}/update-wine-data`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

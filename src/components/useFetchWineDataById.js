@@ -23,7 +23,7 @@ const useFetchWineDataById = (wineId) => {
       if (user && wineId) {
         setLoading(true);
         try {
-          const response = await fetch(`${backendURL}/get-wine-data?id=${wineId}`, {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${wineId}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },

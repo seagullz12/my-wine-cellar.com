@@ -44,7 +44,7 @@ const WineDetail = () => {
       if (user && resolvedWineId) {
         try {
           const authToken = await user.getIdToken();
-          const response = await fetch(`${backendURL}/get-wine-data?id=${resolvedWineId}`, {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${resolvedWineId}`, {
             headers: {
               'Authorization': `Bearer ${authToken}`,
             },
@@ -83,7 +83,7 @@ const WineDetail = () => {
     e.preventDefault();
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`${backendURL}/update-wine-data`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -11,6 +11,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
 
 const WineData = ({ wine, wineDetailPage }) => {
+//   if (!wine || !Array.isArray(wine)) {
+//     return <div>No wine data available</div>; // or a loading state
+// }
   return (
     <Grid container spacing={1}>
       {/* Colour */}

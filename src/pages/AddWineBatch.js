@@ -269,7 +269,7 @@ const AddWine = () => {
             });
 
             if (response.ok) {
-                const wineUrl = `${backendURL}/cellar/${id}`;
+                const wineUrl = `${process.env.REACT_APP_BACKEND_URL}/cellar/${id}`;
                 setNotification(`"${wineData.name}" has been added to your cellar. View it <a href="${wineUrl}" target="_blank">here</a>.`);
                 setShowNotification(true);
                 setTimeout(() => setShowNotification(false), 3000);

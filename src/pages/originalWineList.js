@@ -13,9 +13,6 @@ import {
   Box,
   CircularProgress,
   Container,
-  Dialog,
-  DialogTitle,
-  DialogContent,
 } from '@mui/material';
 import '../styles/WineList.css'; // Ensure any custom styles are still applied
 import AgeBadge from '../components/AgeBadge';
@@ -25,7 +22,6 @@ import WineListSorting from '../components/WineListSorting';
 import CellarStatistics from '../components/CellarStatistics';
 import WineData from '../components/WineData';
 import ForSaleLabel from '../components/ForSaleLabel';
-import SellWineForm from '../components/SellWineForm';
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -38,8 +34,7 @@ const WineList = () => {
   const [sortCriteria, setSortCriteria] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
   const navigate = useNavigate();
-  const [selectedWine, setSelectedWine] = useState(null);
-  const [open, setOpen] = useState(false);
+
   const [filters, setFilters] = useState({
     colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
     grapes: [
@@ -202,7 +197,8 @@ const WineList = () => {
       (!newFilters.dateAdded.length || newFilters.dateAdded.includes(wine.dateAdded)) &&
       (!newFilters.country.length || newFilters.country.includes(wine.country)) &&
       (!newFilters.status.length || newFilters.status.includes(wine.status))
-    )
+    );
+    const [selectedWine, setSelectedWine] = useState(null);
 
     const sortedFilteredWines = sortWines(filtered);
     setFilteredWines(sortedFilteredWines);
@@ -240,21 +236,45 @@ const WineList = () => {
     setFilteredWines(sortedWines);
   };
 
-  // Sell wine
-  const handleOpen = (wine) => {
-    setLoading(true);
-    setSelectedWine(wine);
+  const handleSellWine = async (wineId) => {
+    if (!user) return;
 
-    // Simulate loading with a timeout
-    setTimeout(() => {
-      setLoading(false);
-      setOpen(true); // Open modal after loading
-    }, 100); // Simulated delay for loading
-  };
 
-  const handleClose = () => {
-    setOpen(false);
-    setSelectedWine(null);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: wineId,
+          wineData: { status: 'for_sale' }, // Set status to 'for_sale'
+        }),
+      });
+
+      if (response.ok) {
+        const updatedWine = await response.json();
+        // Update local state to reflect the updated wine data
+        setWines(prevWines => prevWines.map(wine =>
+          wine.id === wineId ? updatedWine.data : wine
+        ));
+        setFilteredWines(prevFilteredWines => prevFilteredWines.map(wine =>
+          wine.id === wineId ? updatedWine.data : wine
+        ));
+        setSnackbarMessage('Wine marked for sale successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      } else {
+        throw new Error('Error updating wine data');
+      }
+    } catch (error) {
+      console.error('Error updating wine status:', error);
+      setSnackbarMessage('Error marking wine for sale. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   if (loading) {
@@ -298,8 +318,8 @@ const WineList = () => {
                   display: 'flex',
                   flexDirection: 'column'
                 }}
-              >
-
+              > 
+             
                 <Link to={`/cellar/${wine.id}`}>
                   <CardMedia sx={{ position: 'relative' }}>
                     {/* The Wine Image */}
@@ -337,14 +357,14 @@ const WineList = () => {
                       {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                     </Box>
                   </CardMedia>
-                  <Typography variant="body1" sx={{ m: 2, mb: 1 }}><strong>{wine.name}</strong></Typography>
+                  <Typography variant="body1" sx={{m: 2, mb:1}}><strong>{wine.name}</strong></Typography>
                 </Link>
                 <CardContent sx={{
                   padding: 0,
                   margin: 1,
-                  marginBottom: 2
+                  marginBottom:2
                 }}>
-                  <WineData wine={wine} wineDetailPage={false} />
+                  <WineData wine={wine} wineDetailPage={false}/>
                 </CardContent>
                 <Box display="flex" justifyContent="space-between" mt="auto">
                   <Grid container spacing={2}>
@@ -370,8 +390,7 @@ const WineList = () => {
                       <Button
                         variant="outlined"
                         color="success"
-                        onClick={() => handleOpen(wine)}
-                        //navigate(`/for-sale/${wine.id}`)} 
+                        onClick={() => navigate(`/for-sale/${wine.id}`)} 
                         fullWidth
                       >
                         Sell This Bottle
@@ -386,34 +405,17 @@ const WineList = () => {
           ))
         ) : (
           <>
-            {loading ? (
-              <>
-                Loading...
-                <CircularProgress size={24} sx={{ ml: 2 }} />
-              </>
-            ) : (
-              'No wines found...'
-            )}</>
+          {loading ? (
+            <>
+              Loading...
+              <CircularProgress size={24} sx={{ ml: 2 }} />
+            </>
+          ) : (
+            'No wines found...'
+          )}</>
         )}
       </Grid>
 
-      {/* Dialog for Sell Form */}
-      {selectedWine && (
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>{selectedWine.name}</DialogTitle>
-          
-          <DialogContent>
-            <SellWineForm
-              wineId={selectedWine.id} // Pass the selected wine data
-              wine={selectedWine}
-              user={user}
-              setWines={setWines}
-              setFilteredWines={setFilteredWines}
-              onClose={handleClose} // Pass the onClose function h
-            />
-          </DialogContent>
-        </Dialog>
-      )}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

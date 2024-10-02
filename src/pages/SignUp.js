@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import { updateUserProfile } from '../components/user'; // Import the updateUserProfile function
+import { updateUserProfile } from '../components/api/user'; // Import the updateUserProfile function
 
 const SignUp = () => {
   const [email, setEmail] = useState('');

@@ -12,7 +12,7 @@ const TastingNotesForm = ({ wineId, backendURL, user, handleIsTasting }) => {
     e.preventDefault();
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`${backendURL}/update-wine-data`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

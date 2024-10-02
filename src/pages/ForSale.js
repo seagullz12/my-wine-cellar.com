@@ -5,7 +5,6 @@ import WineDetailEditForm from '../components/WineDetailEditForm';
 import WineData from '../components/WineData'; // Importing your WineData component
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import AgeBadge from '../components/AgeBadge';
-import TastingForm from '../components/TastingNotesForm';
 import ShareWineButton from '../components/ShareWineButton';
 import { getWineIdFromToken } from '../components/utils/getWineIdFromToken';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -40,23 +39,11 @@ const ForSale = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [tastingStarted, setTastingStarted] = useState(false);
     const [formData, setFormData] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const location = useLocation();
     const [showSellWine, setShowSellWine] = useState(true);
-    const [isTasting, setIsTasting] = useState(false);
-    
-    const handleTastingToggle = () => {
-        setIsTasting(!isTasting);
-    };
-
-    const handleTastingStarted = (updatedWine) => {
-        setWine(updatedWine);
-        setTastingStarted(true);
-    };
-
 
     const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
     const theme = useTheme();
@@ -74,8 +61,8 @@ const ForSale = () => {
         if (wine) {
             ReactGA.send({
                 hitType: 'pageview',
-                page: `/cellar/wine-detail`,
-                title: `Wine Detail - ${wine.name} (${wine.vintage})`,
+                page: `/cellar/for-sale`,
+                title: `Wine For Sale - ${wine.name} (${wine.vintage})`,
             });
         }
     }, [wine, location]);
@@ -87,7 +74,7 @@ const ForSale = () => {
             if (user && resolvedWineId) {
                 try {
                     const authToken = await user.getIdToken();
-                    const response = await fetch(`${backendURL}/get-wine-data?id=${resolvedWineId}`, {
+                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${resolvedWineId}`, {
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
                         },
@@ -125,7 +112,7 @@ const ForSale = () => {
         e.preventDefault();
         try {
             const token = await user.getIdToken();
-            const response = await fetch(`${backendURL}/update-wine-data`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -309,14 +296,6 @@ const ForSale = () => {
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    onClick={handleTastingStarted}
-                                                    sx={{ mt: 0 }}
-                                                >
-                                                    Start Tasting
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
                                                     onClick={() => setShowSellWine(!showSellWine)}
                                                     sx={{ mt: 0 }}
                                                 >
@@ -329,18 +308,6 @@ const ForSale = () => {
                                             </CardActions>
                                         </Card>
                                     )}
-                                </Box>
-                                <Box>
-
-                                    {isTasting && (
-                                        <TastingForm
-                                            formData={formData}
-                                            handleChange={handleChange}
-                                            handleSubmit={handleSubmit} // You may want a specific submit handler for the tasting
-                                            handleTastingToggle={handleTastingToggle}
-                                        />
-                                    )
-                                    }
                                 </Box>
                             </Grid>
                         </Grid>
@@ -457,14 +424,7 @@ const ForSale = () => {
                                                 >
                                                     Edit Wine Details
                                                 </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={handleTastingToggle}
-                                                    sx={{ mt: 0 }}
-                                                >
-                                                    Start Tasting
-                                                </Button>
+                                           
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
@@ -478,19 +438,6 @@ const ForSale = () => {
                                     )}
                                 </Box>
                             </Grid>
-                            <Box>
-
-                                {isTasting && (
-                                    <TastingForm
-                                        formData={formData}
-                                        handleChange={handleChange}
-                                        handleSubmit={handleSubmit} // You may want a specific submit handler for the tasting
-                                        handleTastingToggle={handleTastingToggle}
-                                    />
-                                )
-                                }
-                            </Box>
-
                         </Grid>
                     )}
                 </>

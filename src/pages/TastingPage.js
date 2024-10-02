@@ -24,7 +24,7 @@ const TastingPage = () => {
 
       try {
         const authToken = await user.getIdToken();
-        const response = await fetch(`${backendURL}/get-wine-data?id=${wineId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${wineId}`, {
           headers: {
             'Authorization': `Bearer ${authToken}`,
           },
@@ -60,7 +60,7 @@ const TastingPage = () => {
       };
 
       try {
-        const response = await fetch(`${backendURL}/update-wine-data`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,

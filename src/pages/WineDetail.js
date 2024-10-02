@@ -13,7 +13,6 @@ import { Navigation, Pagination } from 'swiper/modules';
 import ForSaleLabel from '../components/ForSaleLabel'; // Import the ForSaleLabel component
 import 'swiper/swiper-bundle.css'; // Ensure to import Swiper styles
 
-import SellWine from '../components/SellWine';
 import ReactGA from 'react-ga4';
 import {
     Box,
@@ -27,11 +26,16 @@ import {
     CardContent,
     CardActions,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WineMap from '../components/WineMap';
+import SellWineForm from '../components/SellWineForm';
 
 const WineDetail = () => {
     const { id: wineId, token } = useParams();
@@ -44,8 +48,12 @@ const WineDetail = () => {
     const [formData, setFormData] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const location = useLocation();
     const [showSellWine, setShowSellWine] = useState(false);
+    const [selectedWine, setSelectedWine] = useState(null);
+    const [open, setOpen] = useState(false);
 
     const [isTasting, setIsTasting] = useState(false);
 
@@ -88,7 +96,7 @@ const WineDetail = () => {
             if (user && resolvedWineId) {
                 try {
                     const authToken = await user.getIdToken();
-                    const response = await fetch(`${backendURL}/get-wine-data?id=${resolvedWineId}`, {
+                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${resolvedWineId}`, {
                         headers: {
                             'Authorization': `Bearer ${authToken}`,
                         },
@@ -126,7 +134,7 @@ const WineDetail = () => {
         e.preventDefault();
         try {
             const token = await user.getIdToken();
-            const response = await fetch(`${backendURL}/update-wine-data`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -152,10 +160,24 @@ const WineDetail = () => {
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
-    const handleSellSuccess = () => {
-        setShowSellWine(false); // Hide the SellWine component after successful selling
-        window.location.reload(); // Refresh the page to fetch updated data
+
+    // Sell wine
+    const handleOpen = (wine) => {
+        setLoading(true);
+        setSelectedWine(wine);
+
+        // Simulate loading with a timeout
+        setTimeout(() => {
+            setLoading(false);
+            setOpen(true); // Open modal after loading
+        }, 100); // Simulated delay for loading
     };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedWine(null);
+    };
+
 
     if (loading) return <CircularProgress />;
     if (error) return <Typography color="error">{error}</Typography>;
@@ -241,7 +263,7 @@ const WineDetail = () => {
                                                             right={10} // Adjust this value to position the badge horizontally
                                                             zIndex={1} // Ensure the badge appears above the image
                                                             sx={{ padding: 0 }}>
-                                                            {wine.status==="for_sale" &&( <ForSaleLabel price={wine.price} /> )}
+                                                            {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                                                         </Box>
                                                     </SwiperSlide>
                                                 )}
@@ -271,7 +293,7 @@ const WineDetail = () => {
                                                             right={10} // Adjust this value to position the badge horizontally
                                                             zIndex={1} // Ensure the badge appears above the image
                                                             sx={{ padding: 0 }}>
-                                                            {wine.status==="for_sale" &&( <ForSaleLabel price={wine.price} /> )}
+                                                            {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                                                         </Box>
                                                     </SwiperSlide>
                                                 )}
@@ -296,7 +318,7 @@ const WineDetail = () => {
                                     ) : (
                                         <Card>
                                             <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} wineDetailPage={true}/>
+                                                <WineData wine={wine} wineDetailPage={true} />
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <Button
@@ -308,6 +330,15 @@ const WineDetail = () => {
                                                     Edit Wine Details
                                                 </Button>
                                                 <Button
+                                                   variant="contained"
+                                                    color="primary"
+                                                    onClick={() => handleOpen(wine)}
+                                                    sx={{ mt: 0 }}
+
+                                                >
+                                                    Sell This Bottle
+                                                </Button>
+                                                <Button
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={handleTastingStarted}
@@ -315,15 +346,6 @@ const WineDetail = () => {
                                                 >
                                                     Start Tasting
                                                 </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={() => setShowSellWine(!showSellWine)}
-                                                    sx={{ mt: 0 }}
-                                                >
-                                                    {showSellWine ? 'Cancel Selling' : 'Sell This Wine'}
-                                                </Button>
-
                                             </CardActions>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
@@ -392,7 +414,7 @@ const WineDetail = () => {
                                                             right={10} // Adjust this value to position the badge horizontally
                                                             zIndex={1} // Ensure the badge appears above the image
                                                             sx={{ padding: 0 }}>
-                                                            {wine.status==="for_sale" &&( <ForSaleLabel price={wine.price} /> )}
+                                                            {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                                                         </Box>
                                                     </SwiperSlide>
 
@@ -423,7 +445,7 @@ const WineDetail = () => {
                                                             right={10} // Adjust this value to position the badge horizontally
                                                             zIndex={1} // Ensure the badge appears above the image
                                                             sx={{ padding: 0 }}>
-                                                            {wine.status==="for_sale" &&( <ForSaleLabel price={wine.price} /> )}
+                                                            {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
                                                         </Box>
                                                     </SwiperSlide>
                                                 )}
@@ -445,10 +467,6 @@ const WineDetail = () => {
                                         />
                                     ) : (
                                         <Card>
-                                            <CardContent sx={{ p: 2 }}>
-                                                <WineData wine={wine} wineDetailPage={true} />
-                                                {showSellWine && <Card sx={{mt:1}}><SellWine wine={wine} wineId={wineId} onSuccess={handleSellSuccess}/></Card>}
-                                            </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, padding: 1 }}>
                                                 <Button
                                                     variant="contained"
@@ -515,6 +533,32 @@ const WineDetail = () => {
                 <WineMap region={wine.region} />
             </Box>
             )} */}
+            {/* Dialog for Sell Form */}
+            {selectedWine && (
+                <Dialog open={open} onClose={handleClose}>
+                    <DialogTitle>{selectedWine.name}</DialogTitle>
+
+                    <DialogContent>
+                        <SellWineForm
+                            wineId={selectedWine.id} // Pass the selected wine data
+                            wine={selectedWine}
+                            user={user}
+                            setWine={setWine}
+                            onClose={handleClose} // Pass the onClose function h
+                        />
+                    </DialogContent>
+                </Dialog>
+            )}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

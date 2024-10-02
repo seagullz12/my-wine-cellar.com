@@ -31,7 +31,7 @@ const SellWine = ({ wine, wineId, onSuccess }) => {
     if (user) {
       try {
         const token = await user.getIdToken();
-        const response = await fetch(`${backendURL}/update-wine-data`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,

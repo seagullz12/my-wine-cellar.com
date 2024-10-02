@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { getAuth } from 'firebase/auth';
-import { fetchUserProfile, updateUserProfile } from '../components/user';
+import { fetchUserProfile, updateUserProfile } from '../components/api/user'; 
 
 const ProfileField = ({ label, name, value, onChange, editMode }) => (
   <Grid item xs={12}>

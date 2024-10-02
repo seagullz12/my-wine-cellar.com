@@ -8,7 +8,7 @@ import joinUs from '../assets/images/wine_lover_man2.jpg';
 import addWines from '../assets/images/add_wine_woman.jpg';
 import HeroBanner from '../components/HeroBanner';
 import UserWineCarousel from '../components/UserWineCarousel';
-import { fetchUserProfile } from '../components/user'; // Assume this is the path to your user fetching function
+import { fetchUserProfile } from '../components/api/user'; // Assume this is the path to your user fetching function
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

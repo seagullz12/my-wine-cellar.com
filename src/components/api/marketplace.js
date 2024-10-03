@@ -1,15 +1,15 @@
 // /components/api/marketplace.js
 
-export const fetchMarketplaceData = async (token) => {
-// Check if the token is provided
-if (!token) {
-    throw new Error('Token is required to fetch marketplace data');
-}
+export const fetchMarketplaceListings = async (token) => {
+    // Check if the token is provided
+    if (!token) {
+        throw new Error('Token is required to fetch marketplace data');
+    }
     try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/marketplace`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`, 
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
         });
@@ -23,6 +23,7 @@ if (!token) {
 
         const data = await response.json();
         return data.wines;
+        
     } catch (error) {
         console.error('Error fetching marketplace data:', error);
         throw new Error('An error occurred while fetching marketplace data.');

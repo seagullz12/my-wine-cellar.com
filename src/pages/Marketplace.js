@@ -1,44 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
-
 import {
     CardContent,
     CardMedia,
     Typography,
-    Snackbar,
-    Alert,
     Grid,
     Button,
     Box,
     CircularProgress,
     Container,
-    Dialog,
-    DialogTitle,
-    DialogContent,
 } from '@mui/material';
-import '../styles/WineList.css'; // Ensure any custom styles are still applied
 import AgeBadge from '../components/AgeBadge';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import WineData from '../components/WineData';
 import ForSaleLabel from '../components/ForSaleLabel';
-import SellWineForm from '../components/SellWineForm';
+import { fetchMarketplaceListings } from '../components/api/marketplace'
 
 const Marketplace = () => {
     const [wines, setWines] = useState([]);
     const [filteredWines, setFilteredWines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [sortCriteria, setSortCriteria] = useState('name');
     const [sortOrder, setSortOrder] = useState('asc');
     const navigate = useNavigate();
-    const [selectedWine, setSelectedWine] = useState(null);
-    const [open, setOpen] = useState(false);
     const [filters, setFilters] = useState({
         colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
         grapes: [
@@ -96,66 +84,32 @@ const Marketplace = () => {
         return () => unsubscribe();
     }, []);
 
+    // marketplace listings api call //
     useEffect(() => {
-        const fetchWines = async () => {
-            if (user) {
-                try {
-                    const token = await user.getIdToken();
-                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/marketplace`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    });
+        const fetchWineListings = async () => {
+          if (user) {
+            try {
+              const token = await user.getIdToken();
+              const data = await fetchMarketplaceListings(token);
+    
+              const fetchedWines = data || [];
+              setWines(fetchedWines);
+              setFilteredWines(fetchedWines);
 
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch marketplace data');
-                    }
-
-                    const data = await response.json();
-                    const fetchedWines = data.wines || [];
-                    setWines(fetchedWines);
-                    setFilteredWines(fetchedWines);
-
-                    const distinctVintages = [...new Set(fetchedWines.map(wine => wine.wineDetails.vintage))];
-                    setFilters(prevFilters => ({
-                      ...prevFilters,
-                      vintages: distinctVintages.sort(),
-                    }));
           
-                    const distinctDateAdded = [...new Set(fetchedWines.map(wine => wine.wineDetails.dateAdded))];
-                    setFilters(prevFilters => ({
-                      ...prevFilters,
-                      datesAdded: distinctDateAdded.sort(),
-                    }));
-          
-                    const distinctCountry = [...new Set(fetchedWines.map(wine => wine.wineDetails.country))];
-                    setFilters(prevFilters => ({
-                      ...prevFilters,
-                      countries: distinctCountry.sort(),
-                    }));
-          
-                    const distinctName = [...new Set(fetchedWines.map(wine => wine.wineDetails.name))];
-                    setFilters(prevFilters => ({
-                      ...prevFilters,
-                      names: distinctName.sort(),
-                    }));
-
-                } catch (error) {
-                    console.error('Error fetching marketplace data:', error);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
+            } catch (error) {
+                console.error('Error fetching marketplace data:', error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
                 setLoading(false);
             }
         };
 
-        fetchWines();
+        fetchWineListings();
     }, [user]);
-
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
+    // end marketplace listings api call //
 
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
@@ -199,16 +153,6 @@ const Marketplace = () => {
         setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
         const sortedWines = sortWines(filteredWines);
         setFilteredWines(sortedWines);
-    };
-
-    const handleOpen = (wine) => {
-        setSelectedWine(wine);
-        setOpen(true); // Open modal
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        setSelectedWine(null);
     };
 
     const initializeFilters = (wineData) => {
@@ -314,7 +258,7 @@ const Marketplace = () => {
                                             <Button
                                                 variant="outlined"
                                                 color="success"
-                                                onClick={() => handleOpen(wine)}
+                                                onClick={() => <a>Coming soon!</a> }
                                                 fullWidth
                                             >
                                                 Buy This Bottle

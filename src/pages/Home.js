@@ -8,13 +8,16 @@ import joinUs from '../assets/images/wine_lover_man2.jpg';
 import addWines from '../assets/images/add_wine_woman.jpg';
 import HeroBanner from '../components/HeroBanner';
 import UserWineCarousel from '../components/UserWineCarousel';
-import { fetchUserProfile } from '../components/api/user'; // Assume this is the path to your user fetching function
+import MarketWineCarousel from '../components/MarketWineCarousel';
+
+// api calls
+import { fetchUserProfile } from '../components/api/user';
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [wines, setWines] = useState([]);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState(null);
   const [profileData, setProfileData] = useState({ displayName: '', userName: '' });
 
   const auth = getAuth();
@@ -28,56 +31,37 @@ const HomePage = () => {
     return () => unsubscribe();
   }, [auth]);
 
+  // user profile data api call //
   useEffect(() => {
     const fetchProfileData = async () => {
       if (user) {
         try {
-        const token = await user.getIdToken();
-        const data = await fetchUserProfile(token);
-// Set profile data or handle cases where no data exists
-if (data) {
-  setProfileData({
-    displayName: data.displayName || '',
-    userName: data.userName || '',
-  });
-} else {
-  setError('No user data found.');
-}
-} catch (error) {
-// Handle specific error scenarios
-console.error('Error fetching profile data:', error);
-setError('Failed to load user profile. Please try again later.');
-}
-} else {
-setError('User not authenticated.');
-}
-};
-    fetchProfileData();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchWines = async () => {
-      if (user) {
-        try {
           const token = await user.getIdToken();
-          const response = await fetch('https://wine-scanner-44824993784.europe-west1.run.app/get-wine-data', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
+          setToken(token)
+          
+          const data = await fetchUserProfile(token);
 
-          const data = await response.json();
-          setWines(data.wines || []);
+          // Set profile data or handle cases where no data exists
+          if (data) {
+            setProfileData({
+              displayName: data.displayName || '',
+              userName: data.userName || '',
+            });
+          } else {
+            setError('No user data found.');
+          }
         } catch (error) {
-          console.error('Error fetching wine data:', error);
+          // Handle specific error scenarios
+          console.error('Error fetching profile data:', error);
+          setError('Failed to load user profile. Please try again later.');
         }
+      } else {
+        setError('User not authenticated.');
       }
     };
-
-    fetchWines();
+    fetchProfileData();
   }, [user]);
-
-  const displayedWines = wines.slice(0, 5);
+  // end user profile data api call //
 
   return (
     <Box sx={{ padding: 2, backgroundColor: 'background.default', minHeight: '100vh' }}>
@@ -90,7 +74,12 @@ setError('User not authenticated.');
             </Typography>
 
             <Box>
-              <UserWineCarousel wines={displayedWines} />
+            {/* MarketplacePreview component */}
+            <MarketWineCarousel sampleSize={4} token={token} />
+            </Box>
+             {/* UserWineCarousel component */}
+            <Box>
+              <UserWineCarousel sampleSize={6} token={token} />
             </Box>
           </>
         )}

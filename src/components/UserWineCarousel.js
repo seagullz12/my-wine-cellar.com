@@ -4,27 +4,61 @@ import { Link } from 'react-router-dom';
 import { CardMedia, Typography, Box, Button, CircularProgress, Grid, Card } from '@mui/material';
 import AgeBadge from './AgeBadge';
 import PeakMaturityBadge from './PeakMaturityBadge';
-import WineData from './WineData';
 import WineBarIcon from '@mui/icons-material/WineBar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import {fetchUserWines} from '../components/api/wines'
+
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
-const UserWineCarousel = ({ wines }) => {
+const UserWineCarousel = ({ token, sampleSize  }) => {
+  const [wines, setWines] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check if wines are present
-    setLoading(false); // Stop loading when the component mounts
-  }, [wines]);
+    const fetchWines = async () => {
+      if (token) {
+        try {
+          const data = await fetchUserWines(token);
+          const fetchedWines = data.wines || [];
+          setWines(fetchedWines.slice(0, sampleSize)); // Limit to sample size
+        } catch (error) {
+          console.error('Error fetching wine data:', error);
+          setError('Failed to load wines. Please try again later.');
+        } finally {
+          setLoading(false);
+      }
+  } else {
+      setLoading(false);
+  }
+};
+
+    fetchWines();
+  }, [token, sampleSize]);
+
 
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,  // Set to show 3 smaller slides
+    slidesToShow: 6, // Set to show 3 smaller slides
     slidesToScroll: 1,
+    appendDots: (dots) => (
+      <div style={{  marginBottom: "18px" }}> {/* Add margin here */}
+        <ul style={{ display: 'flex', justifyContent: 'center'}}>
+          {dots}
+        </ul>
+      </div>
+    ),
     responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 6,
+          slidesToScroll: 1,
+        },
+      },
       {
         breakpoint: 600,
         settings: {
@@ -47,6 +81,17 @@ const UserWineCarousel = ({ wines }) => {
     return <CircularProgress />;
   }
 
+  // If there was an error, show the error message
+  if (error) {
+    return (
+      <Box sx={{ mt: 2, textAlign: 'center' }}>
+        <Typography variant="body1" color="error">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
   // If no wines are present, show a message to add wines
   if (wines.length === 0) {
     return (
@@ -66,14 +111,13 @@ const UserWineCarousel = ({ wines }) => {
 
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ mb: 1, mt:4, textAlign: 'center' }}>
         Your Wine Collection:
       </Typography>
 
       <Slider {...settings}>
         {wines.map((wine) => (
-          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '500px'}}>
-    
+          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px' }}>
             <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
               <CardMedia
                 sx={{
@@ -93,7 +137,12 @@ const UserWineCarousel = ({ wines }) => {
                   {!wine.drinkingWindow ? (
                     <AgeBadge vintage={wine.vintage} round={true} />
                   ) : (
-                    <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} drinkingWindow={wine.drinkingWindow} round={true} />
+                    <PeakMaturityBadge
+                      vintage={wine.vintage}
+                      peakMaturity={wine.peakMaturity}
+                      drinkingWindow={wine.drinkingWindow}
+                      round={true}
+                    />
                   )}
                 </Box>
               </CardMedia>
@@ -104,7 +153,7 @@ const UserWineCarousel = ({ wines }) => {
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center">
                     <Typography textAlign="center">
-                      <strong>{wine.name}</strong> 
+                      <strong>{wine.name}</strong>
                     </Typography>
                   </Box>
                 </Grid>
@@ -131,13 +180,13 @@ const UserWineCarousel = ({ wines }) => {
               </Grid>
 
               {/* View Button */}
-              <Box sx={{ m: 1}}>
+              <Box sx={{ m: 1 }}>
                 <Button variant="contained" color="primary" size="small" component={Link} to={`/cellar/${wine.id}`}>
                   View
                 </Button>
               </Box>
             </Link>
-            </Card>
+          </Card>
         ))}
       </Slider>
     </Box>

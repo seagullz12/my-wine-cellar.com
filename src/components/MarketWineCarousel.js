@@ -96,12 +96,12 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
 
       <Slider {...settings}>
         {wines.map((wine) => (
-          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px'}}>
+          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '550px'}}>
             <Link to={'/marketplace'} style={{ textDecoration: 'none' }}>
             <CardMedia
               sx={{
                 position: 'relative',
-                height: '200px',
+                height: '300px',
                 borderRadius: 2,
                 overflow: 'hidden',
                 marginBottom: 1,

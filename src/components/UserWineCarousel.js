@@ -111,13 +111,12 @@ const UserWineCarousel = ({ token, sampleSize }) => {
 
       <Slider {...settings}>
         {wines.map((wine) => (
-
-          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px', height: '480px', width: '250px' }}>
+          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '550px'}}>
             <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
               <CardMedia
                 sx={{
                   position: 'relative',
-                  height: '200px',
+                  height: '300px',
                   borderRadius: 2,
                   overflow: 'hidden',
                   marginBottom: 1,

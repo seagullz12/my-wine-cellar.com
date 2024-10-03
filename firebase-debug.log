@@ -1,71 +1,70 @@
-[debug] [2024-10-03T12:40:35.537Z] ----------------------------------------------------------------------
-[debug] [2024-10-03T12:40:35.538Z] Command:       /Users/stefanhoogers/.nvm/versions/node/v20.17.0/bin/node /Users/stefanhoogers/.nvm/versions/node/v20.17.0/bin/firebase deploy
-[debug] [2024-10-03T12:40:35.538Z] CLI Version:   13.20.2
-[debug] [2024-10-03T12:40:35.539Z] Platform:      darwin
-[debug] [2024-10-03T12:40:35.539Z] Node Version:  v20.17.0
-[debug] [2024-10-03T12:40:35.539Z] Time:          Thu Oct 03 2024 14:40:35 GMT+0200 (Central European Summer Time)
-[debug] [2024-10-03T12:40:35.539Z] ----------------------------------------------------------------------
+[debug] [2024-10-03T13:06:33.847Z] ----------------------------------------------------------------------
+[debug] [2024-10-03T13:06:33.849Z] Command:       /Users/stefanhoogers/.nvm/versions/node/v20.17.0/bin/node /Users/stefanhoogers/.nvm/versions/node/v20.17.0/bin/firebase deploy
+[debug] [2024-10-03T13:06:33.849Z] CLI Version:   13.20.2
+[debug] [2024-10-03T13:06:33.849Z] Platform:      darwin
+[debug] [2024-10-03T13:06:33.849Z] Node Version:  v20.17.0
+[debug] [2024-10-03T13:06:33.849Z] Time:          Thu Oct 03 2024 15:06:33 GMT+0200 (Central European Summer Time)
+[debug] [2024-10-03T13:06:33.849Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2024-10-03T12:40:35.576Z] Object ".hosting" in "firebase.json" has unknown property: {"additionalProperty":"errorPage"}
-[debug] [2024-10-03T12:40:35.576Z] Field ".hosting" in "firebase.json" is possibly invalid: should be array
-[debug] [2024-10-03T12:40:35.576Z] Field ".hosting" in "firebase.json" is possibly invalid: should match some schema in anyOf
-[debug] [2024-10-03T12:40:35.578Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2024-10-03T12:40:35.578Z] > authorizing via signed-in user (stefanhoogers@gmail.com)
-[debug] [2024-10-03T12:40:35.578Z] [iam] checking project dbt-bigquery-setup-416318 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
-[debug] [2024-10-03T12:40:35.579Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:35.579Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:35.579Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions [none]
-[debug] [2024-10-03T12:40:35.579Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions x-goog-quota-user=projects/dbt-bigquery-setup-416318
-[debug] [2024-10-03T12:40:35.579Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
-[debug] [2024-10-03T12:40:36.186Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions 200
-[debug] [2024-10-03T12:40:36.186Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
-[debug] [2024-10-03T12:40:36.186Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:36.186Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:36.187Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 [none]
-[debug] [2024-10-03T12:40:36.538Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 200
-[debug] [2024-10-03T12:40:36.538Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 {"projectId":"dbt-bigquery-setup-416318","projectNumber":"44824993784","displayName":"My Wine Cellar","name":"projects/dbt-bigquery-setup-416318","resources":{"hostingSite":"dbt-bigquery-setup-416318"},"state":"ACTIVE","etag":"1_0c51328b-cc99-45c8-8102-24df4ffacd42"}
+[debug] [2024-10-03T13:06:33.886Z] Object ".hosting" in "firebase.json" has unknown property: {"additionalProperty":"errorPage"}
+[debug] [2024-10-03T13:06:33.887Z] Field ".hosting" in "firebase.json" is possibly invalid: should be array
+[debug] [2024-10-03T13:06:33.887Z] Field ".hosting" in "firebase.json" is possibly invalid: should match some schema in anyOf
+[debug] [2024-10-03T13:06:33.889Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-10-03T13:06:33.889Z] > authorizing via signed-in user (stefanhoogers@gmail.com)
+[debug] [2024-10-03T13:06:33.889Z] [iam] checking project dbt-bigquery-setup-416318 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2024-10-03T13:06:33.889Z] Checked if tokens are valid: false, expires at: 1727961509261
+[debug] [2024-10-03T13:06:33.889Z] Checked if tokens are valid: false, expires at: 1727961509261
+[debug] [2024-10-03T13:06:33.889Z] > refreshing access token with scopes: []
+[debug] [2024-10-03T13:06:33.890Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-10-03T13:06:33.890Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-10-03T13:06:34.045Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2024-10-03T13:06:34.045Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-10-03T13:06:34.058Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions [none]
+[debug] [2024-10-03T13:06:34.058Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions x-goog-quota-user=projects/dbt-bigquery-setup-416318
+[debug] [2024-10-03T13:06:34.058Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-10-03T13:06:34.291Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions 200
+[debug] [2024-10-03T13:06:34.291Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dbt-bigquery-setup-416318:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-10-03T13:06:34.292Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:34.292Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:34.292Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 [none]
+[debug] [2024-10-03T13:06:34.589Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 200
+[debug] [2024-10-03T13:06:34.589Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/dbt-bigquery-setup-416318 {"projectId":"dbt-bigquery-setup-416318","projectNumber":"44824993784","displayName":"My Wine Cellar","name":"projects/dbt-bigquery-setup-416318","resources":{"hostingSite":"dbt-bigquery-setup-416318"},"state":"ACTIVE","etag":"1_0c51328b-cc99-45c8-8102-24df4ffacd42"}
 [info] 
 [info] === Deploying to 'dbt-bigquery-setup-416318'...
 [info] 
 [info] i  deploying hosting 
-[debug] [2024-10-03T12:40:36.540Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:36.540Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:36.540Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions [none]
-[debug] [2024-10-03T12:40:36.540Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
-[debug] [2024-10-03T12:40:38.293Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions 200
-[debug] [2024-10-03T12:40:38.293Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions {"name":"projects/44824993784/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2024-10-03T13:06:34.592Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:34.592Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:34.592Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions [none]
+[debug] [2024-10-03T13:06:34.592Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2024-10-03T13:06:36.315Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions 200
+[debug] [2024-10-03T13:06:36.315Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/dbt-bigquery-setup-416318/versions {"name":"projects/44824993784/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
 [info] i  hosting[dbt-bigquery-setup-416318]: beginning deploy... 
 [info] i  hosting[dbt-bigquery-setup-416318]: found 23 files in build 
-[debug] [2024-10-03T12:40:38.314Z] [hosting] uploading with 200 concurrency
-[debug] [2024-10-03T12:40:38.617Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:38.617Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:38.619Z] [hosting] hash cache [YnVpbGQ] stored for 23 files
-[debug] [2024-10-03T12:40:38.619Z] [hosting][hash queue][FINAL] {"max":297,"min":8,"avg":30.956521739130434,"active":0,"complete":23,"success":23,"errored":0,"retried":0,"total":23,"elapsed":303}
-[debug] [2024-10-03T12:40:38.619Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1:populateFiles [none]
-[debug] [2024-10-03T12:40:38.619Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1:populateFiles {"files":{"/index.html":"9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f","/asset-manifest.json":"2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699","/robots.txt":"391d14b3c2f8c9143a27a28c7399585142228d4d1bdbe2c87ac946de411fa9a2","/cellar.png":"cf8153917c171cbe0ccf7aafec812fe176d1c170dea7dea3d61de4fac030dfb2","/wine.png":"193692be12128ec39968383f543920b26cf4cbaf519e324cada0cbf4ee27cf94","/404.html":"c59f3062a41a0fbbc475dd9ed2df041f22e31bcc1521895a8088f9591d518251","/static/media/slick.c94f7671dcc99dce43e2.ttf":"51a92c54f7cd65aa9e991824576942cb2fd470dca72288ca94b809fac89245dc","/static/media/slick.a4e97f5a2a64f0ab1323.eot":"7f110dff2a1cec1329987d5a5ea3ac01518e727c8506a47d008a99e765d7b406","/static/media/slick.295183786cd8a1389865.woff":"891e7d8945f331073201c7d1fe9445433be3e892f17e89edc6c2aa18de017f59","/static/media/slick.2630a3e3eab21c607e21.svg":"c852456595877b10620318fdfb10a4bb64138520765d608cf3bc32f050f2851c","/manifest.json":"e2ecf7bf0a992a9c6e6a7abf43d72a5d01e1853c34869490b727cab2004003d9","/static/js/main.7757cc52.js.LICENSE.txt":"02346e5750da4e965b8abfed831ee07ebc8135f0999effa599c5bfa4aeeec5de","/static/js/453.7fe3221d.chunk.js":"11b7b8766a6dcd455132334577b162b19870ee6810374c40bc12953b62484718","/static/js/453.7fe3221d.chunk.js.map":"a9b4805ec6e7ab8a4a192f806798bdedff420ec20b8347dd26a2bd4c1c3c8f4e","/static/css/main.a8bd7e7c.css.map":"6cfc259974d379ba5c305fe7f81b7e4e4c99e85bb8f5aed23c3483066cec0970","/static/css/main.a8bd7e7c.css":"7ae1f6c56ba3b6fc93b1204552c8bf37957d88763c32aa89d989e2fc94d8a55c","/static/media/add_wine_woman.c3f75ff7dbc85e6bd16a.jpg":"026e09139de800b96cc69f80de0924a467e4d69519ee65eb56ae31becaa41b51","/static/media/wine_lover_man2.7e781bbe9e45faa29108.jpg":"cb893e06a9bab8fb82cdb536ebc5b96cd5fe1f593eeb4df4c2f99dd1a9545852","/static/media/wine_lover_man.b03d8a0e85e9f5b09598.jpg":"16b5d22b57cb11851f3887db9283f62644bae50475898f5708461a72b8623f24","/static/media/hero_banner.896f6bff860831381c14.jpg":"f756288b6bb211adfcfe4cd9af92c6c849cc026f1040806756cdd67258648906","/static/js/main.7757cc52.js":"df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b","/static/media/wine_lover_woman2.b58c8dfee9bee19b0b70.jpg":"4a5374025cdca2a3c4c8f276e28636b394811a3b39cee6471730730fe483c05a","/static/js/main.7757cc52.js.map":"45b53d9bfcaab1f232decb67b2741548b772f0ace4f9ed74c1790af30d44a527"}}
-[debug] [2024-10-03T12:40:39.159Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1:populateFiles 200
-[debug] [2024-10-03T12:40:39.160Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1:populateFiles {"uploadRequiredHashes":["df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b","2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699","9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f","45b53d9bfcaab1f232decb67b2741548b772f0ace4f9ed74c1790af30d44a527"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files"}
-[debug] [2024-10-03T12:40:39.160Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.160Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] Checked if tokens are valid: true, expires at: 1727961509261
-[debug] [2024-10-03T12:40:39.161Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b [none]
-[debug] [2024-10-03T12:40:39.161Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b [stream]
-[debug] [2024-10-03T12:40:39.163Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699 [none]
-[debug] [2024-10-03T12:40:39.163Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699 [stream]
-[debug] [2024-10-03T12:40:39.164Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f [none]
-[debug] [2024-10-03T12:40:39.164Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f [stream]
-[debug] [2024-10-03T12:40:39.165Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/45b53d9bfcaab1f232decb67b2741548b772f0ace4f9ed74c1790af30d44a527 [none]
-[debug] [2024-10-03T12:40:39.165Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/45b53d9bfcaab1f232decb67b2741548b772f0ace4f9ed74c1790af30d44a527 [stream]
-[debug] [2024-10-03T12:40:39.166Z] [hosting][populate queue][FINAL] {"max":544,"min":544,"avg":544,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":549}
-[debug] [2024-10-03T12:40:39.166Z] [hosting] uploads queued: 4
-[debug] [2024-10-03T12:40:40.377Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699 200
-[debug] [2024-10-03T12:40:40.377Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/2f8acf6d2f786ce9bb7730766c1402da0d60698fa7bb3d7df6cc5eba5362c699 [stream]
-[debug] [2024-10-03T12:40:40.491Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f 200
-[debug] [2024-10-03T12:40:40.491Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/9e35ce3dee057fd0e0a9c889eb3bd7b3717ffb33c10c83b75a2217ced3bb0d8f [stream]
-[debug] [2024-10-03T12:40:40.893Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b 200
-[debug] [2024-10-03T12:40:40.894Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/d57ee148a58989c1/files/df2017e6f06b9a0619f1345239036ba55cd5b376f4f404cda3091202a3fb7e9b [stream]
+[debug] [2024-10-03T13:06:36.335Z] [hosting] uploading with 200 concurrency
+[debug] [2024-10-03T13:06:36.637Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:36.637Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:36.639Z] [hosting] hash cache [YnVpbGQ] stored for 23 files
+[debug] [2024-10-03T13:06:36.639Z] [hosting][hash queue][FINAL] {"max":295,"min":10,"avg":32.34782608695652,"active":0,"complete":23,"success":23,"errored":0,"retried":0,"total":23,"elapsed":300}
+[debug] [2024-10-03T13:06:36.639Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49:populateFiles [none]
+[debug] [2024-10-03T13:06:36.639Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49:populateFiles {"files":{"/index.html":"ce82601b3dd8c240d46a11f8370295166926fe4aaff405d07bce6bb8c2bb3dc6","/manifest.json":"e2ecf7bf0a992a9c6e6a7abf43d72a5d01e1853c34869490b727cab2004003d9","/robots.txt":"391d14b3c2f8c9143a27a28c7399585142228d4d1bdbe2c87ac946de411fa9a2","/asset-manifest.json":"6f9cc5935c0fa413a9d3fc07a9ae91202e3b5d1a22252b94cd16a3d8ad84ab3f","/wine.png":"193692be12128ec39968383f543920b26cf4cbaf519e324cada0cbf4ee27cf94","/static/media/slick.c94f7671dcc99dce43e2.ttf":"51a92c54f7cd65aa9e991824576942cb2fd470dca72288ca94b809fac89245dc","/404.html":"c59f3062a41a0fbbc475dd9ed2df041f22e31bcc1521895a8088f9591d518251","/static/media/slick.a4e97f5a2a64f0ab1323.eot":"7f110dff2a1cec1329987d5a5ea3ac01518e727c8506a47d008a99e765d7b406","/cellar.png":"cf8153917c171cbe0ccf7aafec812fe176d1c170dea7dea3d61de4fac030dfb2","/static/media/slick.2630a3e3eab21c607e21.svg":"c852456595877b10620318fdfb10a4bb64138520765d608cf3bc32f050f2851c","/static/media/slick.295183786cd8a1389865.woff":"891e7d8945f331073201c7d1fe9445433be3e892f17e89edc6c2aa18de017f59","/static/js/main.4ab5ce86.js.LICENSE.txt":"02346e5750da4e965b8abfed831ee07ebc8135f0999effa599c5bfa4aeeec5de","/static/js/453.7fe3221d.chunk.js":"11b7b8766a6dcd455132334577b162b19870ee6810374c40bc12953b62484718","/static/js/453.7fe3221d.chunk.js.map":"a9b4805ec6e7ab8a4a192f806798bdedff420ec20b8347dd26a2bd4c1c3c8f4e","/static/css/main.a8bd7e7c.css":"7ae1f6c56ba3b6fc93b1204552c8bf37957d88763c32aa89d989e2fc94d8a55c","/static/css/main.a8bd7e7c.css.map":"6cfc259974d379ba5c305fe7f81b7e4e4c99e85bb8f5aed23c3483066cec0970","/static/media/add_wine_woman.c3f75ff7dbc85e6bd16a.jpg":"026e09139de800b96cc69f80de0924a467e4d69519ee65eb56ae31becaa41b51","/static/media/wine_lover_man2.7e781bbe9e45faa29108.jpg":"cb893e06a9bab8fb82cdb536ebc5b96cd5fe1f593eeb4df4c2f99dd1a9545852","/static/media/wine_lover_man.b03d8a0e85e9f5b09598.jpg":"16b5d22b57cb11851f3887db9283f62644bae50475898f5708461a72b8623f24","/static/media/hero_banner.896f6bff860831381c14.jpg":"f756288b6bb211adfcfe4cd9af92c6c849cc026f1040806756cdd67258648906","/static/js/main.4ab5ce86.js":"8080eceeebd437faf6707021a0c47a62af96ceea0d74227bc33b1ad92b780adc","/static/media/wine_lover_woman2.b58c8dfee9bee19b0b70.jpg":"4a5374025cdca2a3c4c8f276e28636b394811a3b39cee6471730730fe483c05a","/static/js/main.4ab5ce86.js.map":"91285fcec06f3c81f2d99309d750edcd80ba40486306f0c13ff78a9122526c84"}}
+[debug] [2024-10-03T13:06:37.140Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49:populateFiles 200
+[debug] [2024-10-03T13:06:37.141Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/44824993784/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49:populateFiles {"uploadRequiredHashes":["8080eceeebd437faf6707021a0c47a62af96ceea0d74227bc33b1ad92b780adc","ce82601b3dd8c240d46a11f8370295166926fe4aaff405d07bce6bb8c2bb3dc6","91285fcec06f3c81f2d99309d750edcd80ba40486306f0c13ff78a9122526c84","6f9cc5935c0fa413a9d3fc07a9ae91202e3b5d1a22252b94cd16a3d8ad84ab3f"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files"}
+[debug] [2024-10-03T13:06:37.142Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.142Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.142Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.142Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.143Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.143Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.143Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.143Z] Checked if tokens are valid: true, expires at: 1727964393045
+[debug] [2024-10-03T13:06:37.143Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/8080eceeebd437faf6707021a0c47a62af96ceea0d74227bc33b1ad92b780adc [none]
+[debug] [2024-10-03T13:06:37.143Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/8080eceeebd437faf6707021a0c47a62af96ceea0d74227bc33b1ad92b780adc [stream]
+[debug] [2024-10-03T13:06:37.146Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/ce82601b3dd8c240d46a11f8370295166926fe4aaff405d07bce6bb8c2bb3dc6 [none]
+[debug] [2024-10-03T13:06:37.146Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/ce82601b3dd8c240d46a11f8370295166926fe4aaff405d07bce6bb8c2bb3dc6 [stream]
+[debug] [2024-10-03T13:06:37.148Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/91285fcec06f3c81f2d99309d750edcd80ba40486306f0c13ff78a9122526c84 [none]
+[debug] [2024-10-03T13:06:37.148Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/91285fcec06f3c81f2d99309d750edcd80ba40486306f0c13ff78a9122526c84 [stream]
+[debug] [2024-10-03T13:06:37.149Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/6f9cc5935c0fa413a9d3fc07a9ae91202e3b5d1a22252b94cd16a3d8ad84ab3f [none]
+[debug] [2024-10-03T13:06:37.149Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/dbt-bigquery-setup-416318/versions/28d9d69dff5dcb49/files/6f9cc5935c0fa413a9d3fc07a9ae91202e3b5d1a22252b94cd16a3d8ad84ab3f [stream]
+[debug] [2024-10-03T13:06:37.150Z] [hosting][populate queue][FINAL] {"max":506,"min":506,"avg":506,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":513}
+[debug] [2024-10-03T13:06:37.150Z] [hosting] uploads queued: 4

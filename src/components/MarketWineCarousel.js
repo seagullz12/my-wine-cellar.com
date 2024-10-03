@@ -43,13 +43,6 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
     speed: 500,
     slidesToShow: 5,
     slidesToScroll: 1,
-    appendDots: (dots) => (
-      <div style={{ marginTop: '24px 0' }}>
-        <ul style={{ display: 'flex', justifyContent: 'center' }}>
-          {dots}
-        </ul>
-      </div>
-    ),
     responsive: [
       {
         breakpoint: 1200,
@@ -96,7 +89,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
   }
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 2, mb:4 }}>
       <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>
         Other users are selling:
       </Typography>
@@ -134,7 +127,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
             </CardMedia>
 
             {/* Wine Information */}
-            <Grid container spacing={1}>
+            <Grid container spacing={1} sx={{p:1}}>
               <Grid item xs={12}>
                 <Box display="flex" alignItems="center">
                   <Typography textAlign="center" color="primary" sx={{ m: 1 }}>

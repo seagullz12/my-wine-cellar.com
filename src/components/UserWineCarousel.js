@@ -44,13 +44,7 @@ const UserWineCarousel = ({ token, sampleSize }) => {
     speed: 500,
     slidesToShow: 5,
     slidesToScroll: 1,
-    appendDots: (dots) => (
-      <div style={{ marginBottom: '18px' }}>
-        <ul style={{ display: 'flex', justifyContent: 'center' }}>
-          {dots}
-        </ul>
-      </div>
-    ),
+  
     responsive: [
       {
         breakpoint: 1200,
@@ -110,7 +104,7 @@ const UserWineCarousel = ({ token, sampleSize }) => {
   }
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 2, mb:4 }}>
       <Typography variant="h6" sx={{ mb: 1, mt: 4, textAlign: 'center' }}>
         Your Wine Collection:
       </Typography>
@@ -118,7 +112,7 @@ const UserWineCarousel = ({ token, sampleSize }) => {
       <Slider {...settings}>
         {wines.map((wine) => (
 
-          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px', height: '450px', width: '250px' }}>
+          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px', height: '480px', width: '250px' }}>
             <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
               <CardMedia
                 sx={{
@@ -148,7 +142,7 @@ const UserWineCarousel = ({ token, sampleSize }) => {
                 </Box>
               </CardMedia>
 
-              <Grid container spacing={1}>
+              <Grid container spacing={1} sx={{p:1}}>
                 {/* Name */}
                 <Grid item xs={12}>
                   <Box display="flex" alignItems="center">

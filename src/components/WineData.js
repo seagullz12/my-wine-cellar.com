@@ -134,7 +134,7 @@ const WineData = ({ wine, wineDetailPage }) => {
         <Box display="flex" alignItems="top">
           <AccessTimeIcon color="primary" sx={{ mr: 2 }} />
          <Typography textAlign="left">
-            <strong>Mature:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
+            <strong>Drink between:</strong> {wine.drinkingWindow.lower} - {wine.drinkingWindow.upper}
           </Typography>
         </Box>
       </Grid>

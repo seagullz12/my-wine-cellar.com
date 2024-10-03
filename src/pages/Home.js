@@ -73,12 +73,12 @@ const HomePage = () => {
               Welcome back, <strong style={{ color: '#800020' }}>{profileData.userName || profileData.userName || "my friend!"}</strong>!
             </Typography>
 
-            <Box>
+            <Box sx={{m:1}}>
             {/* MarketplacePreview component */}
             <MarketWineCarousel sampleSize={6} token={token} />
             </Box>
              {/* UserWineCarousel component */}
-            <Box>
+             <Box sx={{m:1}}>
               <UserWineCarousel sampleSize={6} token={token} />
             </Box>
           </>

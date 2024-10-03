@@ -14,7 +14,7 @@ import { EuroRounded } from '@mui/icons-material';
 const MarketWineCarousel = ({ token, sampleSize }) => {
   const [wines, setWines] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
     const fetchWineListings = async () => {
@@ -41,7 +41,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 6,
+    slidesToShow: 5,
     slidesToScroll: 1,
     appendDots: (dots) => (
       <div style={{ marginTop: '24px 0' }}>
@@ -54,7 +54,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 6,
+          slidesToShow: 5,
           slidesToScroll: 1,
         },
       },
@@ -104,6 +104,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
       <Slider {...settings}>
         {wines.map((wine) => (
           <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '450px'}}>
+            <Link to={'/marketplace'} style={{ textDecoration: 'none' }}>
             <CardMedia
               sx={{
                 position: 'relative',
@@ -174,6 +175,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
                 </Box>
               </Grid>
             </Grid>
+            </Link>
           </Card>
         ))}
       </Slider>

@@ -75,7 +75,7 @@ const HomePage = () => {
 
             <Box>
             {/* MarketplacePreview component */}
-            <MarketWineCarousel sampleSize={4} token={token} />
+            <MarketWineCarousel sampleSize={6} token={token} />
             </Box>
              {/* UserWineCarousel component */}
             <Box>

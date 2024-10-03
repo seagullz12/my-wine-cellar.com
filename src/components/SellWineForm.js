@@ -4,7 +4,7 @@ import SellWinePreview from './SellWinePreview'; // Import the preview component
 import ErrorBoundary from './ErrorBoundary';
 import { postForSale } from './api/listings'; // Updated API function
 
-const SellWineForm = ({ wine, onClose, user }) => {
+const SellWineForm = ({ wineId, wine, onClose, user }) => {
     const [price, setPrice] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [condition, setCondition] = useState('Excellent');
@@ -31,7 +31,7 @@ const SellWineForm = ({ wine, onClose, user }) => {
     // Handle publishing the wine listing
     const handlePublish = async () => {
         try {
-            const updatedWine = await postForSale(wine.id, { price, quantity, condition, additionalInfo }, user);
+            const updatedWine = await postForSale(wineId, { price, quantity, condition, additionalInfo }, user);
             setSnackbarMessage('Wine published for sale successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);

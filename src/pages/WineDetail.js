@@ -535,6 +535,7 @@ const WineDetail = () => {
                 <WineMap region={wine.region} />
             </Box>
             )} */}
+            
             {/* Dialog for Sell Form */}
             {selectedWine && (
                 <Dialog open={open} onClose={handleClose}>
@@ -542,7 +543,7 @@ const WineDetail = () => {
 
                     <DialogContent>
                         <SellWineForm
-                            wineId={selectedWine.id} // Pass the selected wine data
+                            wineId={wineId} // Pass the selected wine data
                             wine={selectedWine}
                             user={user}
                             setWine={setWine}

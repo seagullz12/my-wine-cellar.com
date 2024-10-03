@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { AppBar, Toolbar, IconButton, Typography, Button, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu'; 
 import CloseIcon from '@mui/icons-material/Close'; 
 import LoginIcon from '@mui/icons-material/Person'; 
+import HomeIcon from '@mui/icons-material/Home'; // Import HomeIcon
 
 const NavBar = () => {
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -12,20 +13,7 @@ const NavBar = () => {
   const location = useLocation();
   const auth = getAuth();
 
-  // Toggle menu visibility for mobile
-  const toggleMenu = () => {
-    setMenuOpen(!isMenuOpen);
-  };
-
-  // Handle user sign out
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Sign Out Error:', error);
-    }
-  };
-
+  // Hook to manage authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -33,6 +21,20 @@ const NavBar = () => {
 
     return () => unsubscribe();
   }, [auth]);
+
+  // Function to toggle menu visibility for mobile
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  // Function to handle user sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Sign Out Error:', error);
+    }
+  };
 
   // Determine the title based on the current pathname
   const getTitle = () => {
@@ -43,8 +45,8 @@ const NavBar = () => {
         return 'My Wine Cellar';
       case '/add-wine':
         return 'Add New Wines';
-        case '/marketplace':
-          return 'Marketplace';
+      case '/marketplace':
+        return 'Marketplace';
       case '/personal-sommelier':
         return 'Personal Sommelier';
       case '/sign-in':
@@ -56,32 +58,51 @@ const NavBar = () => {
     }
   };
 
+  // Menu items configuration
   const menuItems = [
     { title: 'Home', path: '/' },
     { title: 'Add New Wines', path: '/add-wine' },
     { title: 'My Wine Cellar', path: '/cellar' },
-    { title: 'Marketplace', path: '/marketplace' },
-    { title: 'Personal Sommelier', path: '/personal-sommelier' },
-    { title: 'Profile', path: '/profile' },
+    { title: 'Wine Marketplace', path: '/marketplace' },
+    { title: 'My Personal Sommelier', path: '/personal-sommelier' },
     { title: 'Sign In', path: '/sign-in', authRequired: false },
     { title: 'Sign Up', path: '/sign-up', authRequired: false },
+    ...(user ? [{ title: 'My Profile', path: '/profile' }] : []), // Add "My Profile" if signed in
   ];
 
+  // Render the component
   return (
     <AppBar position="static">
       <Toolbar>
+        {/* Home Button */}
+        <IconButton color="inherit" component={Link} to="/" aria-label="home">
+          <HomeIcon />
+        </IconButton>
+
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           {getTitle()}
         </Typography>
-        <IconButton  edge="start" color="inherit" aria-label="menu" onClick={toggleMenu}>
+        <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleMenu}>
           <MenuIcon />
         </IconButton>
         {user ? (
-          <Button exact="true" color="inherit" onClick={handleSignOut}>Sign Out</Button>
+          <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
         ) : (
-          <IconButton color="inherit" component={Link} to="/sign-in" aria-label="login">
-            <LoginIcon />
-          </IconButton>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/sign-in"
+            aria-label="login"
+            sx={{
+              bgcolor: 'primary.main', // Highlight background color
+              '&:hover': {
+                bgcolor: 'primary.dark', // Darker on hover
+              },
+              transition: 'background-color 0.3s ease', // Smooth transition
+            }}
+          >
+            <LoginIcon sx={{ mr: 1 }} /> Sign In
+          </Button>
         )}
       </Toolbar>
       <Drawer anchor="right" open={isMenuOpen} onClose={toggleMenu}>
@@ -91,9 +112,14 @@ const NavBar = () => {
           </IconButton>
           <List>
             {menuItems.map((item) => {
+              // Render menu items based on authentication status
               if (item.authRequired === undefined || (item.authRequired && user) || (!item.authRequired && !user)) {
                 return (
-                  <ListItem button={true} key={item.title} component={Link} to={item.path} onClick={() => setMenuOpen(false)}>
+                  <ListItem button key={item.title} component={NavLink} to={item.path} 
+                            onClick={() => setMenuOpen(false)} 
+                            activeClassName="active-link" 
+                            style={({ isActive }) => ({ backgroundColor: isActive ? '#f0e1e0' : 'transparent' })} // Active styling
+                  >
                     <ListItemText primary={item.title} />
                   </ListItem>
                 );

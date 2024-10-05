@@ -18,6 +18,7 @@ import WineListSorting from '../components/WineListSorting';
 import WineData from '../components/WineData';
 import ForSaleLabel from '../components/ForSaleLabel';
 import { fetchMarketplaceListings } from '../components/api/marketplace'
+import BuyButton from '../components/BuyButton';
 
 const Marketplace = () => {
     const [wines, setWines] = useState([]);
@@ -30,51 +31,51 @@ const Marketplace = () => {
     const [filters, setFilters] = useState({
         colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
         grapes: [
-          "Cabernet Sauvignon",
-          "Merlot",
-          "Pinot Noir",
-          "Syrah (Shiraz)",
-          "Zinfandel",
-          "Chardonnay",
-          "Sauvignon Blanc",
-          "Riesling",
-          "Malbec",
-          "Tempranillo",
-          "Grenache",
-          "Cabernet Franc",
-          "Sangiovese",
-          "Mourvèdre",
-          "Viognier",
-          "Pinot Grigio (Pinot Gris)",
-          "Semillon",
-          "Nebbiolo",
-          "Barbera",
-          "Touriga Nacional",
-          "Petit Verdot",
-          "Chenin Blanc",
-          "Garganega",
-          "Grüner Veltliner",
-          "Fiano",
-          "Albariño",
-          "Vermentino",
-          "Nero d'Avola",
-          "Carignan",
-          "Dolcetto",
-          "Aglianico",
-          "Carmenère",
-          "Primitivo",
-          "Moscato",
-          "Torrontés",
-          "Saint Laurent",
-          "Tannat",
-          "Cinsault"
+            "Cabernet Sauvignon",
+            "Merlot",
+            "Pinot Noir",
+            "Syrah (Shiraz)",
+            "Zinfandel",
+            "Chardonnay",
+            "Sauvignon Blanc",
+            "Riesling",
+            "Malbec",
+            "Tempranillo",
+            "Grenache",
+            "Cabernet Franc",
+            "Sangiovese",
+            "Mourvèdre",
+            "Viognier",
+            "Pinot Grigio (Pinot Gris)",
+            "Semillon",
+            "Nebbiolo",
+            "Barbera",
+            "Touriga Nacional",
+            "Petit Verdot",
+            "Chenin Blanc",
+            "Garganega",
+            "Grüner Veltliner",
+            "Fiano",
+            "Albariño",
+            "Vermentino",
+            "Nero d'Avola",
+            "Carignan",
+            "Dolcetto",
+            "Aglianico",
+            "Carmenère",
+            "Primitivo",
+            "Moscato",
+            "Torrontés",
+            "Saint Laurent",
+            "Tannat",
+            "Cinsault"
         ],
         vintages: [],
         names: [],
         datesAdded: [],
         statuses: ['in_cellar', 'consumed', "for_sale"],
         countries: [],
-      })
+    })
 
     useEffect(() => {
         const auth = getAuth();
@@ -87,22 +88,22 @@ const Marketplace = () => {
     // marketplace listings api call //
     useEffect(() => {
         const fetchWineListings = async () => {
-          if (user) {
-            try {
-              const token = await user.getIdToken();
-              const data = await fetchMarketplaceListings(token);
-    
-              const fetchedWines = data || [];
-              setWines(fetchedWines);
-              setFilteredWines(fetchedWines);
+            if (user) {
+                try {
+                    const token = await user.getIdToken();
+                    const data = await fetchMarketplaceListings(token);
 
-          
-            } catch (error) {
-                console.error('Error fetching marketplace data:', error);
-            } finally {
-                setLoading(false);
-            }
-        } else {
+                    const fetchedWines = data || [];
+                    setWines(fetchedWines);
+                    setFilteredWines(fetchedWines);
+
+
+                } catch (error) {
+                    console.error('Error fetching marketplace data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
                 setLoading(false);
             }
         };
@@ -188,12 +189,12 @@ const Marketplace = () => {
           onFilterChange={handleFilterChange}
           onResetFilters={handleResetFilters}
         /> */}
-        <WineListSorting
-          sortCriteria={sortCriteria}
-          sortOrder={sortOrder}
-          onSortChange={handleSortChange}
-          onSortOrderChange={handleSortOrderChange}
-        />
+                <WineListSorting
+                    sortCriteria={sortCriteria}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    onSortOrderChange={handleSortOrderChange}
+                />
             </Box>
 
             <Grid container spacing={2}>
@@ -255,14 +256,13 @@ const Marketplace = () => {
                                 <Box display="flex" justifyContent="space-between" mt="auto">
                                     <Grid container spacing={2}>
                                         <Grid item xs={12}>
-                                            <Button
-                                                variant="outlined"
-                                                color="success"
-                                                onClick={() => <a>Coming soon!</a> }
-                                                fullWidth
-                                            >
-                                                Buy This Bottle
-                                            </Button>
+                                            <BuyButton
+                                                wineId={wine.wineId}
+                                                wineName={wine.wineDetails.name}
+                                                sellerId={wine.sellerId}
+                                                price={wine.price}
+                                                quantity={1}
+                                            />
                                         </Grid>
                                     </Grid>
                                 </Box>

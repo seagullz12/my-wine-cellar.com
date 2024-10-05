@@ -53,6 +53,8 @@ const NavBar = () => {
         return 'Sign In';
       case '/sign-up':
         return 'Sign Up';
+        case '/seller/dashboard':
+          return 'Sales Dashboard';
       default:
         return 'Wine Cellar';
     }
@@ -68,6 +70,7 @@ const NavBar = () => {
     { title: 'Sign In', path: '/sign-in', authRequired: false },
     { title: 'Sign Up', path: '/sign-up', authRequired: false },
     ...(user ? [{ title: 'My Profile', path: '/profile' }] : []), // Add "My Profile" if signed in
+    ...(user ? [{ title: 'My Sales', path: '/seller/dashboard' }] : []), // Add "My Profile" if signed in
   ];
 
   // Render the component

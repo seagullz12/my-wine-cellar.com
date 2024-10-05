@@ -8,4 +8,30 @@
 html, body {
   height: 100%; /* Ensure body takes up full viewport height */
   font-family: 'Georgia', serif; /* Default font for the entire application */
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none; /* Remove underline from links by default */
+  color: inherit; /* Inherit color from parent element */
+}
+
+button {
+  border: none; /* Remove default button border */
+  cursor: pointer; /* Pointer cursor for clickable buttons */
+}
+
+ul, ol {
+  list-style: none; /* Remove default list styles */
+}
+
+
+input, textarea {
+  border: 1px solid #8b3a3a; /* Burgundy border for inputs */
+  border-radius: 8px; /* Rounded corners for inputs */
+}
+
+input:focus, textarea:focus {
+  border-color: #6f2c2c; /* Darker shade on focus */
+  outline: none; /* Remove default focus outline */
 }

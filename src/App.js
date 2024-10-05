@@ -36,6 +36,8 @@ import ReactGA from 'react-ga4';
 import PasswordReset from './pages/PasswordReset.js';
 import Profile from './pages/Profile.js';
 import Marketplace from './pages/Marketplace.js';
+import ConfirmSalePage from './pages/ConfirmSale.js';
+import SellerDashboard from './pages/SellerDashboard.js';
 
 const TRACKING_ID = 'G-HZJRPGMJVT'; 
 
@@ -89,6 +91,9 @@ const App = () => {
                 <Route path="/for-sale/:id" element={<ForSale />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/seller/dashboard" element={<SellerDashboard user={user} />} />
+                <Route path="/seller/confirm-sale/:requestId" element={<ConfirmSalePage user={user} />} />
+     
                 <Route path="*" element={<Navigate to="" />} />
               </>
             ) : (

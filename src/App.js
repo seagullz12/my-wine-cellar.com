@@ -16,7 +16,7 @@ import SharedWineDetail from './pages/SharedWineDetail';
 // import TastingPage from './pages/TastingPage';
 import ForSale from './pages/ForSale';
 import './styles/global.css';
-import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
+import AddWine from './pages/AddWine';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
@@ -83,7 +83,7 @@ const App = () => {
             {/* Protected Routes */}
             {user ? (
               <>
-                <Route path="/add-wine" element={<AddWineDoubleOptional />} />
+                <Route path="/add-wine" element={<AddWine />} />
                 {/* <Route path="/add-wine-batch" element={<AddWineBatch />} /> */}
                 <Route path="/cellar" element={<WineList />} />
                 <Route path="/personal-sommelier" element={<WineRecommendations />} />

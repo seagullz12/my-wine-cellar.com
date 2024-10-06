@@ -3,17 +3,19 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import WineDetailEditForm from '../components/WineDetailEditForm';
 import AddWineNotification from '../components/AddWineNotification'
+import { useTheme } from '@mui/material/styles';
 
 import {
   Box,
+  Button,
   Card,
-  Button
+  Grid,
+  Typography,
+  useMediaQuery,
+  Stack,
 } from '@mui/material';
+
 import WineData from '../components/WineData';
-
-
-const backendURL = 'https://wine-scanner-44824993784.europe-west1.run.app';
-//const backendURL = 'http://192.168.2.9:8080';
 
 const formatDateToUS = (date) => {
   const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
@@ -45,12 +47,9 @@ const AddWine = () => {
     description: 'unknown',
     dateAdded: formattedToday
   });
-
-
   const [loading, setLoading] = useState(false);
   const [frontImageURL, setFrontImageURL] = useState('');  // For front image preview
   const [backImageURL, setBackImageURL] = useState('');   // For back image preview
-  const [isMobile, setIsMobile] = useState(false);
   const [logMessages, setLogMessages] = useState([]);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [showSnackbar, setShowSnackbar] = useState(false);
@@ -58,10 +57,8 @@ const AddWine = () => {
   const [wineURL, setWineURL] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-
-  useEffect(() => {
-    setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
-  }, []);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const auth = getAuth();
@@ -158,7 +155,7 @@ const AddWine = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(backendURL + '/extract-wine-data', {
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/extract-wine-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -207,7 +204,7 @@ const AddWine = () => {
     formData.append('image', imageBlob); // Append the image blob
 
     try {
-      const response = await fetch(backendURL + '/process-image', {
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/process-image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`, // Send the user's token for authentication
@@ -266,7 +263,7 @@ const AddWine = () => {
 
     const id = uuidv4();
     try {
-      const response = await fetch(backendURL + '/append-wine-data', {
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/append-wine-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -344,130 +341,153 @@ const AddWine = () => {
   };
 
   return (
-    <div className="add-wine-container">
-      <div className="file-upload-container">
-        <Box display="flex" justifyContent="space-between">
-          <Button
-            variant="contained"
-            onClick={() => document.getElementById('front-label-upload').click()}
-            sx={{ margin: 2 }}
-          >
-            Scan Front Label
-          </Button>
-          <input
-            type="file"
-            accept="image/*"
-            id="front-label-upload"
-            style={{ display: 'none' }}
-            onChange={(e) => handleFileChange(e, 'front')}
-          />
+    <Box p={isMobile ? 2 : 4}>
+      <Grid container spacing={3}>
+        {/* File upload and image section */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ padding: 3, backgroundColor: '#f5f5f5' }}>
+            <Typography variant="h6" gutterBottom>
+              Add new wines:
+            </Typography>
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Button
+                variant="contained"
+                onClick={() => document.getElementById('front-label-upload').click()}
+              >
+                Scan Front Label
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                id="front-label-upload"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange(e, 'front')}
+              />
 
-          <Button
-            variant="contained"
-            onClick={() => document.getElementById('back-label-upload').click()}
-            sx={{ margin: 2 }}
-          >
-            Scan Back Label
-          </Button>
-          <input
-            type="file"
-            accept="image/*"
-            id="back-label-upload"
-            style={{ display: 'none' }}
-            onChange={(e) => handleFileChange(e, 'back')}
+              <Button
+                variant="contained"
+                onClick={() => document.getElementById('back-label-upload').click()}
+              >
+                Scan Back Label
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                id="back-label-upload"
+                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange(e, 'back')}
+              />
+            </Stack>
+
+            {/* Image previews */}
+            <Box mt={2}>
+              <Grid container spacing={2}>
+                {frontImageURL && (
+                  <Grid item xs={12} md={6}>
+                    <Box position="relative">
+                      <img
+                        src={frontImageURL}
+                        alt="Front Label"
+                        style={{ width: '100%', borderRadius: 8 }}
+                      />
+                      {!backImageURL && (
+                        <Button
+                          variant="contained"
+                          onClick={handleSkipBackLabel}
+                          sx={{
+                            position: 'absolute',
+                            bottom: 15,
+                            right: 15,
+                          }}
+                        >
+                          Proceed with Front Label Only
+                        </Button>
+                      )}
+                    </Box>
+                  </Grid>
+                )}
+
+                {backImageURL && (
+                  <Grid item xs={12} md={6}>
+                    <Box position="relative">
+                      <img
+                        src={backImageURL}
+                        alt="Back Label"
+                        style={{ width: '100%', borderRadius: 8 }}
+                      />
+                      {!frontImageURL && (
+                        <Button
+                          variant="contained"
+                          onClick={handleSkipFrontLabel}
+                          sx={{
+                            position: 'absolute',
+                            bottom: 15,
+                            right: 15,
+                          }}
+                        >
+                          Proceed with Back Label Only
+                        </Button>
+                      )}
+                    </Box>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Wine details section */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ padding: 3, backgroundColor: '#fafafa' }}>
+            <AddWineNotification
+              open={showSnackbar}
+              message={notificationMessage}
+              onClose={() => setShowSnackbar(false)}
+              wineUrl={wineURL}
+            />
+
+            {!isEditing && (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  About This Bottle
+                </Typography>
+                {loading ? (
+                  <Typography>Loading...</Typography>
+                ) : wineData.name !== 'unknown' ? (
+                  <Box>
+                    <WineData wine={wineData} wineDetailPage={true} />
+                    <Stack direction="row" justifyContent="space-between" mt={2}>
+                      <Button variant="outlined" onClick={toggleEditForm}>
+                        Edit Details
+                      </Button>
+                      <Button variant="contained" onClick={handleFormSubmit}>
+                        Add to Cellar
+                      </Button>
+                    </Stack>
+                  </Box>
+                ) : (
+                  <Typography align="center" mt={2}>
+                    Please scan a bottle label first.
+                  </Typography>
+                )}
+              </>
+            )}
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Editing form section */}
+      {isEditing && (
+        <Box mt={4}>
+          <WineDetailEditForm
+            formData={wineData}
+            handleChange={handleFormChange}
+            handleSubmit={handleFormSubmit}
+            handleEditToggle={toggleEditForm}
           />
         </Box>
-        <div className="wine-details">
-
-        <AddWineNotification
-          open={showSnackbar}
-          message={notificationMessage}
-          onClose={() => setShowSnackbar(false)}
-          wineUrl={wineURL} // Pass the wine URL to the Snackbar
-        />
-          <Box className="img-container" position="relative">
-            {frontImageURL && (
-              <div>
-                <img src={frontImageURL} alt="Front Label" style={{ width: '100%', height: 'auto' }} />
-                {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-                  <Button
-                    variant="contained"
-                    onClick={() => handleSkipBackLabel()}
-                    sx={{
-                      position: 'absolute',
-                      bottom: 15,  // Adjust this value to position the button vertically
-                      right: 15,   // Adjust this value to position the button horizontally
-                    }}
-                  >
-                    Proceed with only the Front Label
-                  </Button>
-                ) : null}
-              </div>
-            )}
-            {backImageURL && (
-              <div>
-                <img src={backImageURL} alt="Back Label" style={{ width: '100%', height: 'auto' }} />
-                {!frontImageURL || !backImageURL ? ( // Hide skip button when both images are uploaded.
-                  <Button
-                    variant="contained"
-                    onClick={handleSkipFrontLabel}
-                    sx={{
-                      position: 'absolute',
-                      bottom: 15,  // Adjust this value to position the button vertically
-                      right: 15,   // Adjust this value to position the button horizontally
-                    }}
-                  >
-                    Proceed with only Back Label
-                  </Button>
-                ) : null}
-              </div>
-            )}
-          </Box>
-        </div>
-
-        <Card sx={{ backgroundColor: '#F5F5F5' }}>
-          {!isEditing && (
-            <h3>About this bottle:</h3>
-          )}
-          {loading ? (
-            <p>Loading...</p>
-          ) : (
-            wineData.name !== 'unknown' && !isEditing ? (
-              <>
-                <Box sx={{ padding: 0, margin: 1 }}>
-                <WineData wine={wineData} wineDetailPage={true} />
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Button variant="outlined" onClick={toggleEditForm} sx={{ margin: 2 }}>
-                    Edit Details
-                  </Button>
-
-                  {!isEditing && wineData.name !== 'unknown' && !loading && (
-                    <Button
-                      variant="contained"
-                      onClick={handleFormSubmit}
-                      sx={{ margin: 2 }}
-                    >
-                      Add to Cellar
-                    </Button>
-                  )}</Box>
-                  </>
-            ) : (
-              !isEditing && <p align='center'>Please scan a bottle label first.</p>
-            )
-          )}
-        </Card>
-      </div>
-
-      {isEditing && (
-        <WineDetailEditForm
-          formData={wineData}
-          handleChange={handleFormChange}
-          handleSubmit={handleFormSubmit}
-          handleEditToggle={toggleEditForm}
-        />
       )}
-    </div>
+    </Box>
   );
 };
 

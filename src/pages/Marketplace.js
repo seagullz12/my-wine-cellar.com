@@ -182,13 +182,11 @@ const Marketplace = () => {
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Box my={2}>
-                {/* <WineListFilters filters={filters} onFilterChange={setFilters} onResetFilters={() => setFilters({ ...filters })} />
-
-                <WineListFilters
-          filters={{}} // You can define filters here similar to your WineList page
-          onFilterChange={handleFilterChange}
-          onResetFilters={handleResetFilters}
-        /> */}
+                {/* <WineListFilters
+                filters={filters} // You can define filters here similar to your WineList page
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+                /> */}
                 <WineListSorting
                     sortCriteria={sortCriteria}
                     sortOrder={sortOrder}
@@ -200,7 +198,7 @@ const Marketplace = () => {
             <Grid container spacing={2}>
                 {filteredWines.length > 0 ? (
                     filteredWines.map((wine) => (
-                        <Grid item xs={12} sm={6} md={3} key={wine.wineId}>
+                        <Grid item xs={12} sm={6} md={3} key={wine.listingId}>
                             <Box
                                 border={0}
                                 borderRadius={2}
@@ -238,7 +236,7 @@ const Marketplace = () => {
                                     </CardMedia>
                                     <Typography variant="body1" sx={{ m: 2, mb: 1 }}><strong>{wine.wineDetails.name}</strong></Typography>
                                     <Typography variant="body1" sx={{ m: 2, mb: 1 }} color="primary">
-                                        {wine.sellerUsername} is selling {wine.quantity > 1 ? (
+                                        {wine.sellerDetails.userName} is selling {wine.quantity > 1 ? (
                                             <><strong>{wine.quantity} </strong> bottles for <strong>€{wine.price}</strong> each</>
                                         ) : (
                                             <><strong>{wine.quantity} </strong> bottle for <strong>€{wine.price}</strong></>
@@ -259,7 +257,7 @@ const Marketplace = () => {
                                             <BuyButton
                                                 wineId={wine.wineId}
                                                 wineName={wine.wineDetails.name}
-                                                sellerId={wine.sellerId}
+                                                sellerId={wine.sellerDetails.sellerId}
                                                 price={wine.price}
                                                 quantity={1}
                                             />

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, Grid, Snackbar, Alert } from '@mui/material';
 import SellWinePreview from './SellWinePreview'; // Import the preview component
 import ErrorBoundary from './ErrorBoundary';
-import { postForSale } from './api/listings'; // Updated API function
+import { addListing } from './api/listings'; // Updated API function
+import { fetchUserProfile } from './api/user'; // Import user profile function
 
-const SellWineForm = ({ wineId, wine, onClose, user }) => {
+const SellWineForm = ({ wineId, wine, onClose, token }) => {
     const [price, setPrice] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [condition, setCondition] = useState('Excellent');
@@ -13,13 +14,11 @@ const SellWineForm = ({ wineId, wine, onClose, user }) => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [email, setEmail] = useState('');
+    const [userName, setUsername] = useState('');
 
-    useEffect(() => {
-        // Any user-related effects can be handled here if needed
-    }, [user]);
-
-    // Function to determine if the preview button should be disabled
-    const isPreviewDisabled = () => {
+     // Function to determine if the preview button should be disabled
+     const isPreviewDisabled = () => {
         return !(price > 0 && quantity > 0 && condition.trim() !== '');
     };
 
@@ -31,11 +30,21 @@ const SellWineForm = ({ wineId, wine, onClose, user }) => {
     // Handle publishing the wine listing
     const handlePublish = async () => {
         try {
-            const updatedWine = await postForSale(wineId, { price, quantity, condition, additionalInfo }, user);
+            // Fetch user details only at the time of publishing
+            const profileData = await fetchUserProfile(token);
+            const { email, userName } = profileData;
+
+            const updatedWine = await addListing(
+                wineId, 
+                { wineDetails: wine, price, quantity, condition, additionalInfo }, 
+                { sellerDetails: {email, userName} }, 
+                token
+            );
+            
             setSnackbarMessage('Wine published for sale successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
-            
+
             setTimeout(() => {
                 onClose(); // Close modal after Snackbar is shown
             }, 1000);

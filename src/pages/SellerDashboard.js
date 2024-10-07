@@ -182,7 +182,7 @@ const SellerDashboard = ({ user }) => {
                     <strong>Received At: </strong>{request.createdAt ? new Date(request.createdAt).toLocaleString() : 'Loading...'}
                   </Typography>
                   <Typography variant="body1">
-                    <strong>Status: </strong>{request.status ? new Date(request.status).toLocaleString() : 'Loading...'}
+                    <strong>Status: </strong>{request.status}
                   </Typography>
                   <br></br>
                   <Typography variant="body1">

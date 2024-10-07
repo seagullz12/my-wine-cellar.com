@@ -20,7 +20,7 @@ const SellWinePreview = ({ wine, price, quantity, condition, additionalInfo, onE
           style={{ width: '100%', height: '300px', borderRadius: '8px'}}
         /></CardMedia>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-          <strong>Price per bottle:</strong> ${price}
+          <strong>Price per bottle:</strong> €{price}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
           <strong>Quantity:</strong> {quantity}

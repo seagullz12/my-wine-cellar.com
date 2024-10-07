@@ -53,6 +53,8 @@ const NavBar = () => {
         return 'Sign In';
       case '/sign-up':
         return 'Sign Up';
+        case '/listings':
+          return 'Manage Listings';
         case '/seller/dashboard':
           return 'Sales Dashboard';
       default:
@@ -65,12 +67,13 @@ const NavBar = () => {
     { title: 'Home', path: '/' },
     { title: 'Add New Wines', path: '/add-wine' },
     { title: 'My Wine Cellar', path: '/cellar' },
-    { title: 'Wine Marketplace', path: '/marketplace' },
-    { title: 'My Personal Sommelier', path: '/personal-sommelier' },
+    { title: 'Marketplace', path: '/marketplace' },
+    { title: 'Personal Sommelier', path: '/personal-sommelier' },
     { title: 'Sign In', path: '/sign-in', authRequired: false },
     { title: 'Sign Up', path: '/sign-up', authRequired: false },
-    ...(user ? [{ title: 'My Profile', path: '/profile' }] : []), // Add "My Profile" if signed in
-    ...(user ? [{ title: 'My Sales', path: '/seller/dashboard' }] : []), // Add "My Profile" if signed in
+    ...(user ? [{ title: 'Profile', path: '/profile' }] : []), 
+    ...(user ? [{ title: 'My Sales', path: '/seller/dashboard' }] : []), 
+    ...(user ? [{ title: 'Manage Listings', path: '/my-listings' }] : []), 
   ];
 
   // Render the component

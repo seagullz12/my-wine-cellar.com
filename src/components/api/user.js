@@ -1,4 +1,4 @@
-
+// src/components/api/user.js
 export const fetchUserProfile = async (token) => {
     try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-user-profile`, {

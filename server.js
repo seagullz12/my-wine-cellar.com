@@ -318,7 +318,7 @@ app.get('/get-wine-by-token', async (req, res) => {
 // Get all wine data for a user (requires authentication)
 app.get('/get-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { id } = req.query; // Get ID from query parameters
+    const { id, sampleSize } = req.query; // Get ID and sampleSize from query parameters
     const userId = req.user.uid;
 
     if (id) {
@@ -339,12 +339,23 @@ app.get('/get-wine-data', authenticateToken, async (req, res) => {
         return res.status(404).json({ message: 'No wines found' });
       }
 
+      // Map the documents to an array and apply the sampleSize limit
       const wines = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
-      res.json({ wines });
+      // Limit the number of wines returned if sampleSize is provided
+      if (sampleSize) {
+        const limit = parseInt(sampleSize, 10);
+        if (!isNaN(limit)) {
+          res.json({ wines: wines.slice(0, limit) });
+        } else {
+          return res.status(400).json({ error: 'Invalid sampleSize parameter' });
+        }
+      } else {
+        res.json({ wines });
+      }
     }
   } catch (error) {
     console.error('Error fetching wine data:', error);
@@ -553,8 +564,8 @@ app.post('/update-user-profile', authenticateToken, async (req, res) => {
 // Route to add a wine for sale
 app.post('/add-listing', authenticateToken, async (req, res) => {
   try {
-    const { wineId, price, quantity, condition, additionalInfo } = req.body;
-    const userId = req.user.uid;
+    const { wineId, wineDetails, sellerDetails, price, quantity, condition, additionalInfo } = req.body;
+    sellerDetails.sellerId = req.user.uid; // set the sellerId to the user id of the caller.
 
     // Validate required fields
     if (!wineId || !price || !quantity ) {
@@ -563,14 +574,15 @@ app.post('/add-listing', authenticateToken, async (req, res) => {
 
     // Create listing data
     const listingData = {
-      sellerId: userId,
+      wineDetails,
+      sellerDetails,
       wineId,
       price,
       quantity,
       condition,
       additionalInfo: additionalInfo || '',
       status: 'active',
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: new Date().toISOString(),
     };
 
     // Create or update the listing directly in the 'listings' collection
@@ -587,64 +599,198 @@ app.post('/add-listing', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to update a wine listing
+app.put('/update-listing/:id', authenticateToken, async (req, res) => {
+  try {
+    const listingId = req.params.id; // Get the listing ID from the URL parameters
+    const { wineDetails, sellerDetails, price, quantity, condition, additionalInfo } = req.body;
+
+    // Validate required fields
+    if (!listingId || !price || !quantity) {
+      return res.status(400).json({ message: 'Missing required fields: price, quantity.' });
+    }
+
+    // Fetch the listing document from Firestore
+    const listingRef = db.collection('listings').doc(listingId);
+    const listingDoc = await listingRef.get();
+
+    // Check if the listing exists
+    if (!listingDoc.exists) {
+      return res.status(404).json({ message: 'Listing not found.' });
+    }
+
+    const listingData = {
+      wineDetails,
+      sellerDetails: { ...sellerDetails, sellerId: req.user.uid }, 
+      price,
+      quantity,
+      condition,
+      additionalInfo: additionalInfo || '',
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update the listing document
+    await listingRef.update(listingData);
+
+    console.log('Listing updated successfully:', listingData);
+
+    // Return the updated listing
+    return res.status(200).json({ message: 'Listing updated successfully!', data: listingData });
+  } catch (error) {
+    console.error('Error updating listing:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+// Route to update a listing status (activate/deactivate)
+app.patch('/update-listing-status/:listingId', authenticateToken, async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    const { status } = req.body; // expecting 'active' or 'inactive'
+
+    if (!['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Status must be either active or inactive.' });
+    }
+
+    // Get the listing reference
+    const listingRef = db.collection('listings').doc(listingId);
+
+    // Check if the listing exists
+    const listingDoc = await listingRef.get();
+    if (!listingDoc.exists) {
+      return res.status(404).json({ message: 'Listing not found.' });
+    }
+
+    // Update the status field
+    await listingRef.update({
+      status: status,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return res.status(200).json({ message: `Listing status updated to ${status}` });
+  } catch (error) {
+    console.error('Error updating listing status:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+
 /* MARKETPLACE ROUTES START HERE */
 app.get('/marketplace', authenticateToken, async (req, res) => {
   try {
-    const listingsSnapshot = await db.collection('listings').get();
+    const { sampleSize, myListings } = req.query;  // Get sampleSize and myListings from query params
+    const userId = req.user.uid;
+    
+    // Create a base reference for the listings collection
+    let listingsRef = db.collection('listings').orderBy('createdAt', 'desc'); // Order by creation time
+
+    // Check if 'myListings' is true to fetch only the user's listings
+    if (myListings === 'true') {
+      listingsRef = listingsRef.where('sellerDetails.sellerId', '==', userId);
+    } else {
+      // If 'myListings' is false, fetch only active listings
+      listingsRef = listingsRef.where('status', '==', 'active');
+    }
+
+    // If sampleSize is provided and is a number, apply limit()
+    if (sampleSize && !isNaN(sampleSize)) {
+      listingsRef = listingsRef.limit(parseInt(sampleSize, 10));  // Convert to integer and apply limit
+    }
+
+    const listingsSnapshot = await listingsRef.get();
 
     if (listingsSnapshot.empty) {
-      console.log('No listings found.');
       return res.status(200).json({ wines: [] });
     }
 
-    let winesForSale = [];
-
-    for (const listingDoc of listingsSnapshot.docs) {
+    // Extract listing data directly
+    const winesForSale = listingsSnapshot.docs.map(listingDoc => {
       const listingData = listingDoc.data();
-      console.log('Listing data:', listingData);
+      return {
+        ...listingData,
+        sellerDetails: listingData.sellerDetails, 
+        wineDetails: listingData.wineDetails,  
+        listingId: listingDoc.id    
+      };
+    });
 
-      // Fetch the correct user's wines collection based on the sellerId
-      const wineDoc = await db.collection('users')
-                                .doc(listingData.sellerId)
-                                .collection('wines')
-                                .doc(listingData.wineId)
-                                .get();
-
-      console.log(`Fetching wine document from user ID: ${listingData.sellerId} with wine ID: ${listingData.wineId}`);
-
-      if (wineDoc.exists) {
-        const wineData = wineDoc.data();
-
-        // Fetch the seller's profile info to get the username
-        const sellerProfileDoc = await db.collection('users')
-                                           .doc(listingData.sellerId)
-                                           .collection('user')
-                                           .doc('profileInfo')
-                                           .get();
-
-        let sellerUsername = null;
-        if (sellerProfileDoc.exists) {
-          sellerUsername = sellerProfileDoc.data().userName; 
-        } else {
-          console.warn(`Seller profile not found for ID: ${listingData.sellerId}`);
-        }
-
-        const wineForSale = {
-          ...listingData,
-          wineDetails: wineData,
-          sellerUsername: sellerUsername, 
-        };
-
-        winesForSale.push(wineForSale);
-      } else {
-        console.warn(`Wine document not found for ID: ${listingData.wineId} from user ID: ${listingData.sellerId}`);
-      }
-    }
-
+    // Send response
     res.status(200).json({ wines: winesForSale });
   } catch (error) {
     console.error('Error fetching marketplace data:', error);
     res.status(500).json({ error: 'Failed to retrieve marketplace data.' });
+  }
+});
+
+
+// Manage Listings Route
+app.get('/my-listings', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.uid; // Assume authenticateToken attaches user ID to request
+    const listingsSnapshot = await db.collection('listings').where('sellerId', '==', userId).get();
+
+    if (listingsSnapshot.empty) {
+      console.log('No listings found for the current user.');
+      return res.status(200).json({ wines: [] });
+    }
+
+    let userWinesForSale = [];
+
+    for (const listingDoc of listingsSnapshot.docs) {
+      const listingData = listingDoc.data();
+      const wineDoc = await db.collection('users')
+                                .doc(userId)
+                                .collection('wines')
+                                .doc(listingData.wineId)
+                                .get();
+
+      if (wineDoc.exists) {
+        const wineData = wineDoc.data();
+        const wineForSale = {
+          ...listingData,
+          wineDetails: wineData,
+        };
+        userWinesForSale.push(wineForSale);
+      } else {
+        console.warn(`Wine document not found for ID: ${listingData.wineId} from user ID: ${userId}`);
+      }
+    }
+
+    res.status(200).json({ wines: userWinesForSale });
+  } catch (error) {
+    console.error('Error fetching user listings:', error);
+    res.status(500).json({ error: 'Failed to retrieve user listings.' });
+  }
+});
+
+// In your server (e.g., app.js or routes/marketplace.js)
+app.delete('/delete-listing/:listingId', authenticateToken, async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.user.uid;
+
+  try {
+    // Fetch the listing to ensure the user is the owner
+    const listingDoc = await db.collection('listings').doc(listingId).get();
+
+    if (!listingDoc.exists) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    const listingData = listingDoc.data();
+
+    // Check if the logged-in user is the owner of the listing
+    if (listingData.sellerDetails.sellerId !== userId) {
+      console.log('sellerId: ',listingData.sellerDetails.sellerId, 'userId: ', userId)
+      return res.status(403).json({ error: 'You are not authorized to delete this listing' });
+    }
+
+    // Delete the listing from the 'listings' collection
+    await db.collection('listings').doc(listingId).delete();
+
+    return res.status(200).json({ message: 'Listing deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting listing:', error);
+    return res.status(500).json({ error: 'Failed to delete the listing' });
   }
 });
 

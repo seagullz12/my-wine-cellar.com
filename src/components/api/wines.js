@@ -1,11 +1,19 @@
 // src/components/api/wines.js
-export const fetchUserWines = async (token) => {
+export const fetchUserWines = async (token, sampleSize) => {
   if (!token) {
     throw new Error('Token is required to fetch wines data');
   }
+
+  // Check if sampleSize is a valid number
+  if (sampleSize && (typeof sampleSize !== 'number' || sampleSize <= 0)) {
+    throw new Error('sampleSize must be a positive number');
+  }
   
   try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data`, {
+    // Construct the query parameters for the API call
+    const queryParams = sampleSize ? `?sampleSize=${sampleSize}` : '';
+    
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data${queryParams}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

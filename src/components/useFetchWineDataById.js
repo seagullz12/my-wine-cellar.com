@@ -2,8 +2,6 @@
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 
-const backendURL = 'http://192.168.2.9:8080'; // Update this to your actual backend URL
-
 const useFetchWineDataById = (wineId) => {
   const [wine, setWine] = useState(null);
   const [loading, setLoading] = useState(false);

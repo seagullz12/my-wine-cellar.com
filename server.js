@@ -318,7 +318,7 @@ app.get('/get-wine-by-token', async (req, res) => {
 // Get all wine data for a user (requires authentication)
 app.get('/get-wine-data', authenticateToken, async (req, res) => {
   try {
-    const { id } = req.query; // Get ID from query parameters
+    const { id, sampleSize } = req.query; // Get ID and sampleSize from query parameters
     const userId = req.user.uid;
 
     if (id) {
@@ -339,12 +339,23 @@ app.get('/get-wine-data', authenticateToken, async (req, res) => {
         return res.status(404).json({ message: 'No wines found' });
       }
 
+      // Map the documents to an array and apply the sampleSize limit
       const wines = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
 
-      res.json({ wines });
+      // Limit the number of wines returned if sampleSize is provided
+      if (sampleSize) {
+        const limit = parseInt(sampleSize, 10);
+        if (!isNaN(limit)) {
+          res.json({ wines: wines.slice(0, limit) });
+        } else {
+          return res.status(400).json({ error: 'Invalid sampleSize parameter' });
+        }
+      } else {
+        res.json({ wines });
+      }
     }
   } catch (error) {
     console.error('Error fetching wine data:', error);
@@ -553,24 +564,25 @@ app.post('/update-user-profile', authenticateToken, async (req, res) => {
 // Route to add a wine for sale
 app.post('/add-listing', authenticateToken, async (req, res) => {
   try {
-    const { wineId, price, quantity, condition, additionalInfo } = req.body;
-    const userId = req.user.uid;
+    const { wineId, wineDetails, sellerDetails, price, quantity, condition, additionalInfo } = req.body;
+    sellerDetails.sellerId = req.user.uid; // set the sellerId to the user id of the caller.
 
     // Validate required fields
-    if (!wineId || !price || !quantity || !condition) {
-      return res.status(400).json({ message: 'Missing required fields: wineId, price, quantity, or condition.' });
+    if (!wineId || !price || !quantity ) {
+      return res.status(400).json({ message: 'Missing required fields: wineId, price, quantity.' });
     }
 
     // Create listing data
     const listingData = {
-      sellerId: userId,
+      wineDetails,
+      sellerDetails,
       wineId,
       price,
       quantity,
       condition,
       additionalInfo: additionalInfo || '',
       status: 'active',
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: new Date().toISOString(),
     };
 
     // Create or update the listing directly in the 'listings' collection
@@ -587,59 +599,122 @@ app.post('/add-listing', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to update a wine listing
+app.put('/update-listing/:id', authenticateToken, async (req, res) => {
+  try {
+    const listingId = req.params.id; // Get the listing ID from the URL parameters
+    const { wineDetails, sellerDetails, price, quantity, condition, additionalInfo } = req.body;
+
+    // Validate required fields
+    if (!listingId || !price || !quantity) {
+      return res.status(400).json({ message: 'Missing required fields: price, quantity.' });
+    }
+
+    // Fetch the listing document from Firestore
+    const listingRef = db.collection('listings').doc(listingId);
+    const listingDoc = await listingRef.get();
+
+    // Check if the listing exists
+    if (!listingDoc.exists) {
+      return res.status(404).json({ message: 'Listing not found.' });
+    }
+
+    const listingData = {
+      wineDetails,
+      sellerDetails: { ...sellerDetails, sellerId: req.user.uid }, 
+      price,
+      quantity,
+      condition,
+      additionalInfo: additionalInfo || '',
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update the listing document
+    await listingRef.update(listingData);
+
+    console.log('Listing updated successfully:', listingData);
+
+    // Return the updated listing
+    return res.status(200).json({ message: 'Listing updated successfully!', data: listingData });
+  } catch (error) {
+    console.error('Error updating listing:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+// Route to update a listing status (activate/deactivate)
+app.patch('/update-listing-status/:listingId', authenticateToken, async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    const { status } = req.body; // expecting 'active' or 'inactive'
+
+    if (!['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Status must be either active or inactive.' });
+    }
+
+    // Get the listing reference
+    const listingRef = db.collection('listings').doc(listingId);
+
+    // Check if the listing exists
+    const listingDoc = await listingRef.get();
+    if (!listingDoc.exists) {
+      return res.status(404).json({ message: 'Listing not found.' });
+    }
+
+    // Update the status field
+    await listingRef.update({
+      status: status,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return res.status(200).json({ message: `Listing status updated to ${status}` });
+  } catch (error) {
+    console.error('Error updating listing status:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+
+/* MARKETPLACE ROUTES START HERE */
 app.get('/marketplace', authenticateToken, async (req, res) => {
   try {
-    const listingsSnapshot = await db.collection('listings').get();
+    const { sampleSize, myListings } = req.query;  // Get sampleSize and myListings from query params
+    const userId = req.user.uid;
+    
+    // Create a base reference for the listings collection
+    let listingsRef = db.collection('listings').orderBy('createdAt', 'desc'); // Order by creation time
+
+    // Check if 'myListings' is true to fetch only the user's listings
+    if (myListings === 'true') {
+      listingsRef = listingsRef.where('sellerDetails.sellerId', '==', userId);
+    } else {
+      // If 'myListings' is false, fetch only active listings
+      listingsRef = listingsRef.where('status', '==', 'active');
+    }
+
+    // If sampleSize is provided and is a number, apply limit()
+    if (sampleSize && !isNaN(sampleSize)) {
+      listingsRef = listingsRef.limit(parseInt(sampleSize, 10));  // Convert to integer and apply limit
+    }
+
+    const listingsSnapshot = await listingsRef.get();
 
     if (listingsSnapshot.empty) {
-      console.log('No listings found.');
       return res.status(200).json({ wines: [] });
     }
 
-    let winesForSale = [];
-
-    for (const listingDoc of listingsSnapshot.docs) {
+    // Extract listing data directly
+    const winesForSale = listingsSnapshot.docs.map(listingDoc => {
       const listingData = listingDoc.data();
-      console.log('Listing data:', listingData);
+      return {
+        ...listingData,
+        sellerDetails: listingData.sellerDetails, 
+        wineDetails: listingData.wineDetails,  
+        listingId: listingDoc.id    
+      };
+    });
 
-      // Fetch the correct user's wines collection based on the sellerId
-      const wineDoc = await db.collection('users')
-                                .doc(listingData.sellerId)
-                                .collection('wines')
-                                .doc(listingData.wineId)
-                                .get();
-
-      console.log(`Fetching wine document from user ID: ${listingData.sellerId} with wine ID: ${listingData.wineId}`);
-
-      if (wineDoc.exists) {
-        const wineData = wineDoc.data();
-
-        // Fetch the seller's profile info to get the username
-        const sellerProfileDoc = await db.collection('users')
-                                           .doc(listingData.sellerId)
-                                           .collection('user')
-                                           .doc('profileInfo')
-                                           .get();
-
-        let sellerUsername = null;
-        if (sellerProfileDoc.exists) {
-          sellerUsername = sellerProfileDoc.data().userName; // Adjust this based on your data structure
-        } else {
-          console.warn(`Seller profile not found for ID: ${listingData.sellerId}`);
-        }
-
-        const wineForSale = {
-          ...listingData,
-          wineDetails: wineData,
-          sellerUsername: sellerUsername, // Include the seller's username
-        };
-
-        winesForSale.push(wineForSale);
-      } else {
-        console.warn(`Wine document not found for ID: ${listingData.wineId} from user ID: ${listingData.sellerId}`);
-      }
-    }
-
+    // Send response
     res.status(200).json({ wines: winesForSale });
   } catch (error) {
     console.error('Error fetching marketplace data:', error);
@@ -647,6 +722,232 @@ app.get('/marketplace', authenticateToken, async (req, res) => {
   }
 });
 
+
+// Manage Listings Route
+app.get('/my-listings', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.uid; // Assume authenticateToken attaches user ID to request
+    const listingsSnapshot = await db.collection('listings').where('sellerId', '==', userId).get();
+
+    if (listingsSnapshot.empty) {
+      console.log('No listings found for the current user.');
+      return res.status(200).json({ wines: [] });
+    }
+
+    let userWinesForSale = [];
+
+    for (const listingDoc of listingsSnapshot.docs) {
+      const listingData = listingDoc.data();
+      const wineDoc = await db.collection('users')
+                                .doc(userId)
+                                .collection('wines')
+                                .doc(listingData.wineId)
+                                .get();
+
+      if (wineDoc.exists) {
+        const wineData = wineDoc.data();
+        const wineForSale = {
+          ...listingData,
+          wineDetails: wineData,
+        };
+        userWinesForSale.push(wineForSale);
+      } else {
+        console.warn(`Wine document not found for ID: ${listingData.wineId} from user ID: ${userId}`);
+      }
+    }
+
+    res.status(200).json({ wines: userWinesForSale });
+  } catch (error) {
+    console.error('Error fetching user listings:', error);
+    res.status(500).json({ error: 'Failed to retrieve user listings.' });
+  }
+});
+
+// In your server (e.g., app.js or routes/marketplace.js)
+app.delete('/delete-listing/:listingId', authenticateToken, async (req, res) => {
+  const { listingId } = req.params;
+  const userId = req.user.uid;
+
+  try {
+    // Fetch the listing to ensure the user is the owner
+    const listingDoc = await db.collection('listings').doc(listingId).get();
+
+    if (!listingDoc.exists) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    const listingData = listingDoc.data();
+
+    // Check if the logged-in user is the owner of the listing
+    if (listingData.sellerDetails.sellerId !== userId) {
+      console.log('sellerId: ',listingData.sellerDetails.sellerId, 'userId: ', userId)
+      return res.status(403).json({ error: 'You are not authorized to delete this listing' });
+    }
+
+    // Delete the listing from the 'listings' collection
+    await db.collection('listings').doc(listingId).delete();
+
+    return res.status(200).json({ message: 'Listing deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting listing:', error);
+    return res.status(500).json({ error: 'Failed to delete the listing' });
+  }
+});
+
+// Route to handle purchase requests
+app.post('/send-purchase-request', authenticateToken, async (req, res) => {
+  console.log('Received purchase request:', req.body); // Log incoming request data
+
+  try {
+      const { wineId, wineName, quantity, buyerId, price, totalPrice, sellerId } = req.body;
+
+      if (!wineId || !buyerId || !totalPrice || !sellerId) {
+          console.warn('Missing required fields:', req.body);
+          return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      // Marketplace fee (assuming 10%)
+      const marketplaceFeePercentage = 0.10;
+      const marketplaceFee = totalPrice * marketplaceFeePercentage;
+      const sellerEarnings = totalPrice - marketplaceFee;
+
+      // Create a new document in Firestore under 'purchaseRequests'
+      const purchaseRequestRef = db.collection('purchaseRequests').doc(); // Auto-generate ID for the listing
+
+      const newPurchaseRequest = {
+          purchaseRequestId: purchaseRequestRef.id,
+          wineId: wineId,
+          wineName: wineName,
+          quantity: quantity,
+          buyerId: buyerId,
+          sellerId: sellerId,
+          price: price,
+          totalPrice: totalPrice,
+          marketplaceFee: marketplaceFee,
+          sellerEarnings: sellerEarnings,
+          status: 'pending_confirmation', // Initial status of the purchase
+          createdAt: new Date().toISOString(),
+      };
+
+      console.log('New purchase request data:', newPurchaseRequest); // Log new purchase request data
+
+      await purchaseRequestRef.set(newPurchaseRequest);
+
+      console.log('Purchase request saved successfully.'); // Log successful save
+
+      // Respond with the new purchase request
+      res.status(201).json({
+          message: 'Purchase request created successfully',
+          purchaseRequest: newPurchaseRequest,
+      });
+  } catch (error) {
+      console.error('Error creating purchase request:', error); // Log error details
+      res.status(500).json({ message: 'Error creating purchase request', error: error.message });
+  }
+});
+
+// Route to fetch pending purchase requests for a seller
+app.get('/get-purchase-requests', authenticateToken, async (req, res) => {
+  const sellerId = req.query.sellerId; // Get sellerId from query parameters
+
+  try {
+      const purchaseRequestsSnapshot = await db.collection('purchaseRequests')
+          .where('sellerId', '==', sellerId) // Filter by sellerId
+          .get();
+
+      if (purchaseRequestsSnapshot.empty) {
+          console.log('No purchase requests found for seller:', sellerId);
+          return res.status(200).json({ purchaseRequests: [] });
+      }
+
+      const purchaseRequests = [];
+      purchaseRequestsSnapshot.forEach(doc => {
+          purchaseRequests.push({ id: doc.id, ...doc.data() }); // Include document ID
+      });
+
+      console.log(`Fetched ${purchaseRequests.length} purchase requests for seller ${sellerId}.`);
+      res.status(200).json({ purchaseRequests });
+  } catch (error) {
+      console.error('Error fetching purchase requests:', error);
+      res.status(500).json({ message: 'Error fetching purchase requests', error: error.message });
+  }
+});
+
+app.get('/get-purchase-request/:purchaseRequestId', authenticateToken, async (req, res) => {
+  const { purchaseRequestId } = req.params; // Get the purchaseRequestId from URL params
+
+  try {
+      // Fetch the document with the provided purchaseRequestId (document ID)
+      const purchaseRequestRef = db.collection('purchaseRequests').doc(purchaseRequestId);
+      const purchaseRequestSnapshot = await purchaseRequestRef.get();
+
+      if (!purchaseRequestSnapshot.exists) {
+          console.log('Purchase request not found for id:', purchaseRequestId);
+          return res.status(404).json({ message: 'Purchase request not found' });
+      }
+
+      // Return the document data along with its ID
+      const purchaseRequest = { id: purchaseRequestSnapshot.id, ...purchaseRequestSnapshot.data() };
+      res.status(200).json({ purchaseRequest });
+  } catch (error) {
+      console.error('Error fetching purchase request:', error);
+      res.status(500).json({ message: 'Error fetching purchase request', error: error.message });
+  }
+});
+
+app.post('/seller/confirm-sale', async (req, res) => {
+  try {
+    const { purchaseRequestId, sellerId } = req.body;
+    console.log('purchaseRequestId: ',purchaseRequestId)
+    if (!purchaseRequestId || !sellerId) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Fetch the purchase request document from Firestore
+    const purchaseRequestRef = db.collection('purchaseRequests').doc(purchaseRequestId);
+    
+    const purchaseRequestSnapshot = await purchaseRequestRef.get();
+
+    if (!purchaseRequestSnapshot.exists) {
+      return res.status(404).json({ message: 'Purchase request not found' });
+    }
+
+    const purchaseRequestData = purchaseRequestSnapshot.data();
+
+    // Ensure that the correct seller is confirming the sale
+    if (purchaseRequestData.sellerId !== sellerId) {
+      return res.status(403).json({ message: 'Unauthorized seller' });
+    }
+
+    // Ensure the status is still pending confirmation
+    if (purchaseRequestData.status !== 'pending_confirmation') {
+      return res.status(400).json({ message: 'Purchase request already confirmed or invalid status' });
+    }
+
+    // Capture the payment on Stripe
+    const paymentIntentId = purchaseRequestData.paymentIntentId;
+    const paymentIntent = 'yes'; 
+    // await stripe.paymentIntents.capture(paymentIntentId);
+
+    // Update the purchase request in Firestore to reflect the confirmation
+    await purchaseRequestRef.update({
+      status: 'confirmed',
+      confirmedAt: new Date().toISOString(),
+      paymentCaptured: true,
+    });
+
+    // Respond with the updated purchase request
+    res.status(200).json({
+      message: 'Sale confirmed successfully',
+      purchaseRequestId: purchaseRequestId,
+      paymentIntent: paymentIntent,
+    });
+  } catch (error) {
+    console.error('Error confirming sale:', error);
+    // Ensure that we always return a JSON response
+    res.status(500).json({ message: 'Error confirming sale', error: error.message });
+  }
+});
 
 // Start your server (add appropriate port)
 app.listen(port, () => {

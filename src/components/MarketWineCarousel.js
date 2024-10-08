@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
-import { CardMedia, Typography, Box, Button, CircularProgress, Grid, Card } from '@mui/material';
+import { CardMedia, Typography, Box, Button, CircularProgress, Grid, Card, Container } from '@mui/material';
 import AgeBadge from './AgeBadge';
 import PeakMaturityBadge from './PeakMaturityBadge';
 import WineBarIcon from '@mui/icons-material/WineBar';
@@ -20,9 +20,9 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
     const fetchWineListings = async () => {
       if (token) {
         try {
-          const data = await fetchMarketplaceListings(token);
+          const data = await fetchMarketplaceListings(token, sampleSize);
           const fetchedWines = data || [];
-          setWines(fetchedWines.slice(0, sampleSize));
+          setWines(fetchedWines);
         } catch (error) {
           console.error('Error fetching wine data:', error);
           setError('Failed to load wines. Please try again later.');
@@ -96,7 +96,7 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
 
       <Slider {...settings}>
         {wines.map((wine) => (
-          <Card key={wine.id} sx={{ padding: 1, textAlign: 'center', minHeight: '550px'}}>
+          <Card key={wine.listingId} sx={{ padding: 1, textAlign: 'center', minHeight: '550px'}}>
             <Link to={'/marketplace'} style={{ textDecoration: 'none' }}>
             <CardMedia
               sx={{
@@ -127,47 +127,48 @@ const MarketWineCarousel = ({ token, sampleSize }) => {
             </CardMedia>
 
             {/* Wine Information */}
-            <Grid container spacing={1} sx={{p:1}}>
-              <Grid item xs={12}>
-                <Box display="flex" alignItems="center">
-                  <Typography textAlign="center" color="primary" sx={{ m: 1 }}>
-                    <strong>{wine.sellerUsername}</strong> is selling:
-                  </Typography>
-                </Box>
-                <Box display="flex" alignItems="center" sx={{ m: 0, p: 0 }}>
-                  <Typography textAlign="center">
-                    <strong>{wine.wineDetails.name}</strong>
-                  </Typography>
-                </Box>
-              </Grid>
+            <Container spacing={1} sx={{ p: 1 }}>
+  <Grid item xs={12}>
+      <Typography color="primary" textAlign="left">
+        <strong>{wine.sellerDetails.userName}</strong> is selling:
+      </Typography>
+  </Grid>
+  <Grid item xs={12}>
+    <Box alignItems="center" sx={{ mb: 1 }}>
+      <Typography textAlign="left">
+        <strong> {wine.wineDetails.name}</strong>
+      </Typography>
+    </Box>
+  </Grid>
 
-              <Grid item xs={12}>
-                <Box display="flex" alignItems="center">
-                  <EuroRounded color="primary" sx={{ mr: 2 }} />
-                  <Typography textAlign="left">
-                    <strong>Price:</strong> {wine.price}
-                  </Typography>
-                </Box>
-              </Grid>
+  <Grid item xs={12}>
+    <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+      <EuroRounded color="primary" sx={{ mr: 1 }} />
+      <Typography>
+        <strong>Price:</strong> {wine.price}
+      </Typography>
+    </Box>
+  </Grid>
 
-              <Grid item xs={12}>
-                <Box display="flex" alignItems="center">
-                  <WineBarIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography textAlign="left">
-                    <strong>Colour:</strong> {wine.wineDetails.colour}
-                  </Typography>
-                </Box>
-              </Grid>
+  <Grid item xs={12}>
+    <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+      <WineBarIcon color="primary" sx={{ mr: 1 }} />
+      <Typography>
+        <strong>Colour:</strong> {wine.wineDetails.colour}
+      </Typography>
+    </Box>
+  </Grid>
 
-              <Grid item xs={12}>
-                <Box display="flex" alignItems="center">
-                  <CalendarTodayIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography textAlign="left">
-                    <strong>Vintage:</strong> {wine.wineDetails.vintage}
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
+  <Grid item xs={12}>
+    <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
+      <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
+      <Typography>
+        <strong>Vintage:</strong> {wine.wineDetails.vintage}
+      </Typography>
+    </Box>
+  </Grid>
+</Container>
+
             </Link>
           </Card>
         ))}

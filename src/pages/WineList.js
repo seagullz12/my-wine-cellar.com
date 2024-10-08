@@ -40,6 +40,7 @@ const WineList = () => {
   const navigate = useNavigate();
   const [selectedWine, setSelectedWine] = useState(null);
   const [open, setOpen] = useState(false);
+  const [token, setToken] = useState();
   const [filters, setFilters] = useState({
     colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
     grapes: [
@@ -102,6 +103,7 @@ const WineList = () => {
       if (user) {
         try {
           const token = await user.getIdToken();
+          setToken(token);
           const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data`, {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -369,7 +371,6 @@ const WineList = () => {
                         variant="outlined"
                         color="success"
                         onClick={() => handleOpen(wine)}
-                        //navigate(`/for-sale/${wine.id}`)} 
                         fullWidth
                       >
                         Sell This Bottle
@@ -402,12 +403,12 @@ const WineList = () => {
           
           <DialogContent>
             <SellWineForm
-              wineId={selectedWine.id} // Pass the selected wine data
+              wineId={selectedWine.id}
               wine={selectedWine}
-              user={user}
+              token={token}
               setWines={setWines}
               setFilteredWines={setFilteredWines}
-              onClose={handleClose} // Pass the onClose function h
+              onClose={handleClose} 
             />
           </DialogContent>
         </Dialog>

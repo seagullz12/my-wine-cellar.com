@@ -22,7 +22,7 @@ const UserWineCarousel = ({ token, sampleSize }) => {
       setLoading(true); // Start loading
       if (token) {
         try {
-          const data = await fetchUserWines(token);
+          const data = await fetchUserWines(token,sampleSize);
           setWines(data.wines.slice(0, sampleSize)); // Limit to sample size
         } catch (error) {
           console.error('Error fetching wine data:', error);

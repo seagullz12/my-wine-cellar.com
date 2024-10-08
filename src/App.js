@@ -14,9 +14,8 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp'; 
 import SharedWineDetail from './pages/SharedWineDetail';
 // import TastingPage from './pages/TastingPage';
-import ForSale from './pages/ForSale';
 import './styles/global.css';
-import AddWineDoubleOptional from './pages/AddWineDoubleOptional';
+import AddWine from './pages/AddWine';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
@@ -36,6 +35,9 @@ import ReactGA from 'react-ga4';
 import PasswordReset from './pages/PasswordReset.js';
 import Profile from './pages/Profile.js';
 import Marketplace from './pages/Marketplace.js';
+import ConfirmSalePage from './pages/ConfirmSale.js';
+import SellerDashboard from './pages/SellerDashboard.js';
+import ManageListings from './pages/ManageListings.js';
 
 const TRACKING_ID = 'G-HZJRPGMJVT'; 
 
@@ -81,14 +83,17 @@ const App = () => {
             {/* Protected Routes */}
             {user ? (
               <>
-                <Route path="/add-wine" element={<AddWineDoubleOptional />} />
+                <Route path="/add-wine" element={<AddWine />} />
                 {/* <Route path="/add-wine-batch" element={<AddWineBatch />} /> */}
                 <Route path="/cellar" element={<WineList />} />
                 <Route path="/personal-sommelier" element={<WineRecommendations />} />
                 <Route path="/cellar/:id" element={<WineDetail />} />
-                <Route path="/for-sale/:id" element={<ForSale />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/seller/dashboard" element={<SellerDashboard user={user} />} />
+                <Route path="/seller/confirm-sale/:requestId" element={<ConfirmSalePage user={user} />} />
+                <Route path="/my-listings" element={<ManageListings  user={user} />} />
+     
                 <Route path="*" element={<Navigate to="" />} />
               </>
             ) : (

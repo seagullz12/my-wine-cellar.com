@@ -38,7 +38,7 @@ import WineMap from '../components/WineMap';
 import SellWineForm from '../components/SellWineForm';
 
 const WineDetail = () => {
-    const { id: wineId, token } = useParams();
+    const { id: wineId } = useParams();
     const [user, setUser] = useState(null);
     const [wine, setWine] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -53,6 +53,7 @@ const WineDetail = () => {
     const location = useLocation();
     const [selectedWine, setSelectedWine] = useState(null);
     const [open, setOpen] = useState(false);
+    const [token, setToken] = useState();
 
     const [isTasting, setIsTasting] = useState(false);
 
@@ -88,14 +89,13 @@ const WineDetail = () => {
 
     useEffect(() => {
         const fetchWineData = async () => {
-            const resolvedWineId = token ? await getWineIdFromToken(token) : wineId;
-
-            if (user && resolvedWineId) {
+            if (user) {
                 try {
-                    const authToken = await user.getIdToken();
-                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${resolvedWineId}`, {
+                    const token = await user.getIdToken();
+                    setToken(token);
+                    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/get-wine-data?id=${wineId}`, {
                         headers: {
-                            'Authorization': `Bearer ${authToken}`,
+                            'Authorization': `Bearer ${token}`,
                         },
                     });
 
@@ -130,7 +130,6 @@ const WineDetail = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = await user.getIdToken();
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
                 method: 'PUT',
                 headers: {
@@ -542,13 +541,13 @@ const WineDetail = () => {
                     <DialogTitle>{selectedWine.name}</DialogTitle>
 
                     <DialogContent>
-                        <SellWineForm
-                            wineId={wineId} // Pass the selected wine data
-                            wine={selectedWine}
-                            user={user}
-                            setWine={setWine}
-                            onClose={handleClose} // Pass the onClose function h
-                        />
+                    <SellWineForm
+              wineId={wineId}
+              wine={selectedWine}
+              token={token}
+              setWine={setWine}
+              onClose={handleClose} 
+            />
                     </DialogContent>
                 </Dialog>
             )}

@@ -18,6 +18,7 @@ import WineListSorting from '../components/WineListSorting';
 import WineData from '../components/WineData';
 import ForSaleLabel from '../components/ForSaleLabel';
 import { fetchMarketplaceListings } from '../components/api/marketplace'
+import BuyButton from '../components/BuyButton';
 
 const Marketplace = () => {
     const [wines, setWines] = useState([]);
@@ -30,51 +31,51 @@ const Marketplace = () => {
     const [filters, setFilters] = useState({
         colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
         grapes: [
-          "Cabernet Sauvignon",
-          "Merlot",
-          "Pinot Noir",
-          "Syrah (Shiraz)",
-          "Zinfandel",
-          "Chardonnay",
-          "Sauvignon Blanc",
-          "Riesling",
-          "Malbec",
-          "Tempranillo",
-          "Grenache",
-          "Cabernet Franc",
-          "Sangiovese",
-          "Mourvèdre",
-          "Viognier",
-          "Pinot Grigio (Pinot Gris)",
-          "Semillon",
-          "Nebbiolo",
-          "Barbera",
-          "Touriga Nacional",
-          "Petit Verdot",
-          "Chenin Blanc",
-          "Garganega",
-          "Grüner Veltliner",
-          "Fiano",
-          "Albariño",
-          "Vermentino",
-          "Nero d'Avola",
-          "Carignan",
-          "Dolcetto",
-          "Aglianico",
-          "Carmenère",
-          "Primitivo",
-          "Moscato",
-          "Torrontés",
-          "Saint Laurent",
-          "Tannat",
-          "Cinsault"
+            "Cabernet Sauvignon",
+            "Merlot",
+            "Pinot Noir",
+            "Syrah (Shiraz)",
+            "Zinfandel",
+            "Chardonnay",
+            "Sauvignon Blanc",
+            "Riesling",
+            "Malbec",
+            "Tempranillo",
+            "Grenache",
+            "Cabernet Franc",
+            "Sangiovese",
+            "Mourvèdre",
+            "Viognier",
+            "Pinot Grigio (Pinot Gris)",
+            "Semillon",
+            "Nebbiolo",
+            "Barbera",
+            "Touriga Nacional",
+            "Petit Verdot",
+            "Chenin Blanc",
+            "Garganega",
+            "Grüner Veltliner",
+            "Fiano",
+            "Albariño",
+            "Vermentino",
+            "Nero d'Avola",
+            "Carignan",
+            "Dolcetto",
+            "Aglianico",
+            "Carmenère",
+            "Primitivo",
+            "Moscato",
+            "Torrontés",
+            "Saint Laurent",
+            "Tannat",
+            "Cinsault"
         ],
         vintages: [],
         names: [],
         datesAdded: [],
         statuses: ['in_cellar', 'consumed', "for_sale"],
         countries: [],
-      })
+    })
 
     useEffect(() => {
         const auth = getAuth();
@@ -87,22 +88,22 @@ const Marketplace = () => {
     // marketplace listings api call //
     useEffect(() => {
         const fetchWineListings = async () => {
-          if (user) {
-            try {
-              const token = await user.getIdToken();
-              const data = await fetchMarketplaceListings(token);
-    
-              const fetchedWines = data || [];
-              setWines(fetchedWines);
-              setFilteredWines(fetchedWines);
+            if (user) {
+                try {
+                    const token = await user.getIdToken();
+                    const data = await fetchMarketplaceListings(token);
 
-          
-            } catch (error) {
-                console.error('Error fetching marketplace data:', error);
-            } finally {
-                setLoading(false);
-            }
-        } else {
+                    const fetchedWines = data || [];
+                    setWines(fetchedWines);
+                    setFilteredWines(fetchedWines);
+
+
+                } catch (error) {
+                    console.error('Error fetching marketplace data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
                 setLoading(false);
             }
         };
@@ -181,25 +182,23 @@ const Marketplace = () => {
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Box my={2}>
-                {/* <WineListFilters filters={filters} onFilterChange={setFilters} onResetFilters={() => setFilters({ ...filters })} />
-
-                <WineListFilters
-          filters={{}} // You can define filters here similar to your WineList page
-          onFilterChange={handleFilterChange}
-          onResetFilters={handleResetFilters}
-        /> */}
-        <WineListSorting
-          sortCriteria={sortCriteria}
-          sortOrder={sortOrder}
-          onSortChange={handleSortChange}
-          onSortOrderChange={handleSortOrderChange}
-        />
+                {/* <WineListFilters
+                filters={filters} // You can define filters here similar to your WineList page
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+                /> */}
+                <WineListSorting
+                    sortCriteria={sortCriteria}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    onSortOrderChange={handleSortOrderChange}
+                />
             </Box>
 
             <Grid container spacing={2}>
                 {filteredWines.length > 0 ? (
                     filteredWines.map((wine) => (
-                        <Grid item xs={12} sm={6} md={3} key={wine.wineId}>
+                        <Grid item xs={12} sm={6} md={3} key={wine.listingId}>
                             <Box
                                 border={0}
                                 borderRadius={2}
@@ -237,7 +236,7 @@ const Marketplace = () => {
                                     </CardMedia>
                                     <Typography variant="body1" sx={{ m: 2, mb: 1 }}><strong>{wine.wineDetails.name}</strong></Typography>
                                     <Typography variant="body1" sx={{ m: 2, mb: 1 }} color="primary">
-                                        {wine.sellerUsername} is selling {wine.quantity > 1 ? (
+                                        {wine.sellerDetails.userName} is selling {wine.quantity > 1 ? (
                                             <><strong>{wine.quantity} </strong> bottles for <strong>€{wine.price}</strong> each</>
                                         ) : (
                                             <><strong>{wine.quantity} </strong> bottle for <strong>€{wine.price}</strong></>
@@ -255,14 +254,13 @@ const Marketplace = () => {
                                 <Box display="flex" justifyContent="space-between" mt="auto">
                                     <Grid container spacing={2}>
                                         <Grid item xs={12}>
-                                            <Button
-                                                variant="outlined"
-                                                color="success"
-                                                onClick={() => <a>Coming soon!</a> }
-                                                fullWidth
-                                            >
-                                                Buy This Bottle
-                                            </Button>
+                                            <BuyButton
+                                                wineId={wine.wineId}
+                                                wineName={wine.wineDetails.name}
+                                                sellerId={wine.sellerDetails.sellerId}
+                                                price={wine.price}
+                                                quantity={1}
+                                            />
                                         </Grid>
                                     </Grid>
                                 </Box>

@@ -3,8 +3,6 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 
 import {
-  CardContent,
-  CardMedia,
   Typography,
   Snackbar,
   Alert,
@@ -16,16 +14,18 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import '../styles/WineList.css'; // Ensure any custom styles are still applied
-import AgeBadge from '../components/AgeBadge';
-import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import CellarStatistics from '../components/CellarStatistics';
 import WineData from '../components/WineData';
-import ForSaleLabel from '../components/ForSaleLabel';
 import SellWineForm from '../components/SellWineForm';
+import { WineCardDesktop, WineCardMobile } from '../components/WineCard';
+import DeleteIcon from '@mui/icons-material/Delete'; // Import the Delete icon
+
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -89,6 +89,9 @@ const WineList = () => {
     statuses: ['in_cellar', 'consumed', "for_sale"],
     countries: [],
   });
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const auth = getAuth();
@@ -299,86 +302,34 @@ const WineList = () => {
                   flexDirection: 'column'
                 }}
               >
-
-                <Link to={`/cellar/${wine.id}`}>
-                  <CardMedia sx={{ position: 'relative' }}>
-                    {/* The Wine Image */}
-                    <img
-                      src={wine.images?.front?.desktop || wine.images?.back?.desktop}
-                      srcSet={`${wine.images?.front?.mobile || wine.images?.back?.mobile} 600w,
-                      ${wine.images?.front?.desktop || wine.images?.back?.desktop} 1200w`}
-                      sizes="(max-width: 600px) 100vw, 1200px"
-                      alt={wine.name}
-                      className="wine-image"
-                      style={{ width: '100%', height: 'auto', borderRadius: '8px' }} // Optional border-radius
-                    />
-
-                    {/* Overlay PeakMaturityBadge on the image */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16, // Adjust for vertical position
-                        left: 16, // Adjust for horizontal position
-                        borderRadius: '8%', // Make it rounded
-                      }}
-                    >
-                      {!wine.drinkingWindow ? (
-                        <AgeBadge vintage={wine.vintage} round={true} />
-                      ) : (
-                        <PeakMaturityBadge vintage={wine.vintage} peakMaturity={wine.peakMaturity} drinkingWindow={wine.drinkingWindow} round={true} />
-                      )}
-                    </Box>
-                    <Box
-                      position="absolute"
-                      bottom={20} // Adjust this value to position the badge vertically
-                      right={10} // Adjust this value to position the badge horizontally
-                      zIndex={1} // Ensure the badge appears above the image
-                      sx={{ padding: 0 }}>
-                      {wine.status === "for_sale" && (<ForSaleLabel price={wine.price} />)}
-                    </Box>
-                  </CardMedia>
-                  <Typography variant="body1" sx={{ m: 2, mb: 1 }}><strong>{wine.name}</strong></Typography>
-                </Link>
-                <CardContent sx={{
-                  padding: 0,
-                  margin: 1,
-                  marginBottom: 2
-                }}>
-                  <WineData wine={wine} wineDetailPage={false} />
-                </CardContent>
-                <Box display="flex" justifyContent="space-between" mt="auto">
-                  <Grid container spacing={2}>
-                    <Grid item xs={6} sm={6}>
-                      <Link to={`/cellar/${wine.id}`} style={{ textDecoration: 'none' }}>
-                        <Button variant="contained" color="primary" fullWidth>
-                          View Wine
-                        </Button>
-                      </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={6}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleDelete(wine.id)}
-                        fullWidth
-                      >
-                        Remove
-                      </Button>
-                    </Grid>
-                    {/* Add Sell This Bottle Button */}
-                    <Grid item xs={12} sm={12}>
-                      <Button
-                        variant="outlined"
-                        color="success"
-                        onClick={() => handleOpen(wine)}
-                        fullWidth
-                      >
-                        Sell This Bottle
-                      </Button>
-                    </Grid>
-                  </Grid>
+                {isMobile ? <WineCardMobile wine={wine} /> : <WineCardDesktop wine={wine} />}
+                <Box display="flex" justifyContent="space-between" mt="auto" flexWrap="wrap">
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleDelete(wine.id)}
+                    sx={{ flex: '1'}} // Margin for spacing
+                  >
+                    Remove
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    onClick={() => handleOpen(wine)}
+                    sx={{ flex: '1', marginRight:1, marginLeft:1 }} // Make sure this button also flexes
+                  >
+                    Sell
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => navigate(`/cellar/${wine.id}`)} // Use navigate to go to the wine details
+                    sx={{ flex: '1' }}
+                  >
+                    View
+                  </Button>
                 </Box>
-
 
               </Box>
             </Grid>
@@ -400,7 +351,7 @@ const WineList = () => {
       {selectedWine && (
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{selectedWine.name}</DialogTitle>
-          
+
           <DialogContent>
             <SellWineForm
               wineId={selectedWine.id}
@@ -408,7 +359,7 @@ const WineList = () => {
               token={token}
               setWines={setWines}
               setFilteredWines={setFilteredWines}
-              onClose={handleClose} 
+              onClose={handleClose}
             />
           </DialogContent>
         </Dialog>

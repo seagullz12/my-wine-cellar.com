@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import '../styles/TastingNotesForm.css';
+import {useParams} from 'react-router-dom';
+import { TextField, Button, Typography, Box } from '@mui/material';
+import { WineBarRounded } from '@mui/icons-material';
 
-const TastingNotesForm = ({ wineId, backendURL, user, handleIsTasting }) => {
+const TastingForm = ({ user, wine, handleIsTasting }) => {
   const [tastingNotes, setTastingNotes] = useState('');
-  const [rating, setRating] = useState(''); // Initialize as an empty string for controlled input
+  const { id: wineId } = useParams();
+  const [rating, setRating] = useState('');
   const [finalNotes, setFinalNotes] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // State for error message
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(wineId)
       const token = await user.getIdToken();
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/update-wine-data`, {
         method: 'PUT',
@@ -26,8 +30,8 @@ const TastingNotesForm = ({ wineId, backendURL, user, handleIsTasting }) => {
               openedAt: new Date().toISOString(),
               tastingNotes,
               finalNotes,
-              rating
-            }
+              rating,
+            },
           },
         }),
       });
@@ -36,52 +40,77 @@ const TastingNotesForm = ({ wineId, backendURL, user, handleIsTasting }) => {
         throw new Error('Failed to save tasting notes');
       }
 
+      // Call handleIsTasting to update the state in the parent component
+      handleIsTasting({
+        tastingNotes,
+        finalNotes,
+        rating,
+        status: 'consumed', // Example additional data
+      });
+
       // Clear form after submission
       setTastingNotes('');
       setRating('');
       setFinalNotes('');
       setSuccessMessage('Tasting notes saved successfully!');
-      setErrorMessage(''); // Clear error message if the submission was successful
+      setErrorMessage('');
     } catch (error) {
       console.error('Error saving tasting notes:', error);
-      setErrorMessage('Error saving tasting notes: ' + error.message); // Display error message
+      setErrorMessage('Error saving tasting notes: ' + error.message);
     }
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="tasting-notes-form">
-        <h2>Tasting Notes</h2>
-        <textarea
-          value={tastingNotes}
-          onChange={(e) => setTastingNotes(e.target.value)}
-          placeholder="Enter your tasting notes here..."
-          required
-        />
-        <input
-          type="number"
-          min="1"
-          max="5"
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
-          placeholder="Rate this wine (1-5)"
-          required
-        />
-        <textarea
-          value={finalNotes}
-          onChange={(e) => setFinalNotes(e.target.value)}
-          placeholder="Final thoughts after drinking..."
-        />
-        <button type="submit" onClick={handleIsTasting}>Save Tasting Notes</button>
-      </form>
-      
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, p:2}}>
+      <Typography variant="h5" gutterBottom>Tasting Notes</Typography>
+      <TextField
+        multiline
+        rows={4}
+        value={tastingNotes}
+        onChange={(e) => setTastingNotes(e.target.value)}
+        placeholder= {wine.tasting ? wine.tasting.tastingNotes : "Enter your tasting notes here..."}
+        required
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        type="number"
+        min="1"
+        max="5"
+        value={rating}
+        onChange={(e) => setRating(e.target.value)}
+        placeholder= {wine.tasting ? wine.tasting.rating : "Rate this wine (1-5)"}
+        required
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        multiline
+        rows={2}
+        value={finalNotes}
+        onChange={(e) => setFinalNotes(e.target.value)}
+        placeholder= {wine.tasting ? wine.tasting.finalNotes : "Final thoughts after drinking..."}
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+      >
+        Save Tasting Notes
+      </Button>
+
       {/* Display success message */}
-      {successMessage && <p className="success-message">{successMessage}</p>}
-      
+      {successMessage && <Typography color="success.main" sx={{ mt: 2 }}>{successMessage}</Typography>}
+
       {/* Display error message */}
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-    </div>
+      {errorMessage && <Typography color="error.main" sx={{ mt: 2 }}>{errorMessage}</Typography>}
+    </Box>
   );
 };
 
-export default TastingNotesForm;
+export default TastingForm;

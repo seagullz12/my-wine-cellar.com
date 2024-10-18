@@ -19,7 +19,6 @@ import WineIcon from '@mui/icons-material/LocalBar';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { fetchUserWineById } from '../components/api/wines';
 import { Link } from 'react-router-dom';
-import SalesEarningsSection from '../components/salesEarningsSection';
 
 // Utility functions for fetching data
 const fetchPurchaseRequests = async (user) => {
@@ -82,7 +81,7 @@ const SkeletonLoader = () => (
     </Card>
 );
 
-const SellerDashboard = ({ user }) => {
+const SellerDashboardV2 = ({ user }) => {
     const [purchaseRequests, setPurchaseRequests] = useState([]);
     const [wineData, setWineData] = useState({});
     const [buyerProfiles, setBuyerProfiles] = useState({});
@@ -259,7 +258,7 @@ const SellerDashboard = ({ user }) => {
                                     </Box>
 
                                     <Typography variant="body1">
-                                        <strong>Received at: </strong>{request.createdAt ? new Date(request.createdAt).toLocaleString() : 'Loading...'}
+                                        <strong>Received At: </strong>{request.createdAt ? new Date(request.createdAt).toLocaleString() : 'Loading...'}
                                     </Typography>
                                     <Typography variant="body1">
                                         <strong>Total Price: </strong>€{Number(request.totalPrice).toFixed(2)}
@@ -405,54 +404,54 @@ const SellerDashboard = ({ user }) => {
             />
 
             {/* Statistics Section */}
-            <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+            <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 2 }}>
                 Sales & Earnings
             </Typography>
-            <Paper sx={{ padding: { xs: 2, sm: 3 }, marginBottom: 2, borderRadius: 2, boxShadow: 2 }}>
-                <Grid container spacing={2}>
+            <Paper sx={{ padding: 3, marginBottom: 4, borderRadius: 3, boxShadow: 3 }}>
+                <Grid container spacing={3}>
                     <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, backgroundColor: '#FFEBEE', borderRadius: 2 }}>
+                        <Paper sx={{ p: 3, backgroundColor: '#FFEBEE', borderRadius: 3 }}>
                             <Box display="flex" alignItems="center">
-                                <Avatar sx={{ bgcolor: '#D32F2F', marginRight: 1 }}>
+                                <Avatar sx={{ bgcolor: '#D32F2F', marginRight: 2 }}>
                                     <WineIcon />
                                 </Avatar>
-                                <Typography variant="subtitle1" fontWeight="bold">
+                                <Typography variant="h6" fontWeight="bold">
                                     Confirmed Requests
                                 </Typography>
                             </Box>
-                            <Typography variant="h5" sx={{ mt: 1 }}>
+                            <Typography variant="h4" sx={{ mt: 1 }}>
                                 {confirmedPurchaseRequestsCount}
                             </Typography>
                         </Paper>
                     </Grid>
 
                     <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, backgroundColor: '#E8F5E9', borderRadius: 2 }}>
+                        <Paper sx={{ p: 3, backgroundColor: '#E8F5E9', borderRadius: 3 }}>
                             <Box display="flex" alignItems="center">
-                                <Avatar sx={{ bgcolor: '#388E3C', marginRight: 1 }}>
+                                <Avatar sx={{ bgcolor: '#388E3C', marginRight: 2 }}>
                                     <MonetizationOnIcon />
                                 </Avatar>
-                                <Typography variant="subtitle1" fontWeight="bold">
+                                <Typography variant="h6" fontWeight="bold">
                                     Total Sales Value
                                 </Typography>
                             </Box>
-                            <Typography variant="h5" sx={{ mt: 1 }}>
+                            <Typography variant="h4" sx={{ mt: 1 }}>
                                 €{totalSalesValue.toFixed(2)}
                             </Typography>
                         </Paper>
                     </Grid>
 
                     <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, backgroundColor: '#FFFDE7', borderRadius: 2 }}>
+                        <Paper sx={{ p: 3, backgroundColor: '#FFFDE7', borderRadius: 3 }}>
                             <Box display="flex" alignItems="center">
-                                <Avatar sx={{ bgcolor: '#FBC02D', marginRight: 1 }}>
+                                <Avatar sx={{ bgcolor: '#FBC02D', marginRight: 2 }}>
                                     <MonetizationOnIcon />
                                 </Avatar>
-                                <Typography variant="subtitle1" fontWeight="bold">
+                                <Typography variant="h6" fontWeight="bold">
                                     Total Earnings
                                 </Typography>
                             </Box>
-                            <Typography variant="h5" sx={{ mt: 1 }}>
+                            <Typography variant="h4" sx={{ mt: 1 }}>
                                 €{totalEarnings.toFixed(2)}
                             </Typography>
                         </Paper>
@@ -463,4 +462,4 @@ const SellerDashboard = ({ user }) => {
     );
 };
 
-export default SellerDashboard;
+export default SellerDashboardV2;

@@ -35,6 +35,7 @@ import Profile from './pages/Profile.js';
 import Marketplace from './pages/Marketplace.js';
 import ConfirmSalePage from './pages/ConfirmSale.js';
 import SellerDashboard from './pages/SellerDashboard.js';
+import SellerDashboardV2 from './pages/SellerDashboardV2.js';
 import ManageListings from './pages/ManageListings.js';
 import BottomNav from './components/BottomNav.js';
 

@@ -799,12 +799,37 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
   console.log('Received purchase request:', req.body); // Log incoming request data
 
   try {
-      const { wineId, wineName, quantity, buyerId, price, totalPrice, sellerId } = req.body;
+      const { wineId, wineName, quantity, buyerId, price, totalPrice, sellerId, listingId } = req.body;
 
-      if (!wineId || !buyerId || !totalPrice || !sellerId) {
+      // Check for required fields
+      if (!wineId || !buyerId || !totalPrice || !sellerId || !listingId) {
           console.warn('Missing required fields:', req.body);
           return res.status(400).json({ message: 'Missing required fields' });
       }
+
+      // Fetch the listing document using the provided listingId
+      const listingRef = db.collection('listings').doc(listingId); // Use listingId as the document ID
+      const listingSnapshot = await listingRef.get();
+
+      // Check if the listing exists
+      if (!listingSnapshot.exists) {
+          return res.status(404).json({ message: 'Wine listing not found' });
+      }
+
+      const listingData = listingSnapshot.data();
+      const availableQuantity = listingData.quantity;
+
+      // Check if there is enough quantity available
+      if (availableQuantity < quantity) {
+          return res.status(400).json({
+              message: `Insufficient quantity available. Only ${availableQuantity} left.`,
+          });
+      }
+
+      // Deduct the requested quantity from the listing
+      await listingRef.update({
+          quantity: availableQuantity - quantity,
+      });
 
       // Marketplace fee (assuming 10%)
       const marketplaceFeePercentage = 0.10;
@@ -812,12 +837,13 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
       const sellerEarnings = totalPrice - marketplaceFee;
 
       // Create a new document in Firestore under 'purchaseRequests'
-      const purchaseRequestRef = db.collection('purchaseRequests').doc(); // Auto-generate ID for the listing
+      const purchaseRequestRef = db.collection('purchaseRequests').doc(); // Auto-generate ID for the purchase request
 
       const newPurchaseRequest = {
           purchaseRequestId: purchaseRequestRef.id,
           wineId: wineId,
           wineName: wineName,
+          listingId: listingId, // Used for managing available stock later on
           quantity: quantity,
           buyerId: buyerId,
           sellerId: sellerId,
@@ -831,6 +857,7 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
 
       console.log('New purchase request data:', newPurchaseRequest); // Log new purchase request data
 
+      // Save the new purchase request document
       await purchaseRequestRef.set(newPurchaseRequest);
 
       console.log('Purchase request saved successfully.'); // Log successful save
@@ -895,17 +922,17 @@ app.get('/get-purchase-request/:purchaseRequestId', authenticateToken, async (re
   }
 });
 
-app.post('/seller/confirm-sale', async (req, res) => {
+app.post('/seller/handle-purchase-request', async (req, res) => {
   try {
-    const { purchaseRequestId, sellerId } = req.body;
-    console.log('purchaseRequestId: ',purchaseRequestId)
-    if (!purchaseRequestId || !sellerId) {
+    const { purchaseRequestId, sellerId, action } = req.body; // Include action in the request
+    console.log('purchaseRequestId: ', purchaseRequestId, 'Action: ', action);
+
+    if (!purchaseRequestId || !sellerId || !action) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
     // Fetch the purchase request document from Firestore
     const purchaseRequestRef = db.collection('purchaseRequests').doc(purchaseRequestId);
-    
     const purchaseRequestSnapshot = await purchaseRequestRef.get();
 
     if (!purchaseRequestSnapshot.exists) {
@@ -924,30 +951,69 @@ app.post('/seller/confirm-sale', async (req, res) => {
       return res.status(400).json({ message: 'Purchase request already confirmed or invalid status' });
     }
 
-    // Capture the payment on Stripe
-    const paymentIntentId = purchaseRequestData.paymentIntentId;
-    const paymentIntent = 'yes'; 
-    // await stripe.paymentIntents.capture(paymentIntentId);
+    // If the action is to confirm the sale
+    if (action === 'confirm') {
+      // Capture the payment on Stripe (uncomment in production)
+      // const paymentIntentId = purchaseRequestData.paymentIntentId;
+      // await stripe.paymentIntents.capture(paymentIntentId);
 
-    // Update the purchase request in Firestore to reflect the confirmation
-    await purchaseRequestRef.update({
-      status: 'confirmed',
-      confirmedAt: new Date().toISOString(),
-      paymentCaptured: true,
-    });
+      // Update the purchase request in Firestore to reflect the confirmation
+      await purchaseRequestRef.update({
+        status: 'confirmed',
+        confirmedAt: new Date().toISOString(),
+        paymentCaptured: true,
+      });
 
-    // Respond with the updated purchase request
-    res.status(200).json({
-      message: 'Sale confirmed successfully',
-      purchaseRequestId: purchaseRequestId,
-      paymentIntent: paymentIntent,
-    });
+      // Respond with the updated purchase request
+      res.status(200).json({
+        message: 'Sale confirmed successfully',
+        purchaseRequestId: purchaseRequestId,
+      });
+    } 
+    // If the action is to reject the request
+    else if (action === 'reject') {
+      // Restore the quantity in the corresponding listing
+      const listingId = purchaseRequestData.listingId;
+      const quantityToRestore = purchaseRequestData.quantity;
+
+      const listingRef = db.collection('listings').doc(listingId);
+      const listingSnapshot = await listingRef.get();
+
+      if (!listingSnapshot.exists) {
+        return res.status(404).json({ message: 'Listing not found' });
+      }
+
+      const listingData = listingSnapshot.data();
+      const currentQuantity = listingData.quantity;
+
+      // Update the listing's quantity
+      await listingRef.update({
+        quantity: currentQuantity + quantityToRestore, // Restore the quantity
+      });
+
+      // Update the purchase request in Firestore to reflect the rejection
+      await purchaseRequestRef.update({
+        status: 'rejected',
+        rejectedAt: new Date().toISOString(),
+      });
+
+      // Respond with a rejection message
+      res.status(200).json({
+        message: 'Purchase request rejected successfully.',
+        purchaseRequestId: purchaseRequestId,
+      });
+    } 
+    // If the action is invalid
+    else {
+      return res.status(400).json({ message: 'Invalid action specified' });
+    }
   } catch (error) {
-    console.error('Error confirming sale:', error);
+    console.error('Error handling purchase request:', error);
     // Ensure that we always return a JSON response
-    res.status(500).json({ message: 'Error confirming sale', error: error.message });
+    res.status(500).json({ message: 'Error handling purchase request', error: error.message });
   }
 });
+
 
 // Start your server (add appropriate port)
 app.listen(port, () => {

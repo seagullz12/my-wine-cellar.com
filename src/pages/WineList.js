@@ -21,11 +21,8 @@ import '../styles/WineList.css'; // Ensure any custom styles are still applied
 import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import CellarStatistics from '../components/CellarStatistics';
-import WineData from '../components/WineData';
 import SellWineForm from '../components/SellWineForm';
 import { WineCardDesktop, WineCardMobile } from '../components/WineCard';
-import DeleteIcon from '@mui/icons-material/Delete'; // Import the Delete icon
-
 
 const WineList = () => {
   const [wines, setWines] = useState([]);
@@ -351,7 +348,6 @@ const WineList = () => {
       {selectedWine && (
         <Dialog open={open} onClose={handleClose}>
           <DialogTitle>{selectedWine.name}</DialogTitle>
-
           <DialogContent>
             <SellWineForm
               wineId={selectedWine.id}

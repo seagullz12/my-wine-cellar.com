@@ -1,4 +1,25 @@
 /* Reset some basic elements for consistency across browsers */
+
+/* global.css */
+
+/* Style for the main application container */
+.App {
+  padding-bottom: 56px; /* Adjust this to match the height of your BottomNav */
+  box-sizing: border-box; /* Ensures padding is included in total height */
+}
+
+/* Style for BottomNav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px; /* Match this with your BottomNav height */
+  z-index: 1000; /* Ensure it's above other content */
+  background-color: #fff; /* Optional: adjust as needed */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,6 +31,8 @@ html, body {
   font-family: 'Georgia', serif; /* Default font for the entire application */
   color: #3d0a02; /* Deep wine color for text */
   line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
 a {

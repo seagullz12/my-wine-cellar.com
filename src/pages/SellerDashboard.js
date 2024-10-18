@@ -19,7 +19,6 @@ import WineIcon from '@mui/icons-material/LocalBar';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { fetchUserWineById } from '../components/api/wines';
 import { Link } from 'react-router-dom';
-import SalesEarningsSection from '../components/salesEarningsSection';
 
 // Utility functions for fetching data
 const fetchPurchaseRequests = async (user) => {

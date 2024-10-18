@@ -5,7 +5,7 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 require('dotenv').config();
 const { Storage } = require('@google-cloud/storage');
-const { getFirestore, collection, doc, getDocs} = require('firebase-admin/firestore');
+const { getFirestore, collection, doc, getDocs } = require('firebase-admin/firestore');
 const { initializeApp, cert } = require("firebase-admin/app");
 const path = require('path');
 // const sharp = require('sharp');
@@ -13,6 +13,7 @@ const multer = require('multer');
 const { generateSitemap } = require('./sitemap');
 const { z } = require('zod');
 const { zodResponseFormat } = require('openai/helpers/zod');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const port = 8080;
@@ -25,21 +26,30 @@ app.get('/sitemap.xml', (req, res) => {
 });
 
 const serviceAccount = {
-    type: process.env.FIREBASE_type,
-    project_id: process.env.FIREBASE_project_id,
-    private_key_id: process.env.FIREBASE_private_key_id,
-    private_key: process.env.FIREBASE_private_key,
-    client_email: process.env.FIREBASE_client_email,
-    client_id: process.env.FIREBASE_client_id,
-    auth_uri: process.env.FIREBASE_auth_uri,
-    token_uri: process.env.FIREBASE_token_uri,
-    auth_provider_x509_cert_url: process.env.FIREBASE_auth_provider_x509_cert_url,
-    client_x509_cert_url: process.env.FIREBASE_client_x509_cert_url,
-    universe_domain: process.env.FIREBASE_universe_domain
-  }
+  type: process.env.FIREBASE_type,
+  project_id: process.env.FIREBASE_project_id,
+  private_key_id: process.env.FIREBASE_private_key_id,
+  private_key: process.env.FIREBASE_private_key,
+  client_email: process.env.FIREBASE_client_email,
+  client_id: process.env.FIREBASE_client_id,
+  auth_uri: process.env.FIREBASE_auth_uri,
+  token_uri: process.env.FIREBASE_token_uri,
+  auth_provider_x509_cert_url: process.env.FIREBASE_auth_provider_x509_cert_url,
+  client_x509_cert_url: process.env.FIREBASE_client_x509_cert_url,
+  universe_domain: process.env.FIREBASE_universe_domain
+}
 
 const firebaseApp = initializeApp(serviceAccount);
-const db = getFirestore(firebaseApp, "wine-scanner") 
+const db = getFirestore(firebaseApp, "wine-scanner")
+
+// Configure nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.REACT_APP_EMAIL,
+    pass: process.env.REACT_APP_EMAIL_PASSWORD,
+  },
+});
 
 // Initialize Google Cloud Storage
 const storage = new Storage(); //
@@ -102,8 +112,8 @@ const getWineDataFromText = async (text) => {
     name: z.string(),
     grape: z.array(z.string()),
     vintage: z.string(),
-    region:  z.string(),
-    country:  z.string(),
+    region: z.string(),
+    country: z.string(),
     producer: z.string(),
     alcohol: z.string(),
     classification: z.array(z.string()),
@@ -113,7 +123,7 @@ const getWineDataFromText = async (text) => {
     pairing: z.array(z.string()),
     terroir: z.array(z.string()),
     description: z.string(),
-    optimal_drinking_window: z.object({lower: z.string(), upper: z.string()})
+    optimal_drinking_window: z.object({ lower: z.string(), upper: z.string() })
   });
 
   const settings = {
@@ -138,7 +148,7 @@ const getWineDataFromText = async (text) => {
 
     const extracted_wine_data = completion.choices[0].message.parsed;
 
-    console.log('open ai response: ',extracted_wine_data);
+    console.log('open ai response: ', extracted_wine_data);
     return extracted_wine_data;
   } catch (error) {
     console.error('Error fetching wine data:', error);
@@ -438,14 +448,14 @@ const getWinePairingRecoFromFood = async (food, wines) => {
       explanation: z.string(),
     })
   });
-  
+
   console.log('wines:', wines)
   // Prepare wine descriptions for OpenAI prompt
   const wineDescriptions = wines.map(wine => {
     return `id: ${wine.id}, wine features: [grapes: ${wine.grape}, vintage: ${wine.vintage}, palate: ${wine.palate}, nose: ${wine.nose}, alcohol: ${wine.alcohol}, drinking window: ${wine.drinkingWindow.lower} until ${wine.drinkingWindow.upper}].`;
   }).join('\n');
-  console.log('prompt: ',wineDescriptions)
-//  console.log('Wines in the request: ', wines);
+  console.log('prompt: ', wineDescriptions)
+  //  console.log('Wines in the request: ', wines);
 
   const settings = {
     model: "gpt-4o-mini",
@@ -483,41 +493,41 @@ app.post('/recommend-wine', authenticateToken, async (req, res) => {
   try {
     const { food } = req.body;
 
- // Fetch wines from Firestore
-const userId = req.user.uid;
-const winesRef = db.collection('users').doc(userId).collection('wines');
-const querySnapshot = await winesRef.get();
+    // Fetch wines from Firestore
+    const userId = req.user.uid;
+    const winesRef = db.collection('users').doc(userId).collection('wines');
+    const querySnapshot = await winesRef.get();
 
-// Format wine data for OpenAI prompt and create a map for lookup
-const wines = querySnapshot.docs.map(doc => {
-  const wineData = doc.data(); // Get the wine data
-  return { ...wineData, id: doc.id }; // Return the data along with the document ID
-});
+    // Format wine data for OpenAI prompt and create a map for lookup
+    const wines = querySnapshot.docs.map(doc => {
+      const wineData = doc.data(); // Get the wine data
+      return { ...wineData, id: doc.id }; // Return the data along with the document ID
+    });
 
-// Create a map of wine ID to wine data for easy access
-const wineDataMap = wines.reduce((acc, wine) => {
-  acc[wine.id] = wine; // Use document ID as the key
-  return acc;
-}, {});
+    // Create a map of wine ID to wine data for easy access
+    const wineDataMap = wines.reduce((acc, wine) => {
+      acc[wine.id] = wine; // Use document ID as the key
+      return acc;
+    }, {});
 
-// Get wine recommendations based on food
-const recommendations = await getWinePairingRecoFromFood(food, wines);
+    // Get wine recommendations based on food
+    const recommendations = await getWinePairingRecoFromFood(food, wines);
 
-// Match recommendations with wine data
-const detailedRecommendations = Object.keys(recommendations).map(key => {
-  const { id, recommendation_rank, explanation } = recommendations[key];
-  const wineDetails = wineDataMap[id]; // Lookup the wine details from the map
+    // Match recommendations with wine data
+    const detailedRecommendations = Object.keys(recommendations).map(key => {
+      const { id, recommendation_rank, explanation } = recommendations[key];
+      const wineDetails = wineDataMap[id]; // Lookup the wine details from the map
 
-  // Ensure that the ID from recommendations matches the wine document ID
-  return {
-    recommendation_rank,
-    id, // This should correspond to wineData.id
-    explanation,
-    wineDetails, // Include the matched wine details
-  };
-});
+      // Ensure that the ID from recommendations matches the wine document ID
+      return {
+        recommendation_rank,
+        id, // This should correspond to wineData.id
+        explanation,
+        wineDetails, // Include the matched wine details
+      };
+    });
 
-    console.log('returned matches: ',detailedRecommendations)
+    console.log('returned matches: ', detailedRecommendations)
     return res.json({ recommendations: detailedRecommendations });
 
   } catch (error) {
@@ -554,7 +564,7 @@ app.post('/update-user-profile', authenticateToken, async (req, res) => {
     // Update user data in the 'users/{uid}/profile' collection
     await db.collection('users').doc(uid).collection('user').doc('profileInfo').set(userData, { merge: true }); // Use set with merge to update
     res.status(200).json({ message: 'Profile updated successfully' }); // Send JSON response
-    
+
   } catch (error) {
     console.error('Error updating user profile data:', error);
     res.status(500).send('Internal Server Error');
@@ -568,7 +578,7 @@ app.post('/add-listing', authenticateToken, async (req, res) => {
     sellerDetails.sellerId = req.user.uid; // set the sellerId to the user id of the caller.
 
     // Validate required fields
-    if (!wineId || !price || !quantity ) {
+    if (!wineId || !price || !quantity) {
       return res.status(400).json({ message: 'Missing required fields: wineId, price, quantity.' });
     }
 
@@ -621,7 +631,7 @@ app.put('/update-listing/:id', authenticateToken, async (req, res) => {
 
     const listingData = {
       wineDetails,
-      sellerDetails: { ...sellerDetails, sellerId: req.user.uid }, 
+      sellerDetails: { ...sellerDetails, sellerId: req.user.uid },
       price,
       quantity,
       condition,
@@ -680,7 +690,7 @@ app.get('/marketplace', authenticateToken, async (req, res) => {
   try {
     const { sampleSize, myListings } = req.query;  // Get sampleSize and myListings from query params
     const userId = req.user.uid;
-    
+
     // Create a base reference for the listings collection
     let listingsRef = db.collection('listings').orderBy('createdAt', 'desc'); // Order by creation time
 
@@ -708,9 +718,9 @@ app.get('/marketplace', authenticateToken, async (req, res) => {
       const listingData = listingDoc.data();
       return {
         ...listingData,
-        sellerDetails: listingData.sellerDetails, 
-        wineDetails: listingData.wineDetails,  
-        listingId: listingDoc.id    
+        sellerDetails: listingData.sellerDetails,
+        wineDetails: listingData.wineDetails,
+        listingId: listingDoc.id
       };
     });
 
@@ -739,10 +749,10 @@ app.get('/my-listings', authenticateToken, async (req, res) => {
     for (const listingDoc of listingsSnapshot.docs) {
       const listingData = listingDoc.data();
       const wineDoc = await db.collection('users')
-                                .doc(userId)
-                                .collection('wines')
-                                .doc(listingData.wineId)
-                                .get();
+        .doc(userId)
+        .collection('wines')
+        .doc(listingData.wineId)
+        .get();
 
       if (wineDoc.exists) {
         const wineData = wineDoc.data();
@@ -780,7 +790,7 @@ app.delete('/delete-listing/:listingId', authenticateToken, async (req, res) => 
 
     // Check if the logged-in user is the owner of the listing
     if (listingData.sellerDetails.sellerId !== userId) {
-      console.log('sellerId: ',listingData.sellerDetails.sellerId, 'userId: ', userId)
+      console.log('sellerId: ', listingData.sellerDetails.sellerId, 'userId: ', userId)
       return res.status(403).json({ error: 'You are not authorized to delete this listing' });
     }
 
@@ -794,82 +804,196 @@ app.delete('/delete-listing/:listingId', authenticateToken, async (req, res) => 
   }
 });
 
-// Route to handle purchase requests
+// Route to send purchase request
 app.post('/send-purchase-request', authenticateToken, async (req, res) => {
   console.log('Received purchase request:', req.body); // Log incoming request data
 
   try {
-      const { wineId, wineName, quantity, buyerId, price, totalPrice, sellerId, listingId } = req.body;
+    const { wineId, wineName, vintage, quantity, buyerId, price, totalPrice, sellerId, sellerEmail, sellerUsername, listingId } = req.body;
 
-      // Check for required fields
-      if (!wineId || !buyerId || !totalPrice || !sellerId || !listingId) {
-          console.warn('Missing required fields:', req.body);
-          return res.status(400).json({ message: 'Missing required fields' });
-      }
+    // Check for required fields
+    if (!wineId || !buyerId || !totalPrice || !sellerId || !listingId) {
+      console.warn('Missing required fields:', req.body);
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
-      // Fetch the listing document using the provided listingId
-      const listingRef = db.collection('listings').doc(listingId); // Use listingId as the document ID
-      const listingSnapshot = await listingRef.get();
+    // Fetch the listing document using the provided listingId
+    const listingRef = db.collection('listings').doc(listingId); // Use listingId as the document ID
+    const listingSnapshot = await listingRef.get();
 
-      // Check if the listing exists
-      if (!listingSnapshot.exists) {
-          return res.status(404).json({ message: 'Wine listing not found' });
-      }
+    // Check if the listing exists
+    if (!listingSnapshot.exists) {
+      return res.status(404).json({ message: 'Wine listing not found' });
+    }
 
-      const listingData = listingSnapshot.data();
-      const availableQuantity = listingData.quantity;
+    const listingData = listingSnapshot.data();
+    const availableQuantity = listingData.quantity;
 
-      // Check if there is enough quantity available
-      if (availableQuantity < quantity) {
-          return res.status(400).json({
-              message: `Insufficient quantity available. Only ${availableQuantity} left.`,
-          });
-      }
-
-      // Deduct the requested quantity from the listing
-      await listingRef.update({
-          quantity: availableQuantity - quantity,
+    // Check if there is enough quantity available
+    if (availableQuantity < quantity) {
+      return res.status(400).json({
+        message: `Insufficient quantity available. Only ${availableQuantity} left.`,
       });
+    }
 
-      // Marketplace fee (assuming 10%)
-      const marketplaceFeePercentage = 0.10;
-      const marketplaceFee = totalPrice * marketplaceFeePercentage;
-      const sellerEarnings = totalPrice - marketplaceFee;
+    // Deduct the requested quantity from the listing
+    await listingRef.update({
+      quantity: availableQuantity - quantity,
+    });
 
-      // Create a new document in Firestore under 'purchaseRequests'
-      const purchaseRequestRef = db.collection('purchaseRequests').doc(); // Auto-generate ID for the purchase request
+    // Marketplace fee (assuming 10%)
+    const marketplaceFeePercentage = 0.10;
+    const marketplaceFee = totalPrice * marketplaceFeePercentage;
+    const sellerEarnings = totalPrice - marketplaceFee;
 
-      const newPurchaseRequest = {
-          purchaseRequestId: purchaseRequestRef.id,
-          wineId: wineId,
-          wineName: wineName,
-          listingId: listingId, // Used for managing available stock later on
-          quantity: quantity,
-          buyerId: buyerId,
-          sellerId: sellerId,
-          price: price,
-          totalPrice: totalPrice,
-          marketplaceFee: marketplaceFee,
-          sellerEarnings: sellerEarnings,
-          status: 'pending_confirmation', // Initial status of the purchase
-          createdAt: new Date().toISOString(),
-      };
+    // Create a new document in Firestore under 'purchaseRequests'
+    const purchaseRequestRef = db.collection('purchaseRequests').doc(); // Auto-generate ID for the purchase request
 
-      console.log('New purchase request data:', newPurchaseRequest); // Log new purchase request data
+    const newPurchaseRequest = {
+      purchaseRequestId: purchaseRequestRef.id,
+      wineId: wineId,
+      wineName: wineName,
+      vintage: vintage,
+      listingId: listingId, // Used for managing available stock later on
+      quantity: quantity,
+      buyerId: buyerId,
+      sellerId: sellerId,
+      sellerEmail: sellerEmail,
+      sellerUsername: sellerUsername,
+      price: price,
+      totalPrice: totalPrice,
+      marketplaceFee: marketplaceFee,
+      sellerEarnings: sellerEarnings,
+      status: 'pending_confirmation', // Initial status of the purchase
+      createdAt: new Date().toISOString(),
+    };
 
-      // Save the new purchase request document
-      await purchaseRequestRef.set(newPurchaseRequest);
+    console.log('New purchase request data:', newPurchaseRequest); // Log new purchase request data
 
-      console.log('Purchase request saved successfully.'); // Log successful save
+    // Save the new purchase request document
+    await purchaseRequestRef.set(newPurchaseRequest);
 
-      // Respond with the new purchase request
-      res.status(201).json({
-          message: 'Purchase request created successfully',
-          purchaseRequest: newPurchaseRequest,
-      });
+    console.log('Purchase request saved successfully.'); // Log successful save
+
+    // Send email to the seller
+    const mailOptions = {
+      from: process.env.REACT_APP_EMAIL,
+      to: sellerEmail,
+      subject: `New Purchase Request: ${wineName}`,
+      text: `You have received a new purchase request for ${wineName}.\n\nDetails:\n- Quantity: ${quantity}\n- Total Price: €${totalPrice}\n\nPlease log in to your account to view more details.`,
+      html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Purchase Request Notification</title>
+                <style>
+                    body {
+                        font-family: Georgia, serif;
+                        background-color: #f6f9fc;
+                        margin: 0;
+                        padding: 20px;
+                        color: #333;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: auto;
+                        background-color: #fff;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    .header {
+                        background-color: #800020;
+                        color: #fff;
+                        padding: 20px;
+                        text-align: center;
+                    }
+                    .content {
+                        padding: 20px;
+                    }
+                    .footer {
+                        background-color: #f1f1f1;
+                        padding: 10px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #777;
+                    }
+                    h1 {
+                        margin: 0;
+                    }
+                    h2 {
+                        font-size: 20px;
+                        color: #800020;
+                    }
+                    .item {
+                        border-bottom: 1px solid #f1f1f1;
+                        padding: 10px 0;
+                    }
+                    .total {
+                        font-weight: bold;
+                        font-size: 18px;
+                        margin-top: 10px;
+                    }
+                    .highlight {
+                        color: #D32F2D; /* red */
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>New Purchase Request</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Hello, ${sellerUsername}!</h2>
+                        <p>You have received a new purchase request.</p>
+                      <div class="item">
+                        <strong>Wine Name:</strong> 
+                        <a href="https://my-wine-cellar.com/cellar/${wineId}" style="color: #800020; text-decoration: underline;">
+                            <span>${wineName}</span>
+                        </a>
+                      </div>
+                        <div class="item">
+                          <div class="item">
+                            <strong>Vintage:</strong> <span>${vintage}</span>
+                        </div>
+                        <div class="item">
+                            <strong>Quantity:</strong> <span>${quantity}</span>
+                        </div>
+                        <div class="item">
+                            <strong>Price per Unit:</strong> <span>€${price}</span>
+                        </div>
+                        <div class="item">
+                            <strong>Total Price:</strong> <span class="highlight">€${totalPrice}</span>
+                        </div>
+                        <div class="item">
+                            <strong>Buyer ID:</strong> <span>${buyerId}</span>
+                        </div>
+                        <p class="total">Please review the request and confirm or deny it at your earliest convenience.</p>
+                    </div>
+                    <div class="footer">
+                        <p>Thank you for using our platform!</p>
+                        <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent to:', sellerEmail);
+
+    // Respond with the new purchase request
+    res.status(201).json({
+      message: 'Purchase request created successfully',
+      purchaseRequest: newPurchaseRequest,
+    });
   } catch (error) {
-      console.error('Error creating purchase request:', error); // Log error details
-      res.status(500).json({ message: 'Error creating purchase request', error: error.message });
+    console.error('Error creating purchase request:', error); // Log error details
+    res.status(500).json({ message: 'Error creating purchase request', error: error.message });
   }
 });
 
@@ -878,25 +1002,25 @@ app.get('/get-purchase-requests', authenticateToken, async (req, res) => {
   const sellerId = req.query.sellerId; // Get sellerId from query parameters
 
   try {
-      const purchaseRequestsSnapshot = await db.collection('purchaseRequests')
-          .where('sellerId', '==', sellerId) // Filter by sellerId
-          .get();
+    const purchaseRequestsSnapshot = await db.collection('purchaseRequests')
+      .where('sellerId', '==', sellerId) // Filter by sellerId
+      .get();
 
-      if (purchaseRequestsSnapshot.empty) {
-          console.log('No purchase requests found for seller:', sellerId);
-          return res.status(200).json({ purchaseRequests: [] });
-      }
+    if (purchaseRequestsSnapshot.empty) {
+      console.log('No purchase requests found for seller:', sellerId);
+      return res.status(200).json({ purchaseRequests: [] });
+    }
 
-      const purchaseRequests = [];
-      purchaseRequestsSnapshot.forEach(doc => {
-          purchaseRequests.push({ id: doc.id, ...doc.data() }); // Include document ID
-      });
+    const purchaseRequests = [];
+    purchaseRequestsSnapshot.forEach(doc => {
+      purchaseRequests.push({ id: doc.id, ...doc.data() }); // Include document ID
+    });
 
-      console.log(`Fetched ${purchaseRequests.length} purchase requests for seller ${sellerId}.`);
-      res.status(200).json({ purchaseRequests });
+    console.log(`Fetched ${purchaseRequests.length} purchase requests for seller ${sellerId}.`);
+    res.status(200).json({ purchaseRequests });
   } catch (error) {
-      console.error('Error fetching purchase requests:', error);
-      res.status(500).json({ message: 'Error fetching purchase requests', error: error.message });
+    console.error('Error fetching purchase requests:', error);
+    res.status(500).json({ message: 'Error fetching purchase requests', error: error.message });
   }
 });
 
@@ -904,21 +1028,21 @@ app.get('/get-purchase-request/:purchaseRequestId', authenticateToken, async (re
   const { purchaseRequestId } = req.params; // Get the purchaseRequestId from URL params
 
   try {
-      // Fetch the document with the provided purchaseRequestId (document ID)
-      const purchaseRequestRef = db.collection('purchaseRequests').doc(purchaseRequestId);
-      const purchaseRequestSnapshot = await purchaseRequestRef.get();
+    // Fetch the document with the provided purchaseRequestId (document ID)
+    const purchaseRequestRef = db.collection('purchaseRequests').doc(purchaseRequestId);
+    const purchaseRequestSnapshot = await purchaseRequestRef.get();
 
-      if (!purchaseRequestSnapshot.exists) {
-          console.log('Purchase request not found for id:', purchaseRequestId);
-          return res.status(404).json({ message: 'Purchase request not found' });
-      }
+    if (!purchaseRequestSnapshot.exists) {
+      console.log('Purchase request not found for id:', purchaseRequestId);
+      return res.status(404).json({ message: 'Purchase request not found' });
+    }
 
-      // Return the document data along with its ID
-      const purchaseRequest = { id: purchaseRequestSnapshot.id, ...purchaseRequestSnapshot.data() };
-      res.status(200).json({ purchaseRequest });
+    // Return the document data along with its ID
+    const purchaseRequest = { id: purchaseRequestSnapshot.id, ...purchaseRequestSnapshot.data() };
+    res.status(200).json({ purchaseRequest });
   } catch (error) {
-      console.error('Error fetching purchase request:', error);
-      res.status(500).json({ message: 'Error fetching purchase request', error: error.message });
+    console.error('Error fetching purchase request:', error);
+    res.status(500).json({ message: 'Error fetching purchase request', error: error.message });
   }
 });
 
@@ -969,7 +1093,7 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
         message: 'Sale confirmed successfully',
         purchaseRequestId: purchaseRequestId,
       });
-    } 
+    }
     // If the action is to reject the request
     else if (action === 'reject') {
       // Restore the quantity in the corresponding listing
@@ -1002,7 +1126,7 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
         message: 'Purchase request rejected successfully.',
         purchaseRequestId: purchaseRequestId,
       });
-    } 
+    }
     // If the action is invalid
     else {
       return res.status(400).json({ message: 'Invalid action specified' });

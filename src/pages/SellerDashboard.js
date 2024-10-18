@@ -92,6 +92,7 @@ const SellerDashboard = ({ user }) => {
     useEffect(() => {
         const loadPurchaseRequests = async () => {
             if (user) {
+              console.log(user)
                 const requests = await fetchPurchaseRequests(user);
                 setPurchaseRequests(requests);
                 await loadBuyerProfiles(requests, user);

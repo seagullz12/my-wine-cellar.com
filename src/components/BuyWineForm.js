@@ -12,7 +12,7 @@ import {
 
 // Function to send purchase request
 const sendPurchaseRequest = async (purchaseDetails) => {
-    const { wineId, wineName, vintage, quantity, userId, price, totalPrice, sellerId, sellerEmail, sellerUsername, listingId, token } = purchaseDetails;
+    const { wineId, wineName, vintage, quantity, userId, userEmail, userName, price, totalPrice, sellerId, sellerEmail, sellerUsername, listingId, token } = purchaseDetails;
 
     if (!userId) throw new Error('User not authenticated.');
 
@@ -22,6 +22,8 @@ const sendPurchaseRequest = async (purchaseDetails) => {
         vintage,
         quantity,
         buyerId: userId,
+        buyerName: userName,
+        buyerEmail: userEmail,
         price,
         totalPrice,
         sellerId,
@@ -71,6 +73,8 @@ const BuyWineForm = ({ wine, onClose, user, token }) => {
                 vintage: wine.wineDetails.vintage,
                 quantity,
                 userId: user.uid,
+                userName: user.displayName,
+                userEmail: user.email,
                 price: wine.price,
                 totalPrice,
                 sellerId: wine.sellerDetails.sellerId,

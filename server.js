@@ -809,7 +809,7 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
   console.log('Received purchase request:', req.body); // Log incoming request data
 
   try {
-    const { wineId, wineName, vintage, quantity, buyerId, price, totalPrice, sellerId, sellerEmail, sellerUsername, listingId } = req.body;
+    const { wineId, wineName, vintage, quantity, buyerId, buyerName, buyerEmail, price, totalPrice, sellerId, sellerEmail, sellerUsername, listingId } = req.body;
 
     // Check for required fields
     if (!wineId || !buyerId || !totalPrice || !sellerId || !listingId) {
@@ -857,6 +857,8 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
       listingId: listingId, // Used for managing available stock later on
       quantity: quantity,
       buyerId: buyerId,
+      buyerName: buyerName,
+      buyerEmail: buyerEmail,
       sellerId: sellerId,
       sellerEmail: sellerEmail,
       sellerUsername: sellerUsername,
@@ -876,115 +878,221 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
     console.log('Purchase request saved successfully.'); // Log successful save
 
     // Send email to the seller
-    const mailOptions = {
+    const sellerMailOptions = {
       from: process.env.REACT_APP_EMAIL,
       to: sellerEmail,
       subject: `New Purchase Request: ${wineName}`,
-      text: `You have received a new purchase request for ${wineName}.\n\nDetails:\n- Quantity: ${quantity}\n- Total Price: €${totalPrice}\n\nPlease log in to your account to view more details.`,
       html: `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Purchase Request Notification</title>
-                <style>
-                    body {
-                        font-family: Georgia, serif;
-                        background-color: #f6f9fc;
-                        margin: 0;
-                        padding: 20px;
-                        color: #333;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: auto;
-                        background-color: #fff;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                        overflow: hidden;
-                    }
-                    .header {
-                        background-color: #800020;
-                        color: #fff;
-                        padding: 20px;
-                        text-align: center;
-                    }
-                    .content {
-                        padding: 20px;
-                    }
-                    .footer {
-                        background-color: #f1f1f1;
-                        padding: 10px;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #777;
-                    }
-                    h1 {
-                        margin: 0;
-                    }
-                    h2 {
-                        font-size: 20px;
-                        color: #800020;
-                    }
-                    .item {
-                        border-bottom: 1px solid #f1f1f1;
-                        padding: 10px 0;
-                    }
-                    .total {
-                        font-weight: bold;
-                        font-size: 18px;
-                        margin-top: 10px;
-                    }
-                    .highlight {
-                        color: #D32F2D; /* red */
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>New Purchase Request</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Hello, ${sellerUsername}!</h2>
-                        <p>You have received a new purchase request.</p>
-                      <div class="item">
-                        <strong>Wine Name:</strong> 
-                        <a href="https://my-wine-cellar.com/cellar/${wineId}" style="color: #800020; text-decoration: underline;">
-                            <span>${wineName}</span>
-                        </a>
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Purchase Request Notification</title>
+                  <style>
+                      body {
+                          font-family: Georgia, serif;
+                          background-color: #f6f9fc;
+                          margin: 0;
+                          padding: 20px;
+                          color: #333;
+                      }
+                      .container {
+                          max-width: 600px;
+                          margin: auto;
+                          background-color: #fff;
+                          border-radius: 8px;
+                          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                          overflow: hidden;
+                      }
+                      .header {
+                          background-color: #800020;
+                          color: #fff;
+                          padding: 20px;
+                          text-align: center;
+                      }
+                      .content {
+                          padding: 20px;
+                      }
+                      .footer {
+                          background-color: #f1f1f1;
+                          padding: 10px;
+                          text-align: center;
+                          font-size: 12px;
+                          color: #777;
+                      }
+                      h1 {
+                          margin: 0;
+                      }
+                      h2 {
+                          font-size: 20px;
+                          color: #800020;
+                      }
+                      .item {
+                          border-bottom: 1px solid #f1f1f1;
+                          padding: 10px 0;
+                      }
+                      .total {
+                          font-weight: bold;
+                          font-size: 18px;
+                          margin-top: 10px;
+                      }
+                      .highlight {
+                          color: #D32F2D; /* red */
+                      }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                      <div class="header">
+                          <h1>New Purchase Request</h1>
                       </div>
-                        <div class="item">
+                      <div class="content">
+                          <h2>Hello, ${sellerUsername}!</h2>
+                           <p>You have received a new purchase request${buyerName ? ` from ${buyerName}` : ''}.</p>
                           <div class="item">
-                            <strong>Vintage:</strong> <span>${vintage}</span>
-                        </div>
-                        <div class="item">
-                            <strong>Quantity:</strong> <span>${quantity}</span>
-                        </div>
-                        <div class="item">
-                            <strong>Price per Unit:</strong> <span>€${price}</span>
-                        </div>
-                        <div class="item">
-                            <strong>Total Price:</strong> <span class="highlight">€${totalPrice}</span>
-                        </div>
-                        <div class="item">
-                            <strong>Buyer ID:</strong> <span>${buyerId}</span>
-                        </div>
-                        <p class="total">Please review the request and confirm or deny it at your earliest convenience.</p>
-                    </div>
-                    <div class="footer">
-                        <p>Thank you for using our platform!</p>
-                        <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `
+                              <strong>Wine Name:</strong> 
+                              <a href="https://my-wine-cellar.com/cellar/${wineId}" style="color: #800020; text-decoration: underline;">
+                                  <span>${wineName}</span>
+                              </a>
+                          </div>
+                          <div class="item">
+                              <strong>Vintage:</strong> <span>${vintage}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Quantity:</strong> <span>${quantity}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Price per Unit:</strong> <span>€${price}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Total Price:</strong> <span class="highlight">€${totalPrice}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Buyer ID:</strong> <span>${buyerId}</span>
+                          </div>
+                          <p class="total">Please review the request and confirm or deny it at your earliest convenience.</p>
+                      </div>
+                      <div class="footer">
+                          <p>Thank you for using our platform!</p>
+                          <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
+                      </div>
+                  </div>
+              </body>
+              </html>
+          `
     };
 
-    await transporter.sendMail(mailOptions);
+    // Send email to the seller
+    await transporter.sendMail(sellerMailOptions);
     console.log('Email sent to:', sellerEmail);
+
+    // Send email to the buyer
+    const buyerMailOptions = {
+      from: process.env.REACT_APP_EMAIL,
+      to: buyerEmail,
+      subject: `Purchase Request Submitted: ${wineName}`,
+      html: `
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Purchase Request Confirmation</title>
+                  <style>
+                      body {
+                          font-family: Georgia, serif;
+                          background-color: #f6f9fc;
+                          margin: 0;
+                          padding: 20px;
+                          color: #333;
+                      }
+                      .container {
+                          max-width: 600px;
+                          margin: auto;
+                          background-color: #fff;
+                          border-radius: 8px;
+                          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                          overflow: hidden;
+                      }
+                      .header {
+                          background-color: #800020;
+                          color: #fff;
+                          padding: 20px;
+                          text-align: center;
+                      }
+                      .content {
+                          padding: 20px;
+                      }
+                      .footer {
+                          background-color: #f1f1f1;
+                          padding: 10px;
+                          text-align: center;
+                          font-size: 12px;
+                          color: #777;
+                      }
+                      h1 {
+                          margin: 0;
+                      }
+                      h2 {
+                          font-size: 20px;
+                          color: #800020;
+                      }
+                      .item {
+                          border-bottom: 1px solid #f1f1f1;
+                          padding: 10px 0;
+                      }
+                      .total {
+                          font-weight: bold;
+                          font-size: 18px;
+                          margin-top: 10px;
+                      }
+                      .highlight {
+                          color: #D32F2D; /* red */
+                      }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                      <div class="header">
+                          <h1>Purchase Request Confirmation</h1>
+                      </div>
+                      <div class="content">
+                          <h2>Hello, ${buyerName ? `${buyerName}` : ''}!</h2>
+                          <p>Your purchase request has been submitted successfully.</p>
+                          <div class="item">
+                              <strong>Wine Name:</strong> 
+                              <a style="color: #800020; text-decoration: underline;">
+                                  <span>${wineName}</span>
+                             </a>
+                          </div>
+                          <div class="item">
+                              <strong>Vintage:</strong> <span>${vintage}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Quantity:</strong> <span>${quantity}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Price per Unit:</strong> <span>€${price}</span>
+                          </div>
+                          <div class="item">
+                              <strong>Total Price:</strong> <span class="highlight">€${totalPrice}</span>
+                          </div>
+                          <p class="total">The seller will respond to your request soon.</p>
+                      </div>
+                      <div class="footer">
+                          <p>Thank you for using our platform!</p>
+                          <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
+                      </div>
+                  </div>
+              </body>
+              </html>
+          `
+    };
+
+    // Send email to the buyer
+    await transporter.sendMail(buyerMailOptions);
+    console.log('Email sent to:', buyerEmail);
 
     // Respond with the new purchase request
     res.status(201).json({
@@ -996,6 +1104,7 @@ app.post('/send-purchase-request', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error creating purchase request', error: error.message });
   }
 });
+
 
 // Route to fetch pending purchase requests for a seller
 app.get('/get-purchase-requests', authenticateToken, async (req, res) => {
@@ -1046,6 +1155,7 @@ app.get('/get-purchase-request/:purchaseRequestId', authenticateToken, async (re
   }
 });
 
+// Route to handle purchase request by seller (confirm or reject)
 app.post('/seller/handle-purchase-request', async (req, res) => {
   try {
     const { purchaseRequestId, sellerId, action } = req.body; // Include action in the request
@@ -1075,6 +1185,12 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
       return res.status(400).json({ message: 'Purchase request already confirmed or invalid status' });
     }
 
+    // Prepare email details
+    const buyerEmail = purchaseRequestData.buyerEmail;
+    const buyerName = purchaseRequestData.buyerName;
+    const wineName = purchaseRequestData.wineName;
+    const totalPrice = purchaseRequestData.totalPrice;
+
     // If the action is to confirm the sale
     if (action === 'confirm') {
       // Capture the payment on Stripe (uncomment in production)
@@ -1087,6 +1203,98 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
         confirmedAt: new Date().toISOString(),
         paymentCaptured: true,
       });
+
+      // Send email to the buyer
+      // Send email to the buyer
+      const buyerMailOptions = {
+        from: process.env.REACT_APP_EMAIL,
+        to: buyerEmail,
+        subject: `Your Purchase Request for ${wineName} has been Confirmed!`,
+        html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Purchase Request Confirmation</title>
+          <style>
+              body {
+                  font-family: Georgia, serif;
+                  background-color: #f6f9fc;
+                  margin: 0;
+                  padding: 20px;
+                  color: #333;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: auto;
+                  background-color: #fff;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                  overflow: hidden;
+              }
+              .header {
+                  background-color: #800020;
+                  color: #fff;
+                  padding: 20px;
+                  text-align: center;
+              }
+              .content {
+                  padding: 20px;
+              }
+              .footer {
+                  background-color: #f1f1f1;
+                  padding: 10px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #777;
+              }
+              h1 {
+                  margin: 0;
+              }
+              h2 {
+                  font-size: 20px;
+                  color: #800020;
+              }
+              .item {
+                  border-bottom: 1px solid #f1f1f1;
+                  padding: 10px 0;
+              }
+              .total {
+                  font-weight: bold;
+                  font-size: 18px;
+                  margin-top: 10px;
+              }
+              .highlight {
+                  color: #D32F2D; /* red */
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Purchase Request Confirmation</h1>
+              </div>
+              <div class="content">
+                  <h2>Hello${buyerName ? `, ${buyerName}` : ''}!</h2>
+                  <p>Your purchase request for <strong>${wineName}</strong> has been confirmed!</p>
+                  <div class="item">
+                      <strong>Total Price:</strong> <span class="highlight">€${totalPrice}</span>
+                  </div>
+                  <p class="total">Thank you for your order! The seller will process your request shortly.</p>
+              </div>
+              <div class="footer">
+                  <p>Thank you for using our platform!</p>
+                  <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
+              </div>
+          </div>
+      </body>
+      </html>
+  `
+      };
+      await transporter.sendMail(buyerMailOptions);
+      console.log('Email sent to buyer:', buyerEmail);
+
 
       // Respond with the updated purchase request
       res.status(200).json({
@@ -1121,6 +1329,87 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
         rejectedAt: new Date().toISOString(),
       });
 
+      // Send email to the buyer
+      // Send email to the buyer regarding rejection
+      const buyerRejectionMailOptions = {
+        from: process.env.REACT_APP_EMAIL,
+        to: buyerEmail,
+        subject: `Your Purchase Request for ${wineName} has been Rejected`,
+        html: `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Purchase Request Rejection</title>
+          <style>
+              body {
+                  font-family: Georgia, serif;
+                  background-color: #f6f9fc;
+                  margin: 0;
+                  padding: 20px;
+                  color: #333;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: auto;
+                  background-color: #fff;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                  overflow: hidden;
+              }
+              .header {
+                  background-color: #800020;
+                  color: #fff;
+                  padding: 20px;
+                  text-align: center;
+              }
+              .content {
+                  padding: 20px;
+              }
+              .footer {
+                  background-color: #f1f1f1;
+                  padding: 10px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #777;
+              }
+              h1 {
+                  margin: 0;
+              }
+              h2 {
+                  font-size: 20px;
+                  color: #800020;
+              }
+              .item {
+                  border-bottom: 1px solid #f1f1f1;
+                  padding: 10px 0;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Purchase Request Rejected</h1>
+              </div>
+              <div class="content">
+                  <h2>Hello${buyerName ? `, ${buyerName}` : ''}!</h2>
+                  <p>We are sorry to inform you that your purchase request for <strong>${wineName}</strong> has been rejected.</p>
+                  <p>If you have any questions, please feel free to contact us.</p>
+              </div>
+              <div class="footer">
+                  <p>Thank you for using our platform!</p>
+                  <p>&copy; ${new Date().getFullYear()} My-Wine-Cellar.com</p>
+              </div>
+          </div>
+      </body>
+      </html>
+  `
+      };
+      await transporter.sendMail(buyerRejectionMailOptions);
+      console.log('Email sent to buyer regarding rejection:', buyerEmail);
+
+
       // Respond with a rejection message
       res.status(200).json({
         message: 'Purchase request rejected successfully.',
@@ -1137,6 +1426,7 @@ app.post('/seller/handle-purchase-request', async (req, res) => {
     res.status(500).json({ message: 'Error handling purchase request', error: error.message });
   }
 });
+
 
 
 // Start your server (add appropriate port)

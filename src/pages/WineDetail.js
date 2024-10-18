@@ -5,13 +5,12 @@ import WineDetailEditForm from '../components/WineDetailEditForm';
 import WineData from '../components/WineData'; // Importing your WineData component
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
 import AgeBadge from '../components/AgeBadge';
-import TastingForm from '../components/TastingNotesForm';
 import ShareWineButton from '../components/ShareWineButton';
-import { getWineIdFromToken } from '../components/utils/getWineIdFromToken';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import ForSaleLabel from '../components/ForSaleLabel'; // Import the ForSaleLabel component
 import 'swiper/swiper-bundle.css'; // Ensure to import Swiper styles
+import WineBarIcon from '@mui/icons-material/WineBar';
 
 import ReactGA from 'react-ga4';
 import {
@@ -36,6 +35,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WineMap from '../components/WineMap';
 import SellWineForm from '../components/SellWineForm';
+import WineTastingModal from '../components/WineTastingModal';
 
 const WineDetail = () => {
     const { id: wineId } = useParams();
@@ -53,24 +53,9 @@ const WineDetail = () => {
     const [selectedWine, setSelectedWine] = useState(null);
     const [open, setOpen] = useState(false);
     const [token, setToken] = useState();
-
-    const [isTastingFormOpen, setIsTastingFormOpen] = useState(false);
-    const [isTasting, setIsTasting] = useState(false);
-
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-    const toggleTastingForm = () => {
-        setIsTastingFormOpen((prev) => !prev);
-    };
-
-    // Function to update the tasting state and wine data
-    const handleIsTasting = () => {
-        setIsTasting(true); // Set isTasting to true, indicating that tasting has started
-        toggleTastingForm(); // Optionally close the form after saving
-        setSuccessMessage('Wine details saved successfully!');
-        setSnackbarOpen(true);
-    };
+    const [isTastingModalOpen, setTastingModalOpen] = useState(false);
 
     useEffect(() => {
         const auth = getAuth();
@@ -177,6 +162,13 @@ const WineDetail = () => {
         setSelectedWine(null);
     };
 
+    const handleOpenTastingModal = () => {
+        setTastingModalOpen(true);
+    };
+
+    const handleCloseTastingModal = () => {
+        setTastingModalOpen(false);
+    };
 
     if (loading) return <CircularProgress />;
     if (error) return <Typography color="error">{error}</Typography>;
@@ -213,13 +205,6 @@ const WineDetail = () => {
                         // Mobile Layout
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                {/* <Card sx={{ backgroundColor: '#F5F5F5', 
-                                            padding: 0, 
-                                            borderRadius:0, 
-                                            margin:1,
-                                            marginBottom:0,
-                                            boxShadow:0
-                                            }}> */}
                                 <CardContent sx={{ p: 2 }}>
                                     {wine.images && (
                                         <Box sx={{ position: 'relative' }}>
@@ -337,33 +322,19 @@ const WineDetail = () => {
                                                 >
                                                     Sell This Bottle
                                                 </Button>
-                                                {/* <Button
+                                                <Button
                                                     variant="contained"
-                                                    color="primary"
-                                                    onClick={handleTastingStarted}
-                                                    sx={{ mt: 0 }}
+                                                    color="secondary"
+                                                    onClick={handleOpenTastingModal}
+                                                    startIcon={<WineBarIcon />}
                                                 >
                                                     Start Tasting
-                                                </Button> */}
-                                                <Button variant="contained" color="primary" onClick={toggleTastingForm}>
-                                                    {isTastingFormOpen ? 'Close Tasting Notes' : 'Open tasting Notes'}
                                                 </Button>
-
                                             </CardActions>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
                                             </CardActions>
                                         </Card>
-                                    )}
-                                </Box>
-                                <Box>
-                                    {isTastingFormOpen && (
-                                        <TastingForm
-                                            wineId={wineId}
-                                            wine={wine}
-                                            user={user}
-                                            handleIsTasting={handleIsTasting}
-                                        />
                                     )}
                                 </Box>
                             </Grid>
@@ -489,8 +460,13 @@ const WineDetail = () => {
                                                 >
                                                     Sell This Bottle
                                                 </Button>
-                                                  <Button variant="contained" color="primary" onClick={toggleTastingForm}>
-                                                    {isTastingFormOpen ? 'Close Tasting Notes' : 'Open tasting Notes'}
+                                                <Button
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    onClick={handleOpenTastingModal}
+                                                    startIcon={<WineBarIcon />}
+                                                >
+                                                    Start Tasting
                                                 </Button>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
                                             </CardActions>
@@ -498,18 +474,6 @@ const WineDetail = () => {
                                     )}
                                 </Box>
                             </Grid>
-                            <Box>
-
-                                {isTastingFormOpen && (
-                                    <TastingForm
-                                        wineId={wineId}
-                                        wine={wine}
-                                        user={user}
-                                        handleIsTasting={handleIsTasting} // Pass the function as a prop
-                                    />
-                                )}
-                            </Box>
-
                         </Grid>
                     )}
                 </>
@@ -538,7 +502,6 @@ const WineDetail = () => {
             {selectedWine && (
                 <Dialog open={open} onClose={handleClose}>
                     <DialogTitle>{selectedWine.name}</DialogTitle>
-
                     <DialogContent>
                         <SellWineForm
                             wineId={wineId}
@@ -550,6 +513,14 @@ const WineDetail = () => {
                     </DialogContent>
                 </Dialog>
             )}
+            {/* The WineConsumptionModal */}
+            <WineTastingModal
+                isOpen={isTastingModalOpen}
+                onClose={handleCloseTastingModal}
+                wine={wine}
+                wineId={wineId}
+                token={token}  // Pass down token for authenticated requests
+            />
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

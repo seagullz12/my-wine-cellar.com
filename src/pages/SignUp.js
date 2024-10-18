@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -49,6 +49,18 @@ const SignUp = () => {
         displayName: displayName 
         // Add other fields as necessary
       };
+      if (user) {
+        // Update the user's profile
+        updateProfile(user, {
+            displayName: displayName
+        }).then(() => {
+            console.log("Display name updated successfully!");
+        }).catch((error) => {
+            console.error("Error updating display name:", error);
+        });
+    } else {
+        console.log("No user is signed in.");
+    }
 
       // Call the updateUserProfile function to save additional user data
       await updateUserProfile(token, userData);

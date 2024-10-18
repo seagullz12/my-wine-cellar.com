@@ -10,23 +10,27 @@ import {
     Box,
     CircularProgress,
     Container,
+    Dialog,
+    DialogContent
 } from '@mui/material';
 import AgeBadge from '../components/AgeBadge';
 import PeakMaturityBadge from '../components/PeakMaturityBadge';
-import WineListFilters from '../components/WineListFilters';
 import WineListSorting from '../components/WineListSorting';
 import WineData from '../components/WineData';
 import ForSaleLabel from '../components/ForSaleLabel';
-import { fetchMarketplaceListings } from '../components/api/marketplace'
-import BuyButton from '../components/BuyButton';
+import { fetchMarketplaceListings } from '../components/api/marketplace';
+import BuyWineForm from '../components/BuyWineForm'; // Import BuyWineForm component
 
 const Marketplace = () => {
     const [wines, setWines] = useState([]);
     const [filteredWines, setFilteredWines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [sortCriteria, setSortCriteria] = useState('name');
     const [sortOrder, setSortOrder] = useState('asc');
+    const [dialogOpen, setDialogOpen] = useState(false); // Dialog state
+    const [selectedWine, setSelectedWine] = useState(null); // Store selected wine for modal
     const navigate = useNavigate();
     const [filters, setFilters] = useState({
         colours: ['Red', 'White', 'Rosé', 'Green', 'Orange', 'Sparkling'],
@@ -75,7 +79,7 @@ const Marketplace = () => {
         datesAdded: [],
         statuses: ['in_cellar', 'consumed', "for_sale"],
         countries: [],
-    })
+    });
 
     useEffect(() => {
         const auth = getAuth();
@@ -85,19 +89,18 @@ const Marketplace = () => {
         return () => unsubscribe();
     }, []);
 
-    // marketplace listings api call //
+    // Fetch marketplace listings
     useEffect(() => {
         const fetchWineListings = async () => {
             if (user) {
                 try {
                     const token = await user.getIdToken();
+                    setToken(token);
                     const data = await fetchMarketplaceListings(token);
 
                     const fetchedWines = data || [];
                     setWines(fetchedWines);
                     setFilteredWines(fetchedWines);
-
-
                 } catch (error) {
                     console.error('Error fetching marketplace data:', error);
                 } finally {
@@ -110,8 +113,8 @@ const Marketplace = () => {
 
         fetchWineListings();
     }, [user]);
-    // end marketplace listings api call //
 
+    // Filter and sort wines based on user selection
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
         const filtered = wines.filter(wine =>
@@ -138,7 +141,6 @@ const Marketplace = () => {
             } else if (sortCriteria === 'name') {
                 comparison = a.wineDetails.name.localeCompare(b.wineDetails.name);
             }
-
             return sortOrder === 'asc' ? comparison : comparison * -1;
         });
     };
@@ -156,19 +158,16 @@ const Marketplace = () => {
         setFilteredWines(sortedWines);
     };
 
-    const initializeFilters = (wineData) => {
-        const colours = [...new Set(wineData.map(wine => wine.wineDetails.colour))];
-        const grapes = [...new Set(wineData.flatMap(wine => wine.wineDetails.grape))];
-        const vintages = [...new Set(wineData.map(wine => wine.wineDetails.vintage))];
-        const countries = [...new Set(wineData.map(wine => wine.wineDetails.country))];
+    // Open the BuyWineForm modal
+    const handleBuyClick = (wine) => {
+        setSelectedWine(wine);
+        setDialogOpen(true); // Open dialog when "Buy" is clicked
+    };
 
-        setFilters(prev => ({
-            ...prev,
-            colours,
-            grapes,
-            vintages,
-            countries,
-        }));
+    // Close the modal
+    const handleDialogClose = () => {
+        setSelectedWine(null);
+        setDialogOpen(false);
     };
 
     if (loading) {
@@ -182,11 +181,6 @@ const Marketplace = () => {
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Box my={2}>
-                {/* <WineListFilters
-                filters={filters} // You can define filters here similar to your WineList page
-                onFilterChange={handleFilterChange}
-                onResetFilters={handleResetFilters}
-                /> */}
                 <WineListSorting
                     sortCriteria={sortCriteria}
                     sortOrder={sortOrder}
@@ -211,7 +205,6 @@ const Marketplace = () => {
                                     flexDirection: 'column'
                                 }}
                             >
-
                                 <Link to={`/cellar/${wine.wineId}`}>
                                     <CardMedia sx={{ position: 'relative' }}>
                                         <img
@@ -242,7 +235,6 @@ const Marketplace = () => {
                                             <><strong>{wine.quantity} </strong> bottle for <strong>€{wine.price}</strong></>
                                         )}
                                     </Typography>
-
                                 </Link>
                                 <CardContent sx={{
                                     padding: 0,
@@ -251,19 +243,13 @@ const Marketplace = () => {
                                 }}>
                                     <WineData wine={wine.wineDetails} wineDetailPage={false} />
                                 </CardContent>
-                                <Box display="flex" justifyContent="space-between" mt="auto">
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12}>
-                                            <BuyButton
-                                                wineId={wine.wineId}
-                                                wineName={wine.wineDetails.name}
-                                                sellerId={wine.sellerDetails.sellerId}
-                                                price={wine.price}
-                                                quantity={1}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleBuyClick(wine)} 
+                                    >
+                                        Buy
+                                    </Button>
                             </Box>
                         </Grid>
                     ))
@@ -276,9 +262,25 @@ const Marketplace = () => {
                             </>
                         ) : (
                             'No wines found...'
-                        )}</>
+                        )}
+                    </>
                 )}
             </Grid>
+
+            {/* BuyWineForm Dialog */}
+            {selectedWine && (
+                <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">
+                    <DialogContent>
+                        <BuyWineForm
+                            wine={selectedWine}
+                            wineId={selectedWine.id}
+                            user={user}
+                            token={token}
+                            onClose={handleDialogClose}
+                        />
+                    </DialogContent>
+                </Dialog>
+            )}
         </Container>
     );
 };

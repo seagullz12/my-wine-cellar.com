@@ -44,7 +44,6 @@ const WineDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [tastingStarted, setTastingStarted] = useState(false);
     const [formData, setFormData] = useState({});
     const [successMessage, setSuccessMessage] = useState('');
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -55,19 +54,23 @@ const WineDetail = () => {
     const [open, setOpen] = useState(false);
     const [token, setToken] = useState();
 
+    const [isTastingFormOpen, setIsTastingFormOpen] = useState(false);
     const [isTasting, setIsTasting] = useState(false);
-
-    const handleTastingToggle = () => {
-        setIsTasting(!isTasting);
-    };
-
-    const handleTastingStarted = (updatedWine) => {
-        setWine(updatedWine);
-        setTastingStarted(true);
-    };
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const toggleTastingForm = () => {
+        setIsTastingFormOpen((prev) => !prev);
+    };
+
+    // Function to update the tasting state and wine data
+    const handleIsTasting = () => {
+        setIsTasting(true); // Set isTasting to true, indicating that tasting has started
+        toggleTastingForm(); // Optionally close the form after saving
+        setSuccessMessage('Wine details saved successfully!');
+        setSnackbarOpen(true);
+    };
 
     useEffect(() => {
         const auth = getAuth();
@@ -326,7 +329,7 @@ const WineDetail = () => {
                                                     Edit Wine Details
                                                 </Button>
                                                 <Button
-                                                   variant="contained"
+                                                    variant="contained"
                                                     color="primary"
                                                     onClick={() => handleOpen(wine)}
                                                     sx={{ mt: 0 }}
@@ -334,14 +337,18 @@ const WineDetail = () => {
                                                 >
                                                     Sell This Bottle
                                                 </Button>
-                                                <Button
+                                                {/* <Button
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={handleTastingStarted}
                                                     sx={{ mt: 0 }}
                                                 >
                                                     Start Tasting
+                                                </Button> */}
+                                                <Button variant="contained" color="primary" onClick={toggleTastingForm}>
+                                                    {isTastingFormOpen ? 'Close Tasting Notes' : 'Open tasting Notes'}
                                                 </Button>
+
                                             </CardActions>
                                             <CardActions sx={{ display: 'flex', gap: 1, margin: 0, padding: 1 }}>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
@@ -350,16 +357,14 @@ const WineDetail = () => {
                                     )}
                                 </Box>
                                 <Box>
-
-                                    {isTasting && (
+                                    {isTastingFormOpen && (
                                         <TastingForm
-                                            formData={formData}
-                                            handleChange={handleChange}
-                                            handleSubmit={handleSubmit} // You may want a specific submit handler for the tasting
-                                            handleTastingToggle={handleTastingToggle}
+                                            wineId={wineId}
+                                            wine={wine}
+                                            user={user}
+                                            handleIsTasting={handleIsTasting}
                                         />
-                                    )
-                                    }
+                                    )}
                                 </Box>
                             </Grid>
                         </Grid>
@@ -462,8 +467,8 @@ const WineDetail = () => {
                                             handleEditToggle={handleEditToggle}
                                         />
                                     ) : (
-                                            <Card>
-                                              <CardContent sx={{ p: 2 }}>
+                                        <Card>
+                                            <CardContent sx={{ p: 2 }}>
                                                 <WineData wine={wine} wineDetailPage={true} />
                                             </CardContent>
                                             <CardActions sx={{ display: 'flex', gap: 1, padding: 1 }}>
@@ -476,7 +481,7 @@ const WineDetail = () => {
                                                     Edit Wine Details
                                                 </Button>
                                                 <Button
-                                                   variant="contained"
+                                                    variant="contained"
                                                     color="primary"
                                                     onClick={() => handleOpen(wine)}
                                                     sx={{ mt: 0 }}
@@ -484,13 +489,8 @@ const WineDetail = () => {
                                                 >
                                                     Sell This Bottle
                                                 </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={handleTastingStarted}
-                                                    sx={{ mt: 0 }}
-                                                >
-                                                    Start Tasting
+                                                  <Button variant="contained" color="primary" onClick={toggleTastingForm}>
+                                                    {isTastingFormOpen ? 'Close Tasting Notes' : 'Open tasting Notes'}
                                                 </Button>
                                                 <ShareWineButton wineName={wine.name} wineId={wineId} />
                                             </CardActions>
@@ -500,15 +500,14 @@ const WineDetail = () => {
                             </Grid>
                             <Box>
 
-                                {isTasting && (
+                                {isTastingFormOpen && (
                                     <TastingForm
-                                        formData={formData}
-                                        handleChange={handleChange}
-                                        handleSubmit={handleSubmit} // You may want a specific submit handler for the tasting
-                                        handleTastingToggle={handleTastingToggle}
+                                        wineId={wineId}
+                                        wine={wine}
+                                        user={user}
+                                        handleIsTasting={handleIsTasting} // Pass the function as a prop
                                     />
-                                )
-                                }
+                                )}
                             </Box>
 
                         </Grid>
@@ -529,25 +528,25 @@ const WineDetail = () => {
                     </IconButton>
                 }
             />
-            {/* {wine && (
-            <Box sx={{ alignItems: "center", marginTop: 2, padding: 1 }}>
-                <WineMap region={wine.region} />
-            </Box>
-            )} */}
-            
+            {wine && (
+                <Box sx={{ alignItems: "center", marginTop: 2, padding: 1 }}>
+                    <WineMap region={wine.region} />
+                </Box>
+            )}
+
             {/* Dialog for Sell Form */}
             {selectedWine && (
                 <Dialog open={open} onClose={handleClose}>
                     <DialogTitle>{selectedWine.name}</DialogTitle>
 
                     <DialogContent>
-                    <SellWineForm
-              wineId={wineId}
-              wine={selectedWine}
-              token={token}
-              setWine={setWine}
-              onClose={handleClose} 
-            />
+                        <SellWineForm
+                            wineId={wineId}
+                            wine={selectedWine}
+                            token={token}
+                            setWine={setWine}
+                            onClose={handleClose}
+                        />
                     </DialogContent>
                 </Dialog>
             )}

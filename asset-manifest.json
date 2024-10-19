@@ -1,20 +1,24 @@
 {
   "files": {
-    "main.css": "/static/css/main.3174946a.css",
-    "main.js": "/static/js/main.0ee3e890.js",
-    "static/js/453.d3188f58.chunk.js": "/static/js/453.d3188f58.chunk.js",
-    "static/media/other.webp": "/static/media/other.89648f430f9c04b77c4e.webp",
-    "static/media/manageWineCollection.webp": "/static/media/manageWineCollection.637b5da4da33b41fdeba.webp",
-    "static/media/AddWines.webp": "/static/media/AddWines.5cc6a6cd4e241b4d7f75.webp",
-    "static/media/joinUs.webp": "/static/media/joinUs.801a2bd07f329a31abb1.webp",
-    "static/media/personalSommelier.webp": "/static/media/personalSommelier.261176150172008e0cbe.webp",
+    "main.css": "/static/css/main.613c3833.css",
+    "main.js": "/static/js/main.b614ec68.js",
+    "static/js/453.7fe3221d.chunk.js": "/static/js/453.7fe3221d.chunk.js",
+    "static/media/wine_lover_woman2.jpg": "/static/media/wine_lover_woman2.b58c8dfee9bee19b0b70.jpg",
+    "static/media/hero_banner.jpg": "/static/media/hero_banner.896f6bff860831381c14.jpg",
+    "static/media/wine_lover_man.jpg": "/static/media/wine_lover_man.b03d8a0e85e9f5b09598.jpg",
+    "static/media/wine_lover_man2.jpg": "/static/media/wine_lover_man2.7e781bbe9e45faa29108.jpg",
+    "static/media/add_wine_woman.jpg": "/static/media/add_wine_woman.c3f75ff7dbc85e6bd16a.jpg",
+    "static/media/slick.svg": "/static/media/slick.2630a3e3eab21c607e21.svg",
+    "static/media/slick.eot": "/static/media/slick.a4e97f5a2a64f0ab1323.eot",
+    "static/media/slick.ttf": "/static/media/slick.c94f7671dcc99dce43e2.ttf",
+    "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
     "index.html": "/index.html",
-    "main.3174946a.css.map": "/static/css/main.3174946a.css.map",
-    "main.0ee3e890.js.map": "/static/js/main.0ee3e890.js.map",
-    "453.d3188f58.chunk.js.map": "/static/js/453.d3188f58.chunk.js.map"
+    "main.613c3833.css.map": "/static/css/main.613c3833.css.map",
+    "main.b614ec68.js.map": "/static/js/main.b614ec68.js.map",
+    "453.7fe3221d.chunk.js.map": "/static/js/453.7fe3221d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3174946a.css",
-    "static/js/main.0ee3e890.js"
+    "static/css/main.613c3833.css",
+    "static/js/main.b614ec68.js"
   ]
 }
